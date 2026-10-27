@@ -11,6 +11,7 @@ Every release on GitHub carries these files:
 | `TACP-config.json` | `MediaWiki:Gadget-TACP-config.json`, **only if it does not exist yet** |
 | `Gadgets-definition.txt` | Lines to add to `MediaWiki:Gadgets-definition` |
 | `Gadgets-TACP.json`, `Gadgets-TACP-core.json` | `MediaWiki:Gadgets/TACP.json`, `MediaWiki:Gadgets/TACP-core.json`, for wikis using JSON definitions instead |
+| `deploy.json` | Manifest for Litmus `gadget-deploy`: file to page, `createOnly` for the config |
 | `SHA256SUMS` | Checksums of all of the above |
 
 Each built file starts with a line naming the version and commit, so a wiki's
@@ -46,8 +47,11 @@ MediaWiki namespace).
 
 ## SongNgư.xyz wikis (Litmus)
 
-- A GitHub release webhook notifies Litmus. Litmus verifies the webhook signature
-  before acting.
+- The `litmus` job in `.github/workflows/release.yml` runs after the assets are
+  attached and asks Litmus (`POST /c2c/api/gadget-releases`) for a dry-run
+  `gadget-deploy` job on every wiki that accepts this repo. A person approves the
+  real write on the Litmus dashboard. It needs the repository secrets
+  `LITMUS_CLIENT_ID` and `LITMUS_CLIENT_SECRET` (a Cloudflare Access service token).
 - Releases tagged `vX.Y.Z-rc.N` go to hsckwiki only (and to publictestwiki.com
   once Miraheze grants Litmus's bot interface-admin rights there; until then they
   are copied by hand). Other releases go to every SongNgư.xyz wiki.

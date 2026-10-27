@@ -72,4 +72,12 @@ const jsonDefinition = ( pages, settings, dependencies ) => JSON.stringify( {
 writeFileSync( 'dist/Gadgets-TACP.json', jsonDefinition( [ 'TACP.js', 'TACP-config.json', 'TACP.css' ], { default: true }, deps.TACP ) );
 writeFileSync( 'dist/Gadgets-TACP-core.json', jsonDefinition( [ 'TACP-core.js', 'TACP-core.css' ], { hidden: true }, deps[ 'TACP-core' ] ) );
 
+// Manifest for Litmus gadget-deploy: which file goes to which wiki page
+writeFileSync( 'dist/deploy.json', JSON.stringify( {
+	pages: [ 'TACP.js', 'TACP.css', 'TACP-core.js', 'TACP-core.css' ]
+		.map( ( file ) => ( { file, title: 'MediaWiki:Gadget-' + file } ) )
+		.concat( { file: 'TACP-config.json', title: 'MediaWiki:Gadget-TACP-config.json', createOnly: true } ),
+	definition: { file: 'Gadgets-definition.txt' }
+}, null, '\t' ) + '\n' );
+
 console.log( `Built TACP v${ pkg.version } (${ sha }) into dist/` );

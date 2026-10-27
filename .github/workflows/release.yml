@@ -32,3 +32,45 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.release.tag_name }}
         run: gh release upload "$TAG" dist/* --clobber
+
+  # After the assets are attached, so Litmus never fetches a release without
+  # SHA256SUMS and deploy.json. Creates dry-run gadget-deploy jobs only; a
+  # person still approves the real write on the Litmus dashboard.
+  litmus:
+    needs: assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # No GitHub token needed: this job only calls Litmus.
+    permissions: {}
+    steps:
+      - name: Tạo job chạy thử trên Litmus
+        env:
+          LITMUS_URL: https://litmus.songngu.xyz
+          LITMUS_CLIENT_ID: ${{ secrets.LITMUS_CLIENT_ID }}
+          LITMUS_CLIENT_SECRET: ${{ secrets.LITMUS_CLIENT_SECRET }}
+          # Via env, never interpolated into the script: the tag name is user input.
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          body=$(jq -n --arg repo "$REPO" --arg tag "$TAG" '{repo: $repo, tag: $tag}')
+          # Service token headers go through stdin, not argv. No Origin or
+          # Sec-Fetch-Site: Litmus rejects a service token sent with them.
+          rc=0
+          status=$(
+            printf 'CF-Access-Client-Id: %s\nCF-Access-Client-Secret: %s\n' \
+              "$LITMUS_CLIENT_ID" "$LITMUS_CLIENT_SECRET" |
+            curl -sS --fail-with-body --max-redirs 0 \
+              -o response.json -w '%{http_code}' \
+              -X POST "$LITMUS_URL/c2c/api/gadget-releases" \
+              -H @- \
+              -H 'Content-Type: application/json' \
+              --data "$body"
+          ) || rc=$?
+          jq . response.json 2>/dev/null || cat response.json 2>/dev/null || true
+          # 200 = done (created may be empty). 302 = Access rejected the token,
+          # which curl does not treat as an error. 409 = see `failed` above.
+          if [ "$rc" -ne 0 ] || [ "$status" != 200 ]; then
+            echo "::error::Litmus trả HTTP $status (curl exit $rc)"
+            exit 1
+          fi

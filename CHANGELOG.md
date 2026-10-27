@@ -13,3 +13,4 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 - Modes `/ns`, `/action`, `/user`, `/category`, `/history` and `/help`.
 - Public API (`apiVersion` 1) through the `tacp.register` hook.
 - English and Vietnamese messages.
+- Release workflow: `deploy.json` manifest and a Litmus `gadget-deploy` dry run per release.
