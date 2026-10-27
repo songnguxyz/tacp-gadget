@@ -53,8 +53,9 @@ MediaWiki namespace).
 - The `litmus` job in `.github/workflows/release.yml` runs after the release is
   created and asks Litmus (`POST /c2c/api/gadget-releases`) for a dry-run
   `gadget-deploy` job on every wiki that accepts this repo. A person approves the
-  real write on the Litmus dashboard. It needs the repository secrets
-  `LITMUS_CLIENT_ID` and `LITMUS_CLIENT_SECRET` (a Cloudflare Access service token).
+  real write on the Litmus dashboard. It needs a Cloudflare Access service token:
+  the repository variable (or secret) `LITMUS_CLIENT_ID` and the secret
+  `LITMUS_CLIENT_SECRET`.
 - Releases tagged `vX.Y.Z-rc.N` go to hsckwiki only (and to publictestwiki.com
   once Miraheze grants Litmus's bot interface-admin rights there; until then they
   are copied by hand). Other releases go to every SongNgư.xyz wiki.

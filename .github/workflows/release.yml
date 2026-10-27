@@ -65,13 +65,19 @@ jobs:
       - name: Tạo job chạy thử trên Litmus
         env:
           LITMUS_URL: https://litmus.songngu.xyz
-          LITMUS_CLIENT_ID: ${{ secrets.LITMUS_CLIENT_ID }}
+          # The Client ID is not secret: a repository variable, or a secret
+          LITMUS_CLIENT_ID: ${{ vars.LITMUS_CLIENT_ID || secrets.LITMUS_CLIENT_ID }}
           LITMUS_CLIENT_SECRET: ${{ secrets.LITMUS_CLIENT_SECRET }}
           # Via env, never interpolated into the script: the tag name is user input.
           REPO: ${{ github.repository }}
           TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           set -euo pipefail
+          # Without both, Access answers 302 to its login page, which says nothing
+          if [ -z "$LITMUS_CLIENT_ID" ] || [ -z "$LITMUS_CLIENT_SECRET" ]; then
+            echo "::error::Set the variable LITMUS_CLIENT_ID and the secret LITMUS_CLIENT_SECRET"
+            exit 1
+          fi
           body=$(jq -n --arg repo "$REPO" --arg tag "$TAG" '{repo: $repo, tag: $tag}')
           # Service token headers go through stdin, not argv. No Origin or
           # Sec-Fetch-Site: Litmus rejects a service token sent with them.
