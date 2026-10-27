@@ -35,9 +35,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
-          prerelease=()
-          if [[ "$TAG" == *-* ]]; then prerelease=(--prerelease); fi
-          gh release create "$TAG" dist/* --verify-tag --title "TACP $TAG" --generate-notes "${prerelease[@]}"
+          # A release made in the GitHub UI creates the tag too; then only attach.
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+          else
+            prerelease=()
+            if [[ "$TAG" == *-* ]]; then prerelease=(--prerelease); fi
+            gh release create "$TAG" dist/* --verify-tag --title "TACP $TAG" --generate-notes "${prerelease[@]}"
+          fi
 
   # After the assets are attached, so Litmus never fetches a release without
   # SHA256SUMS and deploy.json. Creates dry-run gadget-deploy jobs only; a
