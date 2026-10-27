@@ -1,0 +1,43 @@
+@import '../styles/tokens.less';
+
+// Only .tacp-* selectors: this file must not affect skin markup even if it
+// loads without its script.
+.tacp-mobile-button {
+	display: none;
+}
+
+@media ( max-width: @max-width-breakpoint-mobile ) {
+	.tacp-mobile-button {
+		position: fixed;
+		bottom: calc( @spacing-100 + env( safe-area-inset-bottom, 0px ) );
+		left: calc( @spacing-100 + env( safe-area-inset-left, 0px ) );
+		z-index: @z-index-fixed;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		width: 44px;
+		height: 44px;
+		padding: 0;
+		border: @border-width-base solid @border-color-subtle;
+		border-radius: @border-radius-pill;
+		background-color: @background-color-base;
+		color: @color-base;
+		box-shadow: @box-shadow-small;
+		cursor: pointer;
+
+		svg {
+			width: @size-icon-medium;
+			height: @size-icon-medium;
+		}
+
+		&:focus {
+			outline: 2px solid @border-color-progressive;
+			outline-offset: 2px;
+		}
+	}
+
+	.tacp-mobile-button--hidden {
+		display: none;
+	}
+}

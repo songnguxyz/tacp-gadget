@@ -1,0 +1,47 @@
+{
+	"root": true,
+	"env": {
+		"jquery": true
+	},
+	"extends": [
+		"wikimedia/client/es2017",
+		"wikimedia/vue3/es2017",
+		"wikimedia/mediawiki"
+	],
+	"parserOptions": {
+		"sourceType": "module"
+	},
+	"rules": {
+		"es-x/no-import-meta": "off",
+		"es-x/no-modules": "off",
+		"no-implicit-globals": "off"
+	},
+	"overrides": [
+		{
+			"files": [ "scripts/**", "vite.config.js" ],
+			"extends": [ "wikimedia/server" ],
+			"parserOptions": { "ecmaVersion": 2022, "sourceType": "module" },
+			"rules": {
+				"n/no-unpublished-import": "off",
+				"es-x/no-import-meta": "off",
+				"es-x/no-modules": "off",
+				"security/detect-non-literal-fs-filename": "off",
+				"es-x/no-object-fromentries": "off",
+				"es-x/no-top-level-await": "off",
+				"no-console": "off"
+			}
+		},
+		{
+			"files": [ "test/**" ],
+			"parserOptions": { "ecmaVersion": 2022 },
+			"globals": { "global": "readonly" },
+			"rules": {
+				"es-x/no-array-prototype-includes": "off",
+				"es-x/no-async-functions": "off",
+				"es-x/no-string-prototype-includes": "off",
+				"max-len": "off",
+				"no-jquery/no-global-selector": "off"
+			}
+		}
+	]
+}

@@ -1,0 +1,276 @@
+@import '../styles/tokens.less';
+
+// Layout only; everything else comes from Codex. All selectors start with
+// .tacp-, so nothing here can restyle the rest of the page.
+
+.tacp-palette.cdx-dialog {
+	align-self: flex-start;
+	width: calc( 100% - 2 * @spacing-100 );
+	max-width: 40rem;
+	max-height: 70vh;
+	margin-top: 12vh;
+
+	.cdx-dialog__header,
+	.cdx-dialog__footer {
+		padding: 0;
+	}
+
+	.cdx-dialog__body {
+		padding: 0 0 @spacing-50;
+	}
+}
+
+.tacp-header {
+	display: flex;
+	align-items: center;
+	gap: @spacing-50;
+	padding: @spacing-75 @spacing-100;
+	border-bottom: @border-width-base solid @border-color-subtle;
+
+	&__icon {
+		flex-shrink: 0;
+		color: @color-subtle;
+	}
+
+	&__close {
+		display: none;
+	}
+}
+
+.tacp-input {
+	flex: 1;
+	min-width: 0;
+	border: 0;
+	padding: 0;
+	background: transparent;
+	color: @color-base;
+	font-family: inherit;
+	font-size: @font-size-large;
+	line-height: 1.5;
+	outline: 0;
+
+	&::placeholder {
+		color: @color-placeholder;
+	}
+}
+
+.tacp-chip {
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+	gap: @spacing-25;
+	padding: 0 @spacing-25 0 @spacing-50;
+	border-radius: @border-radius-pill;
+	background-color: @background-color-interactive;
+	color: @color-base;
+	font-size: @font-size-small;
+	white-space: nowrap;
+
+	&__remove {
+		display: inline-flex;
+		border: 0;
+		border-radius: @border-radius-pill;
+		padding: @spacing-12;
+		background: transparent;
+		color: inherit;
+		cursor: pointer;
+
+		&:hover {
+			background-color: @background-color-interactive-subtle;
+		}
+	}
+}
+
+.tacp-group {
+	padding-top: @spacing-50;
+
+	&__label {
+		padding: @spacing-25 @spacing-100;
+		color: @color-subtle;
+		font-size: @font-size-x-small;
+		font-weight: @font-weight-bold;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+	}
+}
+
+.tacp-item {
+	display: flex;
+	align-items: center;
+	gap: @spacing-75;
+	min-height: @min-size-interactive-pointer;
+	padding: @spacing-50 @spacing-100;
+	color: @color-base;
+	cursor: pointer;
+
+	&--active {
+		background-color: @background-color-progressive-subtle;
+	}
+
+	&__icon {
+		display: flex;
+		flex-shrink: 0;
+		align-items: center;
+		justify-content: center;
+		width: 40px;
+		color: @color-subtle;
+	}
+
+	&__thumbnail {
+		flex-shrink: 0;
+	}
+
+	&__text {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		min-width: 0;
+		line-height: @line-height-small;
+	}
+
+	&__title {
+		display: flex;
+		align-items: baseline;
+		gap: @spacing-50;
+	}
+
+	&__label,
+	&__description,
+	&__redirect {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__label b {
+		font-weight: @font-weight-bold;
+	}
+
+	&__badge {
+		flex-shrink: 0;
+		padding: 0 @spacing-25;
+		border-radius: @border-radius-base;
+		background-color: @background-color-interactive;
+		color: @color-subtle;
+		font-size: @font-size-x-small;
+	}
+
+	&__description,
+	&__redirect {
+		color: @color-subtle;
+		font-size: @font-size-small;
+	}
+
+	&__redirect {
+		font-style: italic;
+	}
+
+	&__actions {
+		display: flex;
+		flex-shrink: 0;
+		gap: @spacing-25;
+		visibility: hidden;
+	}
+
+	&--active &__actions,
+	&:hover &__actions {
+		visibility: visible;
+	}
+
+	&__action {
+		display: flex;
+		padding: @spacing-25;
+		border-radius: @border-radius-base;
+		color: @color-subtle;
+
+		&:hover,
+		&--active {
+			background-color: @background-color-interactive;
+			color: @color-progressive;
+		}
+
+		&--active {
+			outline: 2px solid @border-color-progressive;
+		}
+	}
+}
+
+@media ( hover: none ) {
+	.tacp-item__actions {
+		visibility: visible;
+	}
+}
+
+.tacp-state {
+	padding: @spacing-100;
+	color: @color-subtle;
+	text-align: center;
+
+	&__icon {
+		color: @color-placeholder;
+	}
+
+	&__title {
+		margin: @spacing-50 0 0;
+		color: @color-base;
+		font-weight: @font-weight-bold;
+	}
+
+	&__description {
+		margin: @spacing-25 0 0;
+		font-size: @font-size-small;
+	}
+}
+
+.tacp-footer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: @spacing-75;
+	padding: @spacing-50 @spacing-100;
+	border-top: @border-width-base solid @border-color-subtle;
+	color: @color-subtle;
+	font-size: @font-size-x-small;
+
+	kbd {
+		display: inline-block;
+		min-width: 1.4em;
+		margin-right: @spacing-12;
+		padding: 0 @spacing-25;
+		border: @border-width-base solid @border-color-subtle;
+		border-radius: @border-radius-base;
+		background-color: @background-color-interactive-subtle;
+		font-family: inherit;
+		text-align: center;
+	}
+}
+
+// Narrow viewports: full-screen sheet, visible close button, no key hints
+@media ( max-width: @max-width-breakpoint-mobile ) {
+	.tacp-palette.cdx-dialog {
+		width: 100%;
+		max-width: none;
+		height: 100%;
+		max-height: none;
+		margin-top: 0;
+		border: 0;
+		border-radius: 0;
+	}
+
+	.tacp-header {
+		padding-top: calc( @spacing-75 + env( safe-area-inset-top, 0px ) );
+
+		&__close {
+			display: inline-flex;
+		}
+	}
+
+	.tacp-footer {
+		display: none;
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.cdx-dialog-fade-leave-active:has( > .tacp-palette ) {
+		transition: none;
+	}
+}
