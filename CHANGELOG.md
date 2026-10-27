@@ -5,6 +5,14 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+## 0.1.0-rc.2 — 2026-10-27
+
+Same gadget code as 0.1.0-rc.1, which never reached Litmus.
+
+### Changed
+- Release workflow reads `LITMUS_CLIENT_ID` from a repository variable and fails
+  with a clear message when the Access token is missing.
+
 ## 0.1.0-rc.1 — 2026-10-27
 
 First release candidate. The gadget is opt-in (no `default` flag) while it is
