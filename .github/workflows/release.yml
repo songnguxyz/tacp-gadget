@@ -1,0 +1,95 @@
+name: Release
+
+# Pushing a tag vX.Y.Z (or vX.Y.Z-rc.N), or running this workflow by hand with
+# that tag, builds, creates the GitHub release (pre-release when the tag has a
+# suffix), attaches the files, then asks Litmus for dry-run deploys.
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to create on the chosen branch, e.g. v0.1.0-rc.1 (must match package.json)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Tag matches package.json
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: test "$TAG" = "v$(node -p 'require("./package.json").version')"
+      - run: npm run build
+      - run: npm run size
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum * > SHA256SUMS
+      - name: Create the release with the files
+        env:
+          EVENT: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          # A release made in the GitHub UI creates the tag too; then only attach.
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+          else
+            flags=(--verify-tag)
+            # Run by hand: the tag does not exist yet, create it on this commit
+            if [ "$EVENT" = workflow_dispatch ]; then flags=(--target "$GITHUB_SHA"); fi
+            if [[ "$TAG" == *-* ]]; then flags+=(--prerelease); fi
+            gh release create "$TAG" dist/* --title "TACP $TAG" --generate-notes "${flags[@]}"
+          fi
+
+  # After the assets are attached, so Litmus never fetches a release without
+  # SHA256SUMS and deploy.json. Creates dry-run gadget-deploy jobs only; a
+  # person still approves the real write on the Litmus dashboard.
+  litmus:
+    needs: assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # No GitHub token needed: this job only calls Litmus.
+    permissions: {}
+    steps:
+      - name: Tạo job chạy thử trên Litmus
+        env:
+          LITMUS_URL: https://litmus.songngu.xyz
+          LITMUS_CLIENT_ID: ${{ secrets.LITMUS_CLIENT_ID }}
+          LITMUS_CLIENT_SECRET: ${{ secrets.LITMUS_CLIENT_SECRET }}
+          # Via env, never interpolated into the script: the tag name is user input.
+          REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          body=$(jq -n --arg repo "$REPO" --arg tag "$TAG" '{repo: $repo, tag: $tag}')
+          # Service token headers go through stdin, not argv. No Origin or
+          # Sec-Fetch-Site: Litmus rejects a service token sent with them.
+          rc=0
+          status=$(
+            printf 'CF-Access-Client-Id: %s\nCF-Access-Client-Secret: %s\n' \
+              "$LITMUS_CLIENT_ID" "$LITMUS_CLIENT_SECRET" |
+            curl -sS --fail-with-body --max-redirs 0 \
+              -o response.json -w '%{http_code}' \
+              -X POST "$LITMUS_URL/c2c/api/gadget-releases" \
+              -H @- \
+              -H 'Content-Type: application/json' \
+              --data "$body"
+          ) || rc=$?
+          jq . response.json 2>/dev/null || cat response.json 2>/dev/null || true
+          # 200 = done (created may be empty). 302 = Access rejected the token,
+          # which curl does not treat as an error. 409 = see `failed` above.
+          if [ "$rc" -ne 0 ] || [ "$status" != 200 ]; then
+            echo "::error::Litmus trả HTTP $status (curl exit $rc)"
+            exit 1
+          fi

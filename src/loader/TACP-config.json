@@ -1,0 +1,8 @@
+{
+	"prefetch": false,
+	"slashShortcut": true,
+	"mobileButton": true,
+	"disabledModes": [],
+	"cargoLimit": 50,
+	"messages": {}
+}

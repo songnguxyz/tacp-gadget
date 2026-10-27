@@ -1,0 +1,4 @@
+{
+	"extends": [ "stylelint-config-wikimedia/support-modern" ],
+	"customSyntax": "postcss-less"
+}
