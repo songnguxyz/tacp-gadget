@@ -19,6 +19,9 @@ for ( const lang of [ 'en', 'vi' ] ) {
 	);
 }
 
+// Opt-in while release candidates are tested on hsckwiki; true from 1.0 (spec §4.2)
+const DEFAULT_ON = false;
+
 const deps = {
 	TACP: [ 'mediawiki.util' ],
 	'TACP-core': [
@@ -60,7 +63,7 @@ copyFileSync( 'src/loader/TACP-config.json', 'dist/TACP-config.json' );
 
 // Legacy MediaWiki:Gadgets-definition lines
 writeFileSync( 'dist/Gadgets-definition.txt', [
-	`* TACP[ResourceLoader|default|package|requiresES6|dependencies=${ deps.TACP }]|TACP.js|TACP-config.json|TACP.css`,
+	`* TACP[ResourceLoader|${ DEFAULT_ON ? 'default|' : '' }package|requiresES6|dependencies=${ deps.TACP }]|TACP.js|TACP-config.json|TACP.css`,
 	`* TACP-core[ResourceLoader|hidden|package|requiresES6|dependencies=${ deps[ 'TACP-core' ] }]|TACP-core.js|TACP-core.css`
 ].join( '\n' ) + '\n' );
 
@@ -69,7 +72,7 @@ const jsonDefinition = ( pages, settings, dependencies ) => JSON.stringify( {
 	settings: Object.assign( { rights: [], default: false, hidden: false, package: true, requiresES6: true, category: '' }, settings ),
 	module: { pages, dependencies, peers: [], messages: [], type: 'general' }
 }, null, '\t' ) + '\n';
-writeFileSync( 'dist/Gadgets-TACP.json', jsonDefinition( [ 'TACP.js', 'TACP-config.json', 'TACP.css' ], { default: true }, deps.TACP ) );
+writeFileSync( 'dist/Gadgets-TACP.json', jsonDefinition( [ 'TACP.js', 'TACP-config.json', 'TACP.css' ], { default: DEFAULT_ON }, deps.TACP ) );
 writeFileSync( 'dist/Gadgets-TACP-core.json', jsonDefinition( [ 'TACP-core.js', 'TACP-core.css' ], { hidden: true }, deps[ 'TACP-core' ] ) );
 
 // Manifest for Litmus gadget-deploy: which file goes to which wiki page

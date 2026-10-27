@@ -9,8 +9,8 @@ namespaces, users, categories and page history.
 - Supports every MediaWiki release mediawiki.org lists as supported
   (currently 1.43 LTS, 1.45 and 1.46).
 - Built from Codex, so it looks native to the skin, night mode included.
-- On by default for everyone; users can turn it off in
-  *Special:Preferences → Gadgets*.
+- On by default for everyone from 1.0; users can turn it off in
+  *Special:Preferences → Gadgets*. Release candidates are opt-in.
 - The palette loads only when opened; the always-loaded part is about 3 KB gzipped.
 
 ## Using it

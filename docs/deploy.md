@@ -1,6 +1,8 @@
 # Deploying TACP
 
-Every release on GitHub carries these files:
+A release is made by pushing a tag `vX.Y.Z` (or `vX.Y.Z-rc.N`) that matches
+`package.json`. The release workflow builds, creates the GitHub release
+(pre-release for `-rc`) and attaches these files:
 
 | File | Wiki page |
 |---|---|
@@ -47,8 +49,8 @@ MediaWiki namespace).
 
 ## SongNgư.xyz wikis (Litmus)
 
-- The `litmus` job in `.github/workflows/release.yml` runs after the assets are
-  attached and asks Litmus (`POST /c2c/api/gadget-releases`) for a dry-run
+- The `litmus` job in `.github/workflows/release.yml` runs after the release is
+  created and asks Litmus (`POST /c2c/api/gadget-releases`) for a dry-run
   `gadget-deploy` job on every wiki that accepts this repo. A person approves the
   real write on the Litmus dashboard. It needs the repository secrets
   `LITMUS_CLIENT_ID` and `LITMUS_CLIENT_SECRET` (a Cloudflare Access service token).

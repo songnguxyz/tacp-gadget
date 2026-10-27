@@ -5,6 +5,11 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+## 0.1.0-rc.1 — 2026-10-27
+
+First release candidate. The gadget is opt-in (no `default` flag) while it is
+tested on hsckwiki.
+
 ### Added
 - Loader gadget `TACP`: Ctrl/Cmd+K and `/` shortcuts, mobile button on narrow
   viewports, optional idle prefetch, site configuration page.
