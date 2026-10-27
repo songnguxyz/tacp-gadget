@@ -1,7 +1,8 @@
 # Deploying TACP
 
 A release is made by pushing a tag `vX.Y.Z` (or `vX.Y.Z-rc.N`) that matches
-`package.json`. The release workflow builds, creates the GitHub release
+`package.json`, or by running the Release workflow by hand with that tag (it then
+creates the tag on the chosen branch). The workflow builds, creates the GitHub release
 (pre-release for `-rc`) and attaches these files:
 
 | File | Wiki page |

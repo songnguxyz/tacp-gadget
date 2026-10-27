@@ -1,11 +1,16 @@
 name: Release
 
-# Pushing a tag vX.Y.Z (or vX.Y.Z-rc.N) builds, creates the GitHub release
-# (pre-release when the tag has a suffix), attaches the files, then asks Litmus
-# for dry-run deploys.
+# Pushing a tag vX.Y.Z (or vX.Y.Z-rc.N), or running this workflow by hand with
+# that tag, builds, creates the GitHub release (pre-release when the tag has a
+# suffix), attaches the files, then asks Litmus for dry-run deploys.
 on:
   push:
     tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to create on the chosen branch, e.g. v0.1.0-rc.1 (must match package.json)
+        required: true
 
 permissions:
   contents: write
@@ -23,7 +28,7 @@ jobs:
       - run: npm test
       - name: Tag matches package.json
         env:
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: test "$TAG" = "v$(node -p 'require("./package.json").version')"
       - run: npm run build
       - run: npm run size
@@ -32,16 +37,19 @@ jobs:
         run: sha256sum * > SHA256SUMS
       - name: Create the release with the files
         env:
+          EVENT: ${{ github.event_name }}
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           # A release made in the GitHub UI creates the tag too; then only attach.
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release upload "$TAG" dist/* --clobber
           else
-            prerelease=()
-            if [[ "$TAG" == *-* ]]; then prerelease=(--prerelease); fi
-            gh release create "$TAG" dist/* --verify-tag --title "TACP $TAG" --generate-notes "${prerelease[@]}"
+            flags=(--verify-tag)
+            # Run by hand: the tag does not exist yet, create it on this commit
+            if [ "$EVENT" = workflow_dispatch ]; then flags=(--target "$GITHUB_SHA"); fi
+            if [[ "$TAG" == *-* ]]; then flags+=(--prerelease); fi
+            gh release create "$TAG" dist/* --title "TACP $TAG" --generate-notes "${flags[@]}"
           fi
 
   # After the assets are attached, so Litmus never fetches a release without
@@ -61,7 +69,7 @@ jobs:
           LITMUS_CLIENT_SECRET: ${{ secrets.LITMUS_CLIENT_SECRET }}
           # Via env, never interpolated into the script: the tag name is user input.
           REPO: ${{ github.repository }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           set -euo pipefail
           body=$(jq -n --arg repo "$REPO" --arg tag "$TAG" '{repo: $repo, tag: $tag}')
