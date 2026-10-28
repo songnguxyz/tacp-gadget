@@ -37,3 +37,32 @@ export function searchTitles( query, signal ) {
 	} );
 	return run.then( ( items ) => items.filter( Boolean ) );
 }
+
+function plainText( html ) {
+	// DOMParser documents are inert: no scripts run, no images load
+	return new DOMParser().parseFromString( html, 'text/html' ).body.textContent;
+}
+
+/**
+ * Full-text search through CirrusSearch: matching pages with a snippet, and
+ * its "did you mean" suggestion.
+ *
+ * @param {string} query
+ * @param {AbortSignal} signal
+ * @return {Promise<{items: Object[], suggestion: string}>}
+ */
+export function searchText( query, signal ) {
+	return apiGet( {
+		action: 'query',
+		list: 'search',
+		srsearch: query,
+		srlimit: 5,
+		srprop: 'snippet',
+		srinfo: 'suggestion'
+	}, signal ).then( ( data ) => ( {
+		items: data.query.search
+			.map( ( page ) => pageItem( page.title, { description: plainText( page.snippet || '' ) } ) )
+			.filter( Boolean ),
+		suggestion: ( data.query.searchinfo && data.query.searchinfo.suggestion ) || ''
+	} ) );
+}

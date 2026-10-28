@@ -35,3 +35,23 @@ export function shortcutFor( e, slashEnabled ) {
 	}
 	return null;
 }
+
+// The skin's search box, and buttons that open a skin's own search UI
+// (Minerva's header icon, Vector 2022's collapsed search toggle)
+const SEARCH_INPUT = '#searchInput';
+const SEARCH_TRIGGER = '#searchInput, #searchIcon, .search-toggle';
+
+/**
+ * With searchTakeover on, which skin search element this event should open
+ * TACP for, if any.
+ *
+ * @param {Event} e A captured focus, mousedown or click event
+ * @return {Element|null}
+ */
+export function takeoverTarget( e ) {
+	const el = e.target;
+	if ( !el || el.nodeType !== 1 ) {
+		return null;
+	}
+	return e.type === 'focus' ? ( el.matches( SEARCH_INPUT ) ? el : null ) : el.closest( SEARCH_TRIGGER );
+}

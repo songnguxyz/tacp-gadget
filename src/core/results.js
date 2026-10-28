@@ -3,11 +3,14 @@ import { msg, text, matches } from './text.js';
 import { pageItem, safeUrl } from './items.js';
 import { isAbort } from './services/api.js';
 import { getRecent } from './services/recent.js';
-import { searchTitles } from './providers/search.js';
+import { searchTitles, searchText } from './providers/search.js';
+import { getSiteInfo } from './services/siteinfo.js';
 import { getRelated } from './providers/related.js';
 import { SUGGESTED } from './providers/commands.js';
 
 const RECENT_SHOWN = 5;
+// Full-text search is heavier than title search; skip it for very short input
+const FULLTEXT_MIN = 3;
 let rightsPromise = null;
 
 function userCanEdit() {
@@ -126,6 +129,7 @@ export function normalizeGroups( groups, prefix ) {
 			url: safeUrl( it.url ),
 			run: typeof it.run === 'function' ? it.run : null,
 			mode: it.mode && typeof it.mode.getResults === 'function' ? it.mode : null,
+			query: typeof it.query === 'string' ? it.query : null,
 			actions: ( Array.isArray( it.actions ) ? it.actions : [] ).filter( Boolean ).map( ( a, ai ) => ( {
 				id: str( a.id || ai ),
 				label: str( a.label ),
@@ -137,9 +141,54 @@ export function normalizeGroups( groups, prefix ) {
 	} ) ).filter( ( g ) => g.items.length );
 }
 
-function queryActions( query, canEdit ) {
+/**
+ * Like the skin's search box, Enter should go to the page whose title is
+ * exactly what was typed: move that result (or the redirect to it) first.
+ *
+ * @param {Object[]} items Page items
+ * @param {string} query
+ * @return {Object[]}
+ */
+export function exactFirst( items, query ) {
+	const t = mw.Title.newFromText( query.trim() );
+	const target = t && t.getPrefixedText();
+	const same = ( title ) => {
+		const other = title && mw.Title.newFromText( title );
+		return !!other && other.getPrefixedText() === target;
+	};
+	const i = target ? items.findIndex( ( it ) => same( it.title ) || same( it.redirectFrom ) ) : -1;
+	return i > 0 ? [ items[ i ] ].concat( items.slice( 0, i ), items.slice( i + 1 ) ) : items;
+}
+
+/**
+ * CirrusSearch full text, only when the wiki has it and the input is long enough.
+ *
+ * @param {string} query
+ * @param {AbortSignal} signal
+ * @return {Promise<{items: Object[], suggestion: string}>}
+ */
+function fullText( query, signal ) {
+	const none = { items: [], suggestion: '' };
+	if ( query.length < FULLTEXT_MIN ) {
+		return Promise.resolve( none );
+	}
+	return getSiteInfo()
+		.then( ( info ) => ( info.extensions.includes( 'CirrusSearch' ) ? searchText( query, signal ) : none ) )
+		.catch( ( err ) => {
+			if ( isAbort( err ) ) {
+				throw err;
+			}
+			mw.log.warn( 'TACP:', err );
+			return none;
+		} );
+}
+
+function queryActions( query, canEdit, suggestion ) {
 	const t = mw.Title.newFromText( query.trim() );
 	const items = [];
+	if ( suggestion ) {
+		items.push( { id: 'suggestion', label: msg( 'tacp-query-suggestion', suggestion ), icon: icons.search, query: suggestion } );
+	}
 	if ( t ) {
 		items.push( { id: 'go', label: msg( 'tacp-query-go', t.getPrefixedText() ), icon: icons.next, url: t.getUrl(), title: t.getPrefixedText() } );
 	}
@@ -189,13 +238,19 @@ export function getGroups( { query, mode, context, registry }, signal ) {
 				.map( ( c ) => commandItem( c, context ) ) )
 		] );
 	} else {
-		pending = Promise.all( [ soft( searchTitles( query.trim(), signal ) ), userCanEdit() ] ).then( ( [ results, canEdit ] ) => [
-			group( 'results', results ),
-			group( 'commands', commands
-				.filter( ( c ) => matches( text( c.label ), query ) )
-				.map( ( c ) => commandItem( c, context ) ) ),
-			group( 'query', queryActions( query, canEdit ) )
-		] );
+		const q = query.trim();
+		pending = Promise.all( [ soft( searchTitles( q, signal ) ), userCanEdit(), fullText( q, signal ) ] )
+			.then( ( [ results, canEdit, full ] ) => {
+				const seen = new Set( results.map( ( it ) => it.title ) );
+				return [
+					group( 'results', exactFirst( results, q ) ),
+					group( 'fulltext', full.items.filter( ( it ) => !seen.has( it.title ) ) ),
+					group( 'commands', commands
+						.filter( ( c ) => matches( text( c.label ), query ) )
+						.map( ( c ) => commandItem( c, context ) ) ),
+					group( 'query', queryActions( query, canEdit, full.suggestion ) )
+				];
+			} );
 	}
 	return pending.then( ( list ) => normalizeGroups( list, 'tacp' ) );
 }

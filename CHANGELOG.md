@@ -5,6 +5,16 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+### Added
+- Search takeover (`searchTakeover`, off by default): the skin's search box, and
+  Minerva's or Vector 2022's search buttons, open the palette instead.
+- CirrusSearch: "In page text" full-text results with snippets, and its
+  "Did you mean" suggestion, while typing.
+
+### Changed
+- A result whose title (or a redirect to it) matches the query exactly comes
+  first, so Enter goes there like the skin search box does.
+
 ### Fixed
 - Mobile button icon is now a magnifier with a sparkle; the old top hat read as
   a knob. Its tooltip shows the keyboard shortcut and it sets `aria-keyshortcuts`.
