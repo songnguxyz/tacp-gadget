@@ -5,6 +5,8 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+## 0.1.0-rc.3 — 2026-10-28
+
 ### Added
 - Search takeover (`searchTakeover`, off by default): the skin's search box, and
   Minerva's or Vector 2022's search buttons, open the palette instead.
