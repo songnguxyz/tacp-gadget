@@ -4,9 +4,9 @@ import { loadMessages } from '../shared/messages.js';
 import { shortcutFor } from './shortcuts.js';
 import './TACP.less';
 
-// Original top-hat icon drawn for TACP: crown, band gap, brim
+// Original top-hat icon drawn for TACP: tall crown, band gap, upturned brim
 const HAT_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true">' +
-	'<path fill="currentColor" d="M5 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v6H5zm0 8h10v2H5zm-4 3.5A1.5 1.5 0 0 1 2.5 13h15a1.5 1.5 0 0 1 0 3h-15A1.5 1.5 0 0 1 1 14.5z"/>' +
+	'<path fill="currentColor" d="M5.5 2a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v8h-9zm0 9.5h9v4.2h-9zM.5 14.6c0-.9.8-1.2 1.6-.8C4.2 14.8 6.9 15.3 10 15.3s5.8-.5 7.9-1.5c.8-.4 1.6-.1 1.6.8 0 1.8-4.2 3.4-9.5 3.4S.5 16.4.5 14.6z"/>' +
 	'</svg>';
 
 export const config = normalizeConfig( rawConfig );
