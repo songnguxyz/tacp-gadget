@@ -5,6 +5,11 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+### Changed
+- Search takeover also catches Vector 2022's sticky header search box and
+  Minerva's search triggers by class. When it is on and the skin has its own
+  phone search button, TACP's floating button is not added.
+
 ## 0.1.0-rc.3 — 2026-10-28
 
 ### Added

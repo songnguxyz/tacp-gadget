@@ -1,7 +1,7 @@
 import rawConfig from './TACP-config.json';
 import { normalizeConfig } from '../shared/config.js';
 import { loadMessages } from '../shared/messages.js';
-import { shortcutFor, takeoverTarget } from './shortcuts.js';
+import { shortcutFor, takeoverTarget, SKIN_SEARCH_BUTTON } from './shortcuts.js';
 import { cdxIconSearch } from '@wikimedia/codex-icons';
 import './TACP.less';
 
@@ -96,6 +96,10 @@ if ( enabled ) {
 
 	if ( config.mobileButton ) {
 		$( () => {
+			// With takeover, the skin's own phone search button already opens TACP
+			if ( config.searchTakeover && document.querySelector( SKIN_SEARCH_BUTTON ) ) {
+				return;
+			}
 			button = document.createElement( 'button' );
 			button.type = 'button';
 			button.className = 'tacp-mobile-button';

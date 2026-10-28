@@ -106,7 +106,9 @@ describe( 'search takeover', () => {
 	it( 'targets the skin search box and search buttons only', () => {
 		document.body.innerHTML = '<form><input id="searchInput"><input id="other"></form>' +
 			'<a id="searchIcon" href="/wiki/Special:Search"><span class="icon"></span></a>' +
-			'<a class="search-toggle" href="#">Search</a>';
+			'<a class="search-toggle" href="#">Search</a>' +
+			'<div class="vector-search-box"><input type="search" name="search"></div>' +
+			'<form id="search"><input id="searchText" name="search"></form>';
 		const box = document.getElementById( 'searchInput' );
 		const icon = document.getElementById( 'searchIcon' );
 		const ev = ( type, target ) => ( { type, target } );
@@ -118,5 +120,9 @@ describe( 'search takeover', () => {
 		expect( takeoverTarget( ev( 'focus', icon ) ) ).toBe( null );
 		expect( takeoverTarget( ev( 'focus', document.getElementById( 'other' ) ) ) ).toBe( null );
 		expect( takeoverTarget( ev( 'click', document ) ) ).toBe( null );
+		// Vector 2022's sticky header box, but never Special:Search's own form
+		const sticky = document.querySelector( '.vector-search-box input' );
+		expect( takeoverTarget( ev( 'focus', sticky ) ) ).toBe( sticky );
+		expect( takeoverTarget( ev( 'focus', document.getElementById( 'searchText' ) ) ) ).toBe( null );
 	} );
 } );

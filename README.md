@@ -38,7 +38,7 @@ See [docs/deploy.md](docs/deploy.md). Site settings live in
 |---|---|---|
 | `prefetch` | `false` | Load the palette during idle time on every page |
 | `slashShortcut` | `true` | Whether `/` opens the palette |
-| `mobileButton` | `true` | Whether the button is shown on narrow screens |
+| `mobileButton` | `true` | Whether the button is shown on narrow screens (not added when `searchTakeover` is on and the skin has its own phone search button) |
 | `searchTakeover` | `false` | The skin's search box opens TACP instead of its own dropdown |
 | `disabledModes` | `[]` | Mode ids to hide, e.g. `[ "tacp-user" ]` |
 | `cargoLimit` | `50` | Row limit for Cargo queries (from v3) |

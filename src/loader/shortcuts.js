@@ -36,10 +36,12 @@ export function shortcutFor( e, slashEnabled ) {
 	return null;
 }
 
-// The skin's search box, and buttons that open a skin's own search UI
-// (Minerva's header icon, Vector 2022's collapsed search toggle)
-const SEARCH_INPUT = '#searchInput';
-const SEARCH_TRIGGER = '#searchInput, #searchIcon, .search-toggle';
+// The skin's search boxes (Vector 2022's sticky header box has no id), and
+// buttons that open a skin's own search UI on phones: Minerva's header icon,
+// Vector 2022's collapsed search toggle
+const SEARCH_INPUT = '#searchInput, .vector-search-box input[name="search"]';
+export const SKIN_SEARCH_BUTTON = '#searchIcon, .skin-minerva-search-trigger, .search-toggle';
+const SEARCH_TRIGGER = SEARCH_INPUT + ', ' + SKIN_SEARCH_BUTTON;
 
 /**
  * With searchTakeover on, which skin search element this event should open
