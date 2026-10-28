@@ -4,7 +4,7 @@ TACP bundles the following third-party code in its built files.
 
 ## Codex icons
 
-Package: `@wikimedia/codex-icons` 1.14.0 (only the icon paths TACP uses, in `TACP-core.js`)
+Package: `@wikimedia/codex-icons` 1.14.0 (only the icon paths TACP uses, in `TACP-core.js`, plus the search icon in `TACP.js`)
 
 ```
 MIT License

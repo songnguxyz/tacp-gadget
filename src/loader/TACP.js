@@ -2,11 +2,13 @@ import rawConfig from './TACP-config.json';
 import { normalizeConfig } from '../shared/config.js';
 import { loadMessages } from '../shared/messages.js';
 import { shortcutFor } from './shortcuts.js';
+import { cdxIconSearch } from '@wikimedia/codex-icons';
 import './TACP.less';
 
-// Original top-hat icon drawn for TACP: tall crown, band gap, upturned brim
-const HAT_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true">' +
-	'<path fill="currentColor" d="M5.5 2a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v8h-9zm0 9.5h9v4.2h-9zM.5 14.6c0-.9.8-1.2 1.6-.8C4.2 14.8 6.9 15.3 10 15.3s5.8-.5 7.9-1.5c.8-.4 1.6-.1 1.6.8 0 1.8-4.2 3.4-9.5 3.4S.5 16.4.5 14.6z"/>' +
+// Codex search icon (MIT), shrunk to make room for a four-point sparkle
+const BUTTON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">' +
+	'<g transform="translate(0 2) scale(.9)">' + cdxIconSearch + '</g>' +
+	'<path d="M16.6.2l.84 2.16L19.6 3.2l-2.16.84L16.6 6.2l-.84-2.16L13.6 3.2l2.16-.84z"/>' +
 	'</svg>';
 
 export const config = normalizeConfig( rawConfig );
@@ -97,9 +99,11 @@ if ( enabled ) {
 			button = document.createElement( 'button' );
 			button.type = 'button';
 			button.className = 'tacp-mobile-button';
-			button.title = mw.msg( 'tacp-loader-button' );
-			button.setAttribute( 'aria-label', button.title );
-			button.innerHTML = HAT_SVG;
+			const mac = /Mac|iPhone|iPad/.test( navigator.platform );
+			button.title = mw.msg( 'tacp-loader-button-title', mac ? '⌘K' : 'Ctrl+K' );
+			button.setAttribute( 'aria-label', mw.msg( 'tacp-loader-button' ) );
+			button.setAttribute( 'aria-keyshortcuts', 'Control+K Meta+K' + ( config.slashShortcut ? ' /' : '' ) );
+			button.innerHTML = BUTTON_SVG;
 			button.addEventListener( 'click', () => open().catch( noop ) );
 			document.body.appendChild( button );
 		} );
