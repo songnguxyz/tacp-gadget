@@ -3,6 +3,7 @@
 		"authors": [ "Vũ Minh Nguyên" ]
 	},
 	"tacp-loader-button": "Open command palette",
+	"tacp-loader-button-title": "Open command palette ($1)",
 	"tacp-loader-error": "The command palette could not be loaded. Please try again.",
 	"tacp-dialog-title": "Command palette",
 	"tacp-placeholder": "Search pages, or type / for modes",

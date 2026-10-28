@@ -3,6 +3,7 @@
 		"authors": [ "Vũ Minh Nguyên" ]
 	},
 	"tacp-loader-button": "Mở bảng lệnh",
+	"tacp-loader-button-title": "Mở bảng lệnh ($1)",
 	"tacp-loader-error": "Không tải được bảng lệnh. Vui lòng thử lại.",
 	"tacp-dialog-title": "Bảng lệnh",
 	"tacp-placeholder": "Tìm trang, gõ / để xem chế độ",

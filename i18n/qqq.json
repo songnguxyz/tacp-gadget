@@ -4,7 +4,8 @@
 			"Vũ Minh Nguyên"
 		]
 	},
-	"tacp-loader-button": "Accessible label and tooltip of the floating button that opens the palette on narrow screens.",
+	"tacp-loader-button": "Accessible label of the floating button that opens the palette on narrow screens.",
+	"tacp-loader-button-title": "Tooltip of the floating button that opens the palette on narrow screens.\n\nParameters:\n* $1 - the keyboard shortcut, \"Ctrl+K\" or \"⌘K\" on Apple devices",
 	"tacp-loader-error": "Error notification when the palette code fails to load.",
 	"tacp-dialog-title": "Accessible name of the palette dialog, input and results list.",
 	"tacp-placeholder": "Placeholder of the palette input when no mode is active. \"/\" is typed literally to list modes.",

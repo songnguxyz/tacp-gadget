@@ -5,6 +5,10 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+### Fixed
+- Mobile button icon is now a magnifier with a sparkle; the old top hat read as
+  a knob. Its tooltip shows the keyboard shortcut and it sets `aria-keyshortcuts`.
+
 ## 0.1.0-rc.2 — 2026-10-27
 
 Same gadget code as 0.1.0-rc.1, which never reached Litmus.
