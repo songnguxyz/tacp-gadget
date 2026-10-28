@@ -5,6 +5,7 @@ const SETTINGS = {
 	prefetch: [ false, isBool ],
 	slashShortcut: [ true, isBool ],
 	mobileButton: [ true, isBool ],
+	searchTakeover: [ false, isBool ],
 	disabledModes: [ [], ( v ) => Array.isArray( v ) && v.every( ( s ) => typeof s === 'string' ) ],
 	cargoLimit: [ 50, ( v ) => Number.isInteger( v ) && v > 0 ],
 	messages: [ {}, isObject ]

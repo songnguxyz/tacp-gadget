@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { parseTrigger } from '../src/core/input.js';
 import { highlight, matches, text } from '../src/core/text.js';
-import { shortcutFor, isEditable } from '../src/loader/shortcuts.js';
+import { shortcutFor, isEditable, takeoverTarget } from '../src/loader/shortcuts.js';
 import { normalizeConfig } from '../src/shared/config.js';
 import { loadMessages } from '../src/shared/messages.js';
 
@@ -99,5 +99,24 @@ describe( 'config and messages', () => {
 		expect( mw.messages.get( 'tacp-a' ) ).toBe( 'Á' );
 		expect( mw.messages.get( 'tacp-b' ) ).toBe( 'B!' );
 		expect( mw.messages.get( 'edit' ) ).toBeUndefined();
+	} );
+} );
+
+describe( 'search takeover', () => {
+	it( 'targets the skin search box and search buttons only', () => {
+		document.body.innerHTML = '<form><input id="searchInput"><input id="other"></form>' +
+			'<a id="searchIcon" href="/wiki/Special:Search"><span class="icon"></span></a>' +
+			'<a class="search-toggle" href="#">Search</a>';
+		const box = document.getElementById( 'searchInput' );
+		const icon = document.getElementById( 'searchIcon' );
+		const ev = ( type, target ) => ( { type, target } );
+		expect( takeoverTarget( ev( 'focus', box ) ) ).toBe( box );
+		expect( takeoverTarget( ev( 'mousedown', box ) ) ).toBe( box );
+		expect( takeoverTarget( ev( 'click', icon.firstChild ) ) ).toBe( icon );
+		expect( takeoverTarget( ev( 'click', document.querySelector( '.search-toggle' ) ) ) ).not.toBe( null );
+		// Focus on a button is not a reason to open; only the box is
+		expect( takeoverTarget( ev( 'focus', icon ) ) ).toBe( null );
+		expect( takeoverTarget( ev( 'focus', document.getElementById( 'other' ) ) ) ).toBe( null );
+		expect( takeoverTarget( ev( 'click', document ) ) ).toBe( null );
 	} );
 } );

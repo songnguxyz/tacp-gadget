@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { mockFetch, siteinfo } from './setup.js';
 import { searchTitles } from '../src/core/providers/search.js';
 import { getRelated } from '../src/core/providers/related.js';
-import { getGroups, normalizeGroups } from '../src/core/results.js';
+import { getGroups, normalizeGroups, exactFirst } from '../src/core/results.js';
 import { createRegistry, defineMode } from '../src/core/services/registry.js';
 import { builtinCommands } from '../src/core/providers/commands.js';
 import { addRecent, getRecent, clearRecent } from '../src/core/services/recent.js';
@@ -134,5 +134,41 @@ describe( 'getGroups', () => {
 	it( 'drops empty groups and garbage', () => {
 		expect( normalizeGroups( 'nope', 'x' ) ).toEqual( [] );
 		expect( normalizeGroups( [ { label: 'Empty', items: [] } ], 'x' ) ).toEqual( [] );
+	} );
+} );
+
+describe( 'search box behaviour', () => {
+	const signal = () => new AbortController().signal;
+
+	it( 'puts the exact title, or the redirect to it, first', () => {
+		const items = [ { title: 'Apple pie' }, { title: 'Apple' }, { title: 'Malus', redirectFrom: 'Crab apple' } ];
+		expect( exactFirst( items, 'apple' ).map( ( i ) => i.title ) ).toEqual( [ 'Apple', 'Apple pie', 'Malus' ] );
+		expect( exactFirst( items, 'crab apple' )[ 0 ].title ).toBe( 'Malus' );
+		expect( exactFirst( items, 'pear' ) ).toBe( items );
+	} );
+
+	it( 'adds CirrusSearch full text and its suggestion while typing', async () => {
+		mockFetch( {
+			'meta=siteinfo': siteinfo,
+			'action=opensearch': [ 'aple', [ 'Apple' ], [ '' ], [] ],
+			'list=search': { query: {
+				searchinfo: { suggestion: 'apple' },
+				search: [
+					{ title: 'Apple', snippet: 'dup' },
+					{ title: 'Orchard', snippet: 'an <span class="searchmatch">aple</span> &amp; pear <img src=x onerror=alert(1)>' }
+				]
+			} }
+		} );
+		const groups = await getGroups( { query: 'aple', mode: null, context, registry: registry() }, signal() );
+		expect( groups.map( ( g ) => g.label ) ).toEqual( [ 'Results', 'In page text', 'More' ] );
+		expect( groups[ 1 ].items ).toHaveLength( 1 );
+		expect( groups[ 1 ].items[ 0 ] ).toMatchObject( { label: 'Orchard', description: 'an aple & pear ' } );
+		expect( groups[ 2 ].items[ 0 ] ).toMatchObject( { label: 'Did you mean "apple"?', query: 'apple', url: null } );
+	} );
+
+	it( 'skips full text for short input', async () => {
+		const fetch = mockFetch( { 'action=opensearch': [ 'ap', [ 'Apple' ], [ '' ], [] ] } );
+		await getGroups( { query: 'ap', mode: null, context, registry: registry() }, signal() );
+		expect( fetch.mock.calls.some( ( c ) => c[ 0 ].includes( 'list=search' ) ) ).toBe( false );
 	} );
 } );

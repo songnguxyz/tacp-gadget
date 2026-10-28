@@ -1,7 +1,7 @@
 import rawConfig from './TACP-config.json';
 import { normalizeConfig } from '../shared/config.js';
 import { loadMessages } from '../shared/messages.js';
-import { shortcutFor } from './shortcuts.js';
+import { shortcutFor, takeoverTarget } from './shortcuts.js';
 import { cdxIconSearch } from '@wikimedia/codex-icons';
 import './TACP.less';
 
@@ -107,6 +107,32 @@ if ( enabled ) {
 			button.addEventListener( 'click', () => open().catch( noop ) );
 			document.body.appendChild( button );
 		} );
+	}
+
+	if ( config.searchTakeover ) {
+		// Capture phase on window runs before the skin's own handlers, so its
+		// search dropdown or overlay never opens. Without JavaScript, or if the
+		// core fails to load, the skin's search box works as before.
+		let takeoverBroken = false;
+		const intercept = ( e ) => {
+			const el = !takeoverBroken && takeoverTarget( e );
+			if ( !el ) {
+				return;
+			}
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			if ( e.type === 'mousedown' ) {
+				// Keep focus (and the phone keyboard) out of the box; click opens
+				return;
+			}
+			const value = typeof el.value === 'string' ? el.value.trim() : '';
+			el.blur();
+			open( value || undefined ).catch( () => {
+				takeoverBroken = true;
+				el.focus();
+			} );
+		};
+		[ 'focus', 'mousedown', 'click' ].forEach( ( type ) => window.addEventListener( type, intercept, true ) );
 	}
 
 	if ( config.prefetch ) {

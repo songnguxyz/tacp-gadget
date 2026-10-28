@@ -2,6 +2,7 @@
 	"prefetch": false,
 	"slashShortcut": true,
 	"mobileButton": true,
+	"searchTakeover": false,
 	"disabledModes": [],
 	"cargoLimit": 50,
 	"messages": {}

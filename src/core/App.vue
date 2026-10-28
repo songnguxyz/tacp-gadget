@@ -238,6 +238,9 @@ export default defineComponent( {
 				go( mw.util.getUrl( item.title, { action: 'edit' } ) );
 			} else if ( item.mode ) {
 				pushMode( item.mode );
+			} else if ( item.query !== null && item.query !== undefined ) {
+				// e.g. "did you mean": search for the suggestion instead
+				query.value = item.query;
 			} else if ( item.run ) {
 				close();
 				item.run();
