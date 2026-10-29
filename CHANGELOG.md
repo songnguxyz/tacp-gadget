@@ -5,6 +5,8 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+## 0.1.0-rc.4 — 2026-10-29
+
 ### Added
 - `/section` mode (shortcut `#`): jump to a heading of the page, numbered like
   the table of contents, with DiscussionTools' comment summary on talk pages.
