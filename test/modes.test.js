@@ -26,6 +26,15 @@ describe( '/ns', () => {
 		expect( fetch.mock.calls[ 0 ][ 0 ] ).toContain( 'psnamespace=2' );
 	} );
 
+	it( 'offers to go to or create the typed title in the namespace', async () => {
+		mockFetch( { 'list=prefixsearch': { query: { prefixsearch: [ { title: 'User:Alice2' }, { title: 'User:Alice' } ] } } } );
+		const sub = nsMode.getResults( 'user' )[ 0 ].items[ 0 ].mode;
+		const [ pages, actions ] = await sub.getResults( 'alice', context, signal() );
+		expect( labels( pages ) ).toEqual( [ 'Alice', 'Alice2' ] );
+		expect( actions.items.map( ( i ) => i.id ) ).toEqual( [ 'go', 'fulltext', 'edit' ] );
+		expect( actions.items[ 0 ].title ).toBe( 'User:Alice' );
+	} );
+
 	it( 'lists pages of the namespace for an empty query', async () => {
 		mockFetch( { 'list=allpages': { query: { allpages: [ { title: 'User:Bob' } ] } } } );
 		const sub = nsMode.getResults( '' )[ 0 ].items.find( ( i ) => i.label === 'User' ).mode;

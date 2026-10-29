@@ -2,6 +2,7 @@ import { apiGet } from '../services/api.js';
 import { pageItem } from '../items.js';
 import icons from '../icons.js';
 import { msg, matches } from '../text.js';
+import { exactFirst, queryActions, userCanEdit } from '../results.js';
 
 const LIMIT = 10;
 
@@ -20,16 +21,36 @@ function namespaceSearch( ns, name ) {
 			const params = query.trim() ?
 				{ action: 'query', list: 'prefixsearch', pssearch: query.trim(), psnamespace: ns, pslimit: LIMIT } :
 				{ action: 'query', list: 'allpages', apnamespace: ns, aplimit: LIMIT };
-			return apiGet( params, signal ).then( ( data ) => {
+			// Go to or create the typed title, as outside the namespace
+			const t = query.trim() && mw.Title.makeTitle( ns, query.trim() );
+			const requests = [ apiGet( params, signal ), userCanEdit() ];
+			return Promise.all( requests ).then( ( [ data, canEdit ] ) => {
 				const pages = data.query.prefixsearch || data.query.allpages || [];
+				const items = pages.map( ( p ) => pageItem( p.title ) ).filter( Boolean );
 				return [ {
 					id: 'pages',
 					label: msg( 'tacp-group-pages' ),
-					items: pages.map( ( p ) => pageItem( p.title ) )
+					items: t ? exactFirst( items, t.getPrefixedText() ) : items
+				}, {
+					id: 'query',
+					label: msg( 'tacp-group-query' ),
+					items: t ? queryActions( t.getPrefixedText(), canEdit ) : []
 				} ];
 			} );
 		}
 	};
+}
+
+/**
+ * The namespace search for a namespace name typed before a colon, in any of
+ * the forms the wiki accepts (local, canonical, aliases).
+ *
+ * @param {string} prefix e.g. "Template", "bản mẫu"
+ * @return {Object|null} Mode, or null for the main namespace, special pages and non-namespaces
+ */
+export function namespaceForPrefix( prefix ) {
+	const id = mw.config.get( 'wgNamespaceIds' )[ prefix.trim().replace( / /g, '_' ).toLowerCase() ];
+	return id > 0 ? namespaceSearch( id, mw.config.get( 'wgFormattedNamespaces' )[ id ] ) : null;
 }
 
 export default {

@@ -10,6 +10,9 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
   on Vector 2022 and Minerva.
 - `docs/deploy.md` has the preferences description for `MediaWiki:Gadget-TACP`,
   in English and Vietnamese.
+- Typing a namespace name and a colon (`Template:`, `Bản mẫu:`, or an alias the
+  wiki defines) turns it into a chip and searches only that namespace. Inside a
+  namespace search, "Go to" and "Create or edit" work for the typed title.
 
 ### Fixed
 - Keys typed while the palette loads for the first time in a page view (e.g.

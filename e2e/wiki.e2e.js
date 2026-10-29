@@ -102,6 +102,16 @@ test( '# lists the headings and jumps to one', async () => {
 	await done( page );
 } );
 
+test( 'a namespace name and colon becomes a chip', async () => {
+	const page = await visit( 'Apple', { useskin: 'vector-2022' } );
+	await page.keyboard.press( 'Control+k' );
+	await palette( page ).fill( 'talk:Apple' );
+	await page.locator( '.tacp-chip', { hasText: 'Talk' } ).waitFor();
+	assert.equal( await palette( page ).inputValue(), 'Apple' );
+	await page.getByRole( 'option', { name: /Talk:Apple/ } ).first().waitFor();
+	await done( page );
+} );
+
 test( '@ on a page with no other languages says so', async () => {
 	const page = await visit( 'Apple', { useskin: 'vector-2022' } );
 	await page.keyboard.press( 'Control+k' );

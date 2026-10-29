@@ -13,7 +13,7 @@ const RECENT_SHOWN = 5;
 const FULLTEXT_MIN = 3;
 let rightsPromise = null;
 
-function userCanEdit() {
+export function userCanEdit() {
 	if ( !rightsPromise ) {
 		rightsPromise = Promise.resolve( mw.user.getRights() ).then(
 			( rights ) => rights.includes( 'edit' ),
@@ -184,7 +184,7 @@ function fullText( query, signal ) {
 		} );
 }
 
-function queryActions( query, canEdit, suggestion ) {
+export function queryActions( query, canEdit, suggestion ) {
 	const t = mw.Title.newFromText( query.trim() );
 	const items = [];
 	if ( suggestion ) {
