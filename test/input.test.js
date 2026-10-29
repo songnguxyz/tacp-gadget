@@ -14,6 +14,14 @@ describe( 'parseTrigger', () => {
 		expect( parseTrigger( '/USER Ali ce', modes ) ).toEqual( { mode: modes[ 0 ], rest: 'Ali ce' } );
 	} );
 
+	it( 'enters a mode at once from a one-character alias', () => {
+		const withAliases = modes.concat( { id: 'tacp-section', trigger: '/section' }, { id: 'tacp-lang', trigger: '/lang' } );
+		expect( parseTrigger( '#hist', withAliases ) ).toEqual( { mode: withAliases[ 2 ], rest: 'hist' } );
+		expect( parseTrigger( '@', withAliases ) ).toEqual( { mode: withAliases[ 3 ], rest: '' } );
+		// No alias when the mode is unavailable on this page
+		expect( parseTrigger( '#x', modes ) ).toBe( null );
+	} );
+
 	it( 'ignores unknown triggers and plain text', () => {
 		expect( parseTrigger( '/nope x', modes ) ).toBe( null );
 		expect( parseTrigger( 'user x', modes ) ).toBe( null );
@@ -106,7 +114,9 @@ describe( 'search takeover', () => {
 	it( 'targets the skin search box and search buttons only', () => {
 		document.body.innerHTML = '<form><input id="searchInput"><input id="other"></form>' +
 			'<a id="searchIcon" href="/wiki/Special:Search"><span class="icon"></span></a>' +
-			'<a class="search-toggle" href="#">Search</a>';
+			'<a class="search-toggle" href="#">Search</a>' +
+			'<div class="vector-search-box"><input type="search" name="search"></div>' +
+			'<form id="search"><input id="searchText" name="search"></form>';
 		const box = document.getElementById( 'searchInput' );
 		const icon = document.getElementById( 'searchIcon' );
 		const ev = ( type, target ) => ( { type, target } );
@@ -118,5 +128,9 @@ describe( 'search takeover', () => {
 		expect( takeoverTarget( ev( 'focus', icon ) ) ).toBe( null );
 		expect( takeoverTarget( ev( 'focus', document.getElementById( 'other' ) ) ) ).toBe( null );
 		expect( takeoverTarget( ev( 'click', document ) ) ).toBe( null );
+		// Vector 2022's sticky header box, but never Special:Search's own form
+		const sticky = document.querySelector( '.vector-search-box input' );
+		expect( takeoverTarget( ev( 'focus', sticky ) ) ).toBe( sticky );
+		expect( takeoverTarget( ev( 'focus', document.getElementById( 'searchText' ) ) ) ).toBe( null );
 	} );
 } );

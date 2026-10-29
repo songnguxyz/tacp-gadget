@@ -6,6 +6,8 @@ import userMode from '../src/core/modes/user.js';
 import categoryMode from '../src/core/modes/category.js';
 import historyMode from '../src/core/modes/history.js';
 import createHelpMode from '../src/core/modes/help.js';
+import sectionMode from '../src/core/modes/section.js';
+import langMode from '../src/core/modes/lang.js';
 import { createRegistry, defineMode } from '../src/core/services/registry.js';
 import { addRecent, getRecent } from '../src/core/services/recent.js';
 
@@ -110,5 +112,67 @@ describe( '/help', () => {
 		tools.items[ 0 ].run();
 		expect( getRecent() ).toEqual( [] );
 		expect( mw.notify ).toHaveBeenCalled();
+	} );
+} );
+
+describe( '/action menus', () => {
+	it( 'groups links by menu, page actions first, gadget menus included', () => {
+		document.body.innerHTML =
+			'<div id="p-navigation" class="mw-portlet"><h3>Navigation</h3><ul><li id="n-mainpage"><a href="/wiki/Main">Main page</a></li></ul></div>' +
+			'<div id="p-views" class="mw-portlet"><ul><li id="ca-edit"><a href="/w/index.php?action=edit">Edit</a></li></ul></div>' +
+			'<div id="p-twinkle" class="mw-portlet"><div class="vector-menu-heading">TW</div><ul><li id="tw-warn"><a href="/w/x?tw=warn" title="Warn user">Warn</a></li></ul></div>' +
+			'<div id="p-lang" class="mw-portlet"><ul><li class="interlanguage-link"><a href="https://en.example/A">English</a></li></ul></div>';
+		return actionMode.getResults( '', context, signal() ).then( ( groups ) => {
+			expect( groups.map( ( g ) => g.label ) ).toEqual( [ 'This page', 'Navigation', 'TW', 'Special pages' ] );
+			expect( labels( groups[ 2 ] ) ).toEqual( [ 'Warn' ] );
+		} );
+	} );
+
+	it( 'finds a gadget item by its menu name', async () => {
+		const groups = await actionMode.getResults( 'tw', context, signal() );
+		expect( groups.find( ( g ) => g.label === 'TW' ).items ).toHaveLength( 1 );
+	} );
+} );
+
+describe( '/section', () => {
+	it( 'numbers headings like the TOC, in both heading markups, with DiscussionTools metadata', () => {
+		document.body.innerHTML = '<div id="mw-content-text"><div class="mw-parser-output">' +
+			'<div class="mw-heading mw-heading2"><h2 id="History">History</h2><span class="mw-editsection">[edit]</span>' +
+			'<div class="ext-discussiontools-init-section-metadata">3 comments</div></div>' +
+			'<div class="mw-heading mw-heading4"><h4 id="Early_days">Early days</h4></div>' +
+			'<h3><span class="mw-headline" id="Later">Later</span><span class="mw-editsection">[edit]</span></h3>' +
+			'<h2><span class="mw-headline" id="Sources">Sources</span></h2>' +
+			'</div></div>';
+		expect( sectionMode.isAvailable() ).toBe( true );
+		const [ group ] = sectionMode.getResults( '' );
+		expect( group.items.map( ( i ) => [ i.badge, i.label ] ) ).toEqual( [
+			[ '1', 'History' ], [ '1.1', 'Early days' ], [ '1.2', 'Later' ], [ '2', 'Sources' ]
+		] );
+		expect( group.items[ 0 ] ).toMatchObject( { description: '3 comments', url: '#History' } );
+		expect( labels( sectionMode.getResults( 'comments' )[ 0 ] ) ).toEqual( [ 'History' ] );
+	} );
+
+	it( 'is unavailable on pages without headings', () => {
+		document.body.innerHTML = '<div id="mw-content-text"><p>Short page</p></div>';
+		expect( sectionMode.isAvailable() ).toBe( false );
+	} );
+} );
+
+describe( '/lang', () => {
+	it( 'reads interlanguage links from the page', async () => {
+		document.body.innerHTML = '<ul><li class="interlanguage-link"><a href="https://en.example/wiki/Apple" hreflang="en" title="Apple – English">English</a></li>' +
+			'<li class="interlanguage-link"><a href="https://fr.example/wiki/Pomme" hreflang="fr" title="Pomme – French">Français</a></li></ul>';
+		const [ group ] = await langMode.getResults( 'fr', context, signal() );
+		expect( group.items ).toEqual( [ expect.objectContaining( { label: 'Français', badge: 'fr', url: 'https://fr.example/wiki/Pomme' } ) ] );
+	} );
+
+	it( 'asks the API when the skin renders no language links', async () => {
+		document.body.innerHTML = '';
+		mockFetch( { 'prop=langlinks': { query: { pages: [ { langlinks: [
+			{ lang: 'ja', title: 'りんご', url: 'https://ja.example/wiki/りんご', langname: 'Japanese', autonym: '日本語' }
+		] } ] } } } );
+		const [ group ] = await langMode.getResults( '', context, signal() );
+		expect( group.items[ 0 ] ).toMatchObject( { label: '日本語', badge: 'ja', description: 'りんご – Japanese' } );
+		expect( langMode.isAvailable( { articleId: 0 } ) ).toBe( false );
 	} );
 } );

@@ -113,7 +113,8 @@ relative URLs are kept; any other `url` is dropped. Empty groups are hidden.
 - **Naming.** Every `id` starts with your gadget's name, e.g. `mygadget-purge`.
   The `tacp-` prefix is reserved for TACP.
 - **Trigger collisions.** `/ns`, `/action`, `/user`, `/category`, `/history`,
-  `/help`, `/file`, `/cargo`, `/bucket` and `/smw` are reserved. For any other
+  `/help`, `/section`, `/lang`, `/file`, `/cargo`, `/bucket` and `/smw` are reserved,
+  as are the one-character shortcuts `#` and `@`. For any other
   trigger the first registration wins; later ones are rejected with a
   `mw.log.warn` and the user sees nothing.
 - **No overriding built-ins.** Wikis hide built-in modes with `disabledModes` in

@@ -27,7 +27,8 @@ namespaces, users, categories and page history.
 | Backspace (empty input) | Leave the current mode |
 | `?` | Help: list every mode |
 
-Modes: `/ns`, `/action`, `/user`, `/category`, `/history`, `/help`.
+Modes: `/ns`, `/action`, `/section` (or just `#`), `/lang` (or just `@`), `/user`,
+`/category`, `/history`, `/help`.
 
 ## Installing on a wiki
 
@@ -38,7 +39,7 @@ See [docs/deploy.md](docs/deploy.md). Site settings live in
 |---|---|---|
 | `prefetch` | `false` | Load the palette during idle time on every page |
 | `slashShortcut` | `true` | Whether `/` opens the palette |
-| `mobileButton` | `true` | Whether the button is shown on narrow screens |
+| `mobileButton` | `true` | Whether the button is shown on narrow screens (not added when `searchTakeover` is on and the skin has its own phone search button) |
 | `searchTakeover` | `false` | The skin's search box opens TACP instead of its own dropdown |
 | `disabledModes` | `[]` | Mode ids to hide, e.g. `[ "tacp-user" ]` |
 | `cargoLimit` | `50` | Row limit for Cargo queries (from v3) |
@@ -63,6 +64,16 @@ request that changes `src/` adds a line to [CHANGELOG.md](CHANGELOG.md).
 
 TACP is a clean-room implementation inspired by the Citizen skin's command
 palette. Do not copy code, styles or messages from Citizen (GPL-3.0-or-later).
+
+## Credits
+
+Jumping to sections with `#`, switching language with `@`, and listing menu items
+that other gadgets add (such as Twinkle) are ideas from the command palette user
+scripts by Peter Coombe ([User:The wub](https://en.wikipedia.org/wiki/User:The_wub/commandPalette.js))
+and [User:DLynch (WMF)](https://meta.wikimedia.org/wiki/User:DLynch_(WMF)/CommandPalette.js),
+from the Wikimedia Hackathon 2026 project
+[T425060](https://phabricator.wikimedia.org/T425060). TACP reimplements them; no code
+was copied.
 
 ## License
 

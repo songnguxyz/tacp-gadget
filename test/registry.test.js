@@ -7,6 +7,8 @@ import userMode from '../src/core/modes/user.js';
 import categoryMode from '../src/core/modes/category.js';
 import historyMode from '../src/core/modes/history.js';
 import createHelpMode from '../src/core/modes/help.js';
+import sectionMode from '../src/core/modes/section.js';
+import langMode from '../src/core/modes/lang.js';
 
 const mode = ( extra ) => Object.assign( {
 	id: 'mygadget-mode',
@@ -96,7 +98,7 @@ describe( 'registry', () => {
 describe( 'built-ins', () => {
 	it( 'all register into one registry without id or trigger clashes', () => {
 		const r = createRegistry( [] );
-		[ nsMode, actionMode, userMode, categoryMode, historyMode, createHelpMode( r ) ].forEach( ( spec ) => {
+		[ nsMode, actionMode, sectionMode, langMode, userMode, categoryMode, historyMode, createHelpMode( r ) ].forEach( ( spec ) => {
 			expect( r.register( defineMode( spec ), true ) ).toBe( true );
 		} );
 		builtinCommands.forEach( ( cmd ) => expect( r.register( cmd, true ) ).toBe( true ) );
