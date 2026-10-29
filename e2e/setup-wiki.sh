@@ -17,6 +17,9 @@ curl -sSfL "https://releases.wikimedia.org/mediawiki/${VERSION%.*}/mediawiki-$VE
 php "$MW/maintenance/install.php" --dbtype sqlite --dbpath "$MW/data" --server "$SERVER" \
 	--scriptpath '' --pass 'tacp-e2e-admin' --skins Vector,MinervaNeue --extensions Gadgets \
 	TACP Admin > /dev/null
+# The tests edit pages from the command line; an APCu cache in the web server
+# would not see those edits
+echo '$wgMainCacheType = CACHE_NONE;' >> "$MW/LocalSettings.php"
 
 edit() {
 	php "$MW/maintenance/run.php" edit --summary "TACP e2e" "$1" < "$2" > /dev/null

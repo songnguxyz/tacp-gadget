@@ -38,8 +38,34 @@ function loadCore() {
 	return loading;
 }
 
+// Keys typed while the core loads, or null when not loading
+let typed = null;
+
+function bufferKey( e ) {
+	if ( e.isComposing || e.ctrlKey || e.metaKey || e.altKey ) {
+		return;
+	}
+	if ( e.key.length === 1 ) {
+		typed += e.key;
+	} else if ( e.key === 'Backspace' ) {
+		typed = typed.slice( 0, -1 );
+	} else {
+		return;
+	}
+	e.preventDefault();
+	e.stopImmediatePropagation();
+}
+
+function takeTyped() {
+	const text = typed || '';
+	typed = null;
+	document.removeEventListener( 'keydown', bufferKey, true );
+	return text;
+}
+
 /**
- * Open the palette, loading the core first if needed.
+ * Open the palette, loading the core first if needed. What the user types
+ * during that first load goes into the palette instead of being lost.
  *
  * @param {string} [prefill] Text to put in the input, e.g. '/mygadget '
  * @return {Promise}
@@ -48,7 +74,17 @@ export function open( prefill ) {
 	if ( !enabled ) {
 		return Promise.resolve();
 	}
-	return Promise.resolve( loadCore() ).then( ( c ) => c.open( prefill ) );
+	if ( !core && typed === null ) {
+		typed = '';
+		document.addEventListener( 'keydown', bufferKey, true );
+	}
+	return Promise.resolve( loadCore() ).then( ( c ) => {
+		const text = ( prefill || '' ) + takeTyped();
+		return c.open( text || prefill );
+	}, ( err ) => {
+		takeTyped();
+		throw err;
+	} );
 }
 
 export function close() {

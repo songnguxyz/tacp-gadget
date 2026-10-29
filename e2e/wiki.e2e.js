@@ -57,6 +57,26 @@ test( 'Vector 2022: Ctrl+K, search, Enter goes to the exact title', async () => 
 	await done( page );
 } );
 
+test( 'keys typed while the core loads reach the palette', async () => {
+	const page = await visit( 'Main_Page', { useskin: 'vector-2022' } );
+	// Make the first load slow enough to type into
+	await page.route( /TACP-core/, async ( route ) => {
+		await new Promise( ( resolve ) => {
+			setTimeout( resolve, 1000 );
+		} );
+		await route.continue();
+	} );
+	await page.keyboard.press( 'Control+k' );
+	await page.keyboard.type( 'applx' );
+	await page.keyboard.press( 'Backspace' );
+	await page.keyboard.type( 'e' );
+	await page.waitForFunction( () => {
+		const input = document.querySelector( '.tacp-input' );
+		return !!input && input.value === 'apple';
+	}, null, { timeout: 5000 } );
+	await done( page );
+} );
+
 test( '/ opens, Escape closes', async () => {
 	const page = await visit( 'Main_Page', { useskin: 'vector-2022' } );
 	await page.keyboard.press( '/' );

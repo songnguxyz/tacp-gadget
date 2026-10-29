@@ -12,6 +12,8 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
   in English and Vietnamese.
 
 ### Fixed
+- Keys typed while the palette loads for the first time in a page view (e.g.
+  Ctrl+K then typing straight away) now go into the palette instead of being lost.
 - A mode with nothing to list and nothing typed (e.g. `@` on a page with no
   other languages) said “Nothing matches "".”; it now says the mode has nothing
   to show for this page.
