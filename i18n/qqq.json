@@ -86,6 +86,8 @@
 	"tacp-state-empty-desc": "Description of a result list state.",
 	"tacp-state-noresults-title": "Title of a result list state.",
 	"tacp-state-noresults-desc": "Description of a result list state.\n\nParameters:\n* $1 - search query",
+	"tacp-state-modeempty-title": "Title of the result list state when a mode has nothing to list and nothing was typed.",
+	"tacp-state-modeempty-desc": "Description of the result list state when a mode has nothing to list and nothing was typed.",
 	"tacp-state-error-title": "Title of a result list state.",
 	"tacp-state-error-desc": "Description of a result list state.",
 	"tacp-hint-navigate": "Keyboard hint in the palette footer, shown after the key symbol.",

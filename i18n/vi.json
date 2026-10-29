@@ -84,6 +84,8 @@
 	"tacp-state-empty-desc": "Gõ để tìm trang, hoặc gõ / để xem các chế độ.",
 	"tacp-state-noresults-title": "Không có kết quả",
 	"tacp-state-noresults-desc": "Không có gì khớp với “$1”.",
+	"tacp-state-modeempty-title": "Không có gì ở đây",
+	"tacp-state-modeempty-desc": "Chế độ này không có mục nào cho trang này.",
 	"tacp-state-error-title": "Đã xảy ra lỗi",
 	"tacp-state-error-desc": "Không tải được kết quả. Hãy thử lại.",
 	"tacp-hint-navigate": "di chuyển",

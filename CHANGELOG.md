@@ -5,6 +5,11 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+### Fixed
+- A mode with nothing to list and nothing typed (e.g. `@` on a page with no
+  other languages) said “Nothing matches "".”; it now says the mode has nothing
+  to show for this page.
+
 ## 0.1.0-rc.4 — 2026-10-29
 
 ### Added

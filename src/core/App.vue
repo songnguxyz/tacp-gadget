@@ -195,8 +195,10 @@ export default defineComponent( {
 			}
 			const state = status.value === 'error' ? 'error' :
 				status.value === 'loading' ? 'loading' :
-					query.value.trim() || currentMode.value ? 'noresults' : 'empty';
-			const icon = { error: icons.alert, loading: icons.clock, noresults: icons.search, empty: icons.search }[ state ];
+					query.value.trim() ? 'noresults' :
+						// A mode with nothing to list on this page, e.g. no other languages
+						currentMode.value ? 'modeempty' : 'empty';
+			const icon = { error: icons.alert, loading: icons.clock, noresults: icons.search, modeempty: icons.search, empty: icons.search }[ state ];
 			return {
 				icon,
 				title: msg( 'tacp-state-' + state + '-title' ),
