@@ -84,6 +84,8 @@
 	"tacp-state-empty-desc": "Type to search pages, or / to see modes.",
 	"tacp-state-noresults-title": "No results",
 	"tacp-state-noresults-desc": "Nothing matches \"$1\".",
+	"tacp-state-modeempty-title": "Nothing here",
+	"tacp-state-modeempty-desc": "This mode has nothing to show for this page.",
 	"tacp-state-error-title": "Something went wrong",
 	"tacp-state-error-desc": "The results could not be loaded. Try again.",
 	"tacp-hint-navigate": "navigate",

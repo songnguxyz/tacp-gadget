@@ -2,8 +2,8 @@
 import { vi, beforeEach } from 'vitest';
 import en from '../i18n/en.json';
 
-const NS = { '': 0, talk: 1, user: 2, 'user talk': 3, project: 4, file: 6, category: 14, special: -1 };
-const NS_NAMES = { 0: '', 1: 'Talk', 2: 'User', 3: 'User talk', 4: 'Project', 6: 'File', 14: 'Category', '-1': 'Special' };
+const NS = { '': 0, talk: 1, user: 2, 'user talk': 3, project: 4, file: 6, template: 10, category: 14, special: -1 };
+const NS_NAMES = { 0: '', 1: 'Talk', 2: 'User', 3: 'User talk', 4: 'Project', 6: 'File', 10: 'Template', 14: 'Category', '-1': 'Special' };
 const ucfirst = ( s ) => s.charAt( 0 ).toUpperCase() + s.slice( 1 );
 
 class Title {
@@ -121,7 +121,10 @@ beforeEach( () => {
 		[ 'wgIsProbablyEditable', true ],
 		[ 'wgScriptPath', '/w' ],
 		[ 'skin', 'vector-2022' ],
-		[ 'wgFormattedNamespaces', NS_NAMES ]
+		[ 'wgFormattedNamespaces', NS_NAMES ],
+		// Keys as MediaWiki gives them: lower case, underscores, aliases included
+		// eslint-disable-next-line camelcase
+		[ 'wgNamespaceIds', Object.assign( { user_talk: 3, tpl: 10 }, NS ) ]
 	].forEach( ( [ k, v ] ) => mw.config.set( k, v ) );
 	global.fetch = vi.fn( () => Promise.reject( new Error( 'unexpected fetch' ) ) );
 } );

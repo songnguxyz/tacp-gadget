@@ -28,6 +28,26 @@ running version can be read from the page itself.
 - Edit summaries include the version and commit, e.g.
   `TACP v0.1.0 (abc1234)`.
 
+## Description in preferences
+
+Gadgets shows the page `MediaWiki:Gadget-TACP` as TACP's line in
+*Special:Preferences → Gadgets*; without it, users see the bare name "TACP". Create
+it once, by hand, in the wiki's **content language** (other languages go on
+subpages such as `MediaWiki:Gadget-TACP/en`). It is not in `deploy.json` because
+its title depends on the wiki's language.
+
+English:
+
+```wikitext
+'''TACP command palette''': press <kbd>Ctrl</kbd>+<kbd>K</kbd> (<kbd>⌘</kbd>+<kbd>K</kbd> on a Mac) or <kbd>/</kbd> to search pages, reopen recent ones, run page actions and jump to sections, languages, users, categories and page history. Type <code>/</code> in the palette to see its modes. On a phone, tap the search button. Not available in the Citizen skin. ([https://github.com/songnguxyz/tacp-gadget source code])
+```
+
+Vietnamese:
+
+```wikitext
+'''Bảng lệnh TACP''': nhấn <kbd>Ctrl</kbd>+<kbd>K</kbd> (<kbd>⌘</kbd>+<kbd>K</kbd> trên Mac) hoặc <kbd>/</kbd> để tìm trang, mở lại trang vừa xem, chạy thao tác trên trang và chuyển nhanh tới đề mục, ngôn ngữ, thành viên, thể loại, lịch sử trang. Gõ <code>/</code> trong bảng để xem các chế độ. Trên điện thoại, chạm nút tìm kiếm. Không dùng được với giao diện Citizen. ([https://github.com/songnguxyz/tacp-gadget mã nguồn])
+```
+
 ## Recommended bot setup
 
 TACP does not run a central deployer and never holds credentials for anyone's

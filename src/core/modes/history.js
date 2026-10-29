@@ -32,7 +32,8 @@ export default {
 					.filter( ( r ) => matches( ( r.user || '' ) + ' ' + ( r.comment || '' ), query ) )
 					.map( ( r ) => ( {
 						id: String( r.revid ),
-						label: formatTime( r.timestamp ) + ' · ' + ( r.user || '' ),
+						// The user can be hidden (revision deletion); no dangling separator then
+						label: [ formatTime( r.timestamp ), r.user ].filter( Boolean ).join( ' · ' ),
 						description: r.comment || '',
 						icon: icons.history,
 						url: mw.util.getUrl( context.title, { oldid: r.revid } ),

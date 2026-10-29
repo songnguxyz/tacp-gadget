@@ -26,6 +26,25 @@ describe( '/ns', () => {
 		expect( fetch.mock.calls[ 0 ][ 0 ] ).toContain( 'psnamespace=2' );
 	} );
 
+	it( 'offers to go to or create the typed title in the namespace', async () => {
+		mockFetch( { 'list=prefixsearch': { query: { prefixsearch: [ { title: 'User:Alice2' }, { title: 'User:Alice' } ] } } } );
+		const sub = nsMode.getResults( 'user' )[ 0 ].items[ 0 ].mode;
+		const [ pages, actions ] = await sub.getResults( 'alice', context, signal() );
+		expect( labels( pages ) ).toEqual( [ 'Alice', 'Alice2' ] );
+		expect( actions.items.map( ( i ) => i.id ) ).toEqual( [ 'go', 'fulltext', 'edit' ] );
+		expect( actions.items[ 0 ].title ).toBe( 'User:Alice' );
+	} );
+
+	it( 'lists special pages from siteinfo, matching any alias', async () => {
+		mockFetch( { 'meta=siteinfo': siteinfo } );
+		const sub = nsMode.getResults( 'spec' )[ 0 ].items[ 0 ].mode;
+		const [ pages ] = await sub.getResults( '', context, signal() );
+		expect( pages.items.length ).toBeGreaterThan( 0 );
+		expect( pages.items.every( ( i ) => i.title.indexOf( 'Special:' ) === 0 ) ).toBe( true );
+		const [ random ] = await sub.getResults( 'randompage', context, signal() );
+		expect( labels( random ) ).toEqual( [ 'Random' ] );
+	} );
+
 	it( 'lists pages of the namespace for an empty query', async () => {
 		mockFetch( { 'list=allpages': { query: { allpages: [ { title: 'User:Bob' } ] } } } );
 		const sub = nsMode.getResults( '' )[ 0 ].items.find( ( i ) => i.label === 'User' ).mode;
@@ -96,6 +115,15 @@ describe( '/history', () => {
 		const [ all ] = await historyMode.getResults( '', context, signal() );
 		expect( all.items[ 0 ].actions[ 0 ].url ).toContain( 'diff=12' );
 		expect( historyMode.isAvailable( { articleId: 0 } ) ).toBe( false );
+	} );
+
+	it( 'leaves no separator when the user is hidden', async () => {
+		mockFetch( { 'prop=revisions': { query: { pages: [ { revisions: [
+			{ revid: 5, parentid: 4, userhidden: true, commenthidden: true, timestamp: '2026-10-01T00:00:00Z' }
+		] } ] } } } );
+		const [ group ] = await historyMode.getResults( '', context, signal() );
+		expect( group.items[ 0 ].label ).not.toMatch( /·\s*$/ );
+		expect( group.items[ 0 ].description ).toBe( '' );
 	} );
 } );
 

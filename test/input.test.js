@@ -22,6 +22,20 @@ describe( 'parseTrigger', () => {
 		expect( parseTrigger( '#x', modes ) ).toBe( null );
 	} );
 
+	it( 'turns a namespace name and colon into a namespace search', () => {
+		const withNs = modes.concat( { id: 'tacp-ns', trigger: '/ns' } );
+		for ( const typed of [ 'Template:Info box', 'template:Info box', 'TPL:Info box', ' User talk :Info box' ] ) {
+			const parsed = parseTrigger( typed, withNs );
+			expect( parsed.rest ).toBe( 'Info box' );
+		}
+		expect( parseTrigger( 'User talk:', withNs ).mode ).toMatchObject( { id: 'tacp-ns-3', label: 'User talk' } );
+		expect( parseTrigger( 'special:Rand', withNs ) ).toMatchObject( { mode: { id: 'tacp-ns--1' }, rest: 'Rand' } );
+		// Not a namespace, the main namespace, or /ns hidden by the wiki
+		expect( parseTrigger( 'Star Wars: A New Hope', withNs ) ).toBe( null );
+		expect( parseTrigger( ':Apple', withNs ) ).toBe( null );
+		expect( parseTrigger( 'Template:X', modes ) ).toBe( null );
+	} );
+
 	it( 'ignores unknown triggers and plain text', () => {
 		expect( parseTrigger( '/nope x', modes ) ).toBe( null );
 		expect( parseTrigger( 'user x', modes ) ).toBe( null );

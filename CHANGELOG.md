@@ -5,6 +5,28 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+### Added
+- CI runs browser tests (Playwright) against a real MediaWiki 1.43 and 1.46,
+  on Vector 2022 and Minerva.
+- `docs/deploy.md` has the preferences description for `MediaWiki:Gadget-TACP`,
+  in English and Vietnamese.
+- Typing a namespace name and a colon (`Template:`, `Bản mẫu:`, `Đặc biệt:`, or
+  an alias the wiki defines) turns it into a chip and searches only that
+  namespace; special pages match any of their aliases. `/ns` lists Special too. Inside a
+  namespace search, "Go to" and "Create or edit" work for the typed title.
+
+### Fixed
+- Keys typed while the palette loads for the first time in a page view (e.g.
+  Ctrl+K then typing straight away) now go into the palette instead of being lost.
+- A mode with nothing to list and nothing typed (e.g. `@` on a page with no
+  other languages) said “Nothing matches "".”; it now says the mode has nothing
+  to show for this page.
+- `/history` no longer ends a revision with “ · ” when its user is hidden.
+- Result groups without a heading, and items without a label, from other
+  gadgets' modes no longer render as empty rows.
+- Vietnamese: category size reads “$1 mục” (entries), not “thành viên”, which
+  means users on Vietnamese wikis.
+
 ## 0.1.0-rc.4 — 2026-10-29
 
 ### Added

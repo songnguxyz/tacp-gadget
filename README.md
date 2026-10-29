@@ -1,7 +1,7 @@
 # TACP — The Amazing Command Palette
 
 A MediaWiki gadget that adds a keyboard-driven command palette to every skin
-except Citizen. Press **Ctrl+K** / **Cmd+K** or **/** (or tap the top-hat button
+except Citizen. Press **Ctrl+K** / **Cmd+K** or **/** (or tap the floating search button
 on a phone) to search pages, jump to recent pages, run page actions and browse
 namespaces, users, categories and page history.
 
@@ -28,7 +28,9 @@ namespaces, users, categories and page history.
 | `?` | Help: list every mode |
 
 Modes: `/ns`, `/action`, `/section` (or just `#`), `/lang` (or just `@`), `/user`,
-`/category`, `/history`, `/help`.
+`/category`, `/history`, `/help`. Typing a namespace name and a colon, such as
+`Template:` or `Special:` (or a local name or alias the wiki accepts), turns it into a chip and
+searches only that namespace, like `/ns`.
 
 ## Installing on a wiki
 
@@ -57,6 +59,16 @@ npm test        # unit tests (Vitest)
 npm run lint    # ESLint + Stylelint, Wikimedia config
 npm run build   # dist/: the four gadget files, config and definitions
 npm run size    # size budget check
+```
+
+Browser tests against a real MediaWiki (PHP 8.3 with `intl`, `mbstring`,
+`pdo_sqlite`; Chromium from `npx playwright install chromium`):
+
+```sh
+npm run build
+e2e/setup-wiki.sh 1.43.11 /tmp/mw          # download, install, deploy dist/
+php -S 127.0.0.1:8080 -t /tmp/mw &
+MW_DIR=/tmp/mw npm run e2e
 ```
 
 `dist/` is build output; never edit it or the wiki pages by hand. Every pull

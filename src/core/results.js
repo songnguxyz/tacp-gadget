@@ -13,7 +13,7 @@ const RECENT_SHOWN = 5;
 const FULLTEXT_MIN = 3;
 let rightsPromise = null;
 
-function userCanEdit() {
+export function userCanEdit() {
 	if ( !rightsPromise ) {
 		rightsPromise = Promise.resolve( mw.user.getRights() ).then(
 			( rights ) => rights.includes( 'edit' ),
@@ -117,7 +117,8 @@ export function normalizeGroups( groups, prefix ) {
 	return groups.filter( Boolean ).map( ( g, gi ) => ( {
 		id: prefix + ':' + str( g.id || gi ),
 		label: str( g.label ),
-		items: ( Array.isArray( g.items ) ? g.items : [] ).filter( Boolean ).map( ( it, ii ) => ( {
+		// An item without a label would render as an empty row
+		items: ( Array.isArray( g.items ) ? g.items : [] ).filter( ( it ) => it && str( it.label ) ).map( ( it, ii ) => ( {
 			id: prefix + ':' + str( it.id || gi + '-' + ii ),
 			label: str( it.label ),
 			description: str( it.description ),
@@ -183,7 +184,7 @@ function fullText( query, signal ) {
 		} );
 }
 
-function queryActions( query, canEdit, suggestion ) {
+export function queryActions( query, canEdit, suggestion ) {
 	const t = mw.Title.newFromText( query.trim() );
 	const items = [];
 	if ( suggestion ) {

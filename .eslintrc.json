@@ -18,7 +18,7 @@
 	},
 	"overrides": [
 		{
-			"files": [ "scripts/**", "vite.config.js" ],
+			"files": [ "scripts/**", "e2e/**", "vite.config.js" ],
 			"extends": [ "wikimedia/server" ],
 			"parserOptions": { "ecmaVersion": 2022, "sourceType": "module" },
 			"rules": {

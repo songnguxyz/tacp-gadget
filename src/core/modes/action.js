@@ -56,6 +56,22 @@ export function readPortletGroups() {
 	return Array.from( groups.values() );
 }
 
+/**
+ * Special pages whose name or an alias matches, from siteinfo: no request
+ * when siteinfo is cached, and matches inside names, not only prefixes.
+ *
+ * @param {Object} info From getSiteInfo()
+ * @param {string} query
+ * @return {Object[]} Page items
+ */
+export function specialPageItems( info, query ) {
+	return info.specialPages
+		.filter( ( sp ) => sp.aliases.concat( sp.name ).some( ( a ) => matches( a, query ) ) )
+		.slice( 0, SPECIAL_SHOWN )
+		.map( ( sp ) => pageItem( mw.Title.makeTitle( -1, sp.aliases[ 0 ] || sp.name ) ) )
+		.filter( Boolean );
+}
+
 export default {
 	id: 'tacp-action',
 	trigger: '/action',
@@ -65,13 +81,8 @@ export default {
 		const menus = readPortletGroups().map( ( g ) => Object.assign( {}, g, {
 			items: g.items.filter( ( item ) => matches( item.label + ' ' + item.description + ' ' + g.label, query ) )
 		} ) );
-		return getSiteInfo().then( ( info ) => {
-			const special = info.specialPages
-				.filter( ( sp ) => sp.aliases.concat( sp.name ).some( ( a ) => matches( a, query ) ) )
-				.slice( 0, SPECIAL_SHOWN )
-				.map( ( sp ) => pageItem( mw.Title.makeTitle( -1, sp.aliases[ 0 ] || sp.name ) ) )
-				.filter( Boolean );
-			return menus.concat( { id: 'special', label: msg( 'tacp-group-special' ), items: special } );
-		} );
+		return getSiteInfo().then( ( info ) => menus.concat( {
+			id: 'special', label: msg( 'tacp-group-special' ), items: specialPageItems( info, query )
+		} ) );
 	}
 };

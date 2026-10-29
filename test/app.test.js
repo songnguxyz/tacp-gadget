@@ -105,4 +105,14 @@ describe( 'App', () => {
 		expect( document.querySelector( '[role="dialog"]' ).getAttribute( 'aria-label' ) ).toBe( 'Command palette' );
 		expect( document.querySelector( '.tacp-state__title' ).textContent.trim() ).toBe( 'No results' );
 	} );
+
+	it( 'says the mode is empty, not that "" matched nothing, when nothing is typed', async () => {
+		// A mode that lists nothing, like @ on a page with no other languages
+		const registry = createRegistry( [] );
+		registry.register( defineMode( { id: 'mygadget-none', trigger: '/none', label: 'None', description: 'Nothing', getResults: () => [] } ) );
+		wrapper = mount( App, { props: { registry }, attachTo: document.body } );
+		await openWith( '/none ' );
+		expect( document.querySelector( '.tacp-state__title' ).textContent.trim() ).toBe( 'Nothing here' );
+		expect( document.querySelector( '.tacp-state__description' ).textContent ).not.toContain( '""' );
+	} );
 } );
