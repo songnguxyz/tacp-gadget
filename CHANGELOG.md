@@ -3,7 +3,7 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
-## Unreleased
+## 0.1.0-rc.5 — 2026-10-29
 
 ### Added
 - CI runs browser tests (Playwright) against a real MediaWiki 1.43 and 1.46,
