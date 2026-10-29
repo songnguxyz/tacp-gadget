@@ -109,6 +109,13 @@ test( 'a namespace name and colon becomes a chip', async () => {
 	await page.locator( '.tacp-chip', { hasText: 'Talk' } ).waitFor();
 	assert.equal( await palette( page ).inputValue(), 'Apple' );
 	await page.getByRole( 'option', { name: /Talk:Apple/ } ).first().waitFor();
+	// Backspace in the empty input removes the chip
+	await palette( page ).fill( '' );
+	await palette( page ).press( 'Backspace' );
+	await page.locator( '.tacp-chip' ).waitFor( { state: 'detached' } );
+	await palette( page ).fill( 'Special:recent' );
+	await page.locator( '.tacp-chip', { hasText: 'Special' } ).waitFor();
+	await page.getByRole( 'option', { name: /RecentChanges/ } ).first().waitFor();
 	await done( page );
 } );
 

@@ -35,6 +35,16 @@ describe( '/ns', () => {
 		expect( actions.items[ 0 ].title ).toBe( 'User:Alice' );
 	} );
 
+	it( 'lists special pages from siteinfo, matching any alias', async () => {
+		mockFetch( { 'meta=siteinfo': siteinfo } );
+		const sub = nsMode.getResults( 'spec' )[ 0 ].items[ 0 ].mode;
+		const [ pages ] = await sub.getResults( '', context, signal() );
+		expect( pages.items.length ).toBeGreaterThan( 0 );
+		expect( pages.items.every( ( i ) => i.title.indexOf( 'Special:' ) === 0 ) ).toBe( true );
+		const [ random ] = await sub.getResults( 'randompage', context, signal() );
+		expect( labels( random ) ).toEqual( [ 'Random' ] );
+	} );
+
 	it( 'lists pages of the namespace for an empty query', async () => {
 		mockFetch( { 'list=allpages': { query: { allpages: [ { title: 'User:Bob' } ] } } } );
 		const sub = nsMode.getResults( '' )[ 0 ].items.find( ( i ) => i.label === 'User' ).mode;

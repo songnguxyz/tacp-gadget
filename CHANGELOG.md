@@ -10,8 +10,9 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
   on Vector 2022 and Minerva.
 - `docs/deploy.md` has the preferences description for `MediaWiki:Gadget-TACP`,
   in English and Vietnamese.
-- Typing a namespace name and a colon (`Template:`, `Bản mẫu:`, or an alias the
-  wiki defines) turns it into a chip and searches only that namespace. Inside a
+- Typing a namespace name and a colon (`Template:`, `Bản mẫu:`, `Đặc biệt:`, or
+  an alias the wiki defines) turns it into a chip and searches only that
+  namespace; special pages match any of their aliases. `/ns` lists Special too. Inside a
   namespace search, "Go to" and "Create or edit" work for the typed title.
 
 ### Fixed

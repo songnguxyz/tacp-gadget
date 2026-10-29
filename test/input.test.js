@@ -29,10 +29,10 @@ describe( 'parseTrigger', () => {
 			expect( parsed.rest ).toBe( 'Info box' );
 		}
 		expect( parseTrigger( 'User talk:', withNs ).mode ).toMatchObject( { id: 'tacp-ns-3', label: 'User talk' } );
-		// Not a namespace, the main namespace, special pages, or /ns hidden by the wiki
+		expect( parseTrigger( 'special:Rand', withNs ) ).toMatchObject( { mode: { id: 'tacp-ns--1' }, rest: 'Rand' } );
+		// Not a namespace, the main namespace, or /ns hidden by the wiki
 		expect( parseTrigger( 'Star Wars: A New Hope', withNs ) ).toBe( null );
 		expect( parseTrigger( ':Apple', withNs ) ).toBe( null );
-		expect( parseTrigger( 'Special:Random', withNs ) ).toBe( null );
 		expect( parseTrigger( 'Template:X', modes ) ).toBe( null );
 	} );
 
