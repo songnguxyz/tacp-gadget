@@ -134,6 +134,8 @@ describe( 'getGroups', () => {
 	it( 'drops empty groups and garbage', () => {
 		expect( normalizeGroups( 'nope', 'x' ) ).toEqual( [] );
 		expect( normalizeGroups( [ { label: 'Empty', items: [] } ], 'x' ) ).toEqual( [] );
+		expect( normalizeGroups( [ { items: [ { label: '' }, { url: '/wiki/A' }, { label: 'Ok' } ] } ], 'x' )[ 0 ].items )
+			.toEqual( [ expect.objectContaining( { label: 'Ok' } ) ] );
 	} );
 } );
 

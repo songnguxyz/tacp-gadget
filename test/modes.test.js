@@ -97,6 +97,15 @@ describe( '/history', () => {
 		expect( all.items[ 0 ].actions[ 0 ].url ).toContain( 'diff=12' );
 		expect( historyMode.isAvailable( { articleId: 0 } ) ).toBe( false );
 	} );
+
+	it( 'leaves no separator when the user is hidden', async () => {
+		mockFetch( { 'prop=revisions': { query: { pages: [ { revisions: [
+			{ revid: 5, parentid: 4, userhidden: true, commenthidden: true, timestamp: '2026-10-01T00:00:00Z' }
+		] } ] } } } );
+		const [ group ] = await historyMode.getResults( '', context, signal() );
+		expect( group.items[ 0 ].label ).not.toMatch( /·\s*$/ );
+		expect( group.items[ 0 ].description ).toBe( '' );
+	} );
 } );
 
 describe( '/help', () => {

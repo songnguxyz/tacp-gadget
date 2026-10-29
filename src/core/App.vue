@@ -59,9 +59,9 @@
 				:key="group.id"
 				class="tacp-group"
 				role="group"
-				:aria-label="group.label"
+				:aria-label="group.label || undefined"
 			>
-				<div class="tacp-group__label" aria-hidden="true">
+				<div v-if="group.label" class="tacp-group__label" aria-hidden="true">
 					{{ group.label }}
 				</div>
 				<result-item

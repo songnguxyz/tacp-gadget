@@ -9,6 +9,11 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 - A mode with nothing to list and nothing typed (e.g. `@` on a page with no
   other languages) said “Nothing matches "".”; it now says the mode has nothing
   to show for this page.
+- `/history` no longer ends a revision with “ · ” when its user is hidden.
+- Result groups without a heading, and items without a label, from other
+  gadgets' modes no longer render as empty rows.
+- Vietnamese: category size reads “$1 mục” (entries), not “thành viên”, which
+  means users on Vietnamese wikis.
 
 ## 0.1.0-rc.4 — 2026-10-29
 
