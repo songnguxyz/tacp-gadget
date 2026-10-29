@@ -5,6 +5,12 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+### Added
+- CI runs browser tests (Playwright) against a real MediaWiki 1.43 and 1.46,
+  on Vector 2022 and Minerva.
+- `docs/deploy.md` has the preferences description for `MediaWiki:Gadget-TACP`,
+  in English and Vietnamese.
+
 ### Fixed
 - A mode with nothing to list and nothing typed (e.g. `@` on a page with no
   other languages) said “Nothing matches "".”; it now says the mode has nothing

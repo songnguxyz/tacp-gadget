@@ -59,6 +59,16 @@ npm run build   # dist/: the four gadget files, config and definitions
 npm run size    # size budget check
 ```
 
+Browser tests against a real MediaWiki (PHP 8.3 with `intl`, `mbstring`,
+`pdo_sqlite`; Chromium from `npx playwright install chromium`):
+
+```sh
+npm run build
+e2e/setup-wiki.sh 1.43.11 /tmp/mw          # download, install, deploy dist/
+php -S 127.0.0.1:8080 -t /tmp/mw &
+MW_DIR=/tmp/mw npm run e2e
+```
+
 `dist/` is build output; never edit it or the wiki pages by hand. Every pull
 request that changes `src/` adds a line to [CHANGELOG.md](CHANGELOG.md).
 

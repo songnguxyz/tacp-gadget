@@ -35,3 +35,35 @@ jobs:
             echo "::error::This pull request changes src/ but not CHANGELOG.md. Add a line under Unreleased."
             exit 1
           fi
+
+  e2e:
+    # The built gadget on a real MediaWiki: the LTS (Codex 1.x) and the latest (Codex 2.x)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mediawiki: [ '1.43.11', '1.46.2' ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: intl, mbstring, pdo_sqlite, sqlite3
+          coverage: none
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: e2e/setup-wiki.sh "${{ matrix.mediawiki }}" "$RUNNER_TEMP/mw"
+      - name: Start MediaWiki
+        run: |
+          php -S 127.0.0.1:8080 -t "$RUNNER_TEMP/mw" > "$RUNNER_TEMP/server.log" 2>&1 &
+          curl -sSf --retry 10 --retry-connrefused -o /dev/null http://127.0.0.1:8080/index.php
+      - run: npm run e2e
+        env:
+          MW_DIR: ${{ runner.temp }}/mw
+      - if: failure()
+        run: tail -n 100 "$RUNNER_TEMP/server.log"

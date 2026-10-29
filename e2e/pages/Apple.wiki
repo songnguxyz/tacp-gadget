@@ -1,0 +1,10 @@
+An apple is a fruit.
+
+== Varieties ==
+Many.
+
+=== Green ===
+Sour.
+
+== History ==
+Old.

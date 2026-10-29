@@ -10,7 +10,8 @@
 		"build": "node scripts/build.js",
 		"size": "node scripts/size.js",
 		"lint": "eslint . && stylelint \"src/**/*.less\"",
-		"test": "vitest run"
+		"test": "vitest run",
+		"e2e": "node --test --test-reporter=spec e2e/wiki.e2e.js"
 	},
 	"devDependencies": {
 		"@vitejs/plugin-vue": "5.2.4",
@@ -21,11 +22,15 @@
 		"eslint-config-wikimedia": "0.32.6",
 		"jsdom": "26.1.0",
 		"less": "4.2.2",
+		"playwright": "1.63.0",
 		"postcss-less": "6.0.0",
 		"stylelint": "16.26.1",
 		"stylelint-config-wikimedia": "0.19.4",
 		"vite": "6.4.5",
 		"vitest": "3.2.7",
 		"vue": "3.4.27"
+	},
+	"engines": {
+		"node": ">=22"
 	}
 }
