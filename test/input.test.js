@@ -14,6 +14,14 @@ describe( 'parseTrigger', () => {
 		expect( parseTrigger( '/USER Ali ce', modes ) ).toEqual( { mode: modes[ 0 ], rest: 'Ali ce' } );
 	} );
 
+	it( 'enters a mode at once from a one-character alias', () => {
+		const withAliases = modes.concat( { id: 'tacp-section', trigger: '/section' }, { id: 'tacp-lang', trigger: '/lang' } );
+		expect( parseTrigger( '#hist', withAliases ) ).toEqual( { mode: withAliases[ 2 ], rest: 'hist' } );
+		expect( parseTrigger( '@', withAliases ) ).toEqual( { mode: withAliases[ 3 ], rest: '' } );
+		// No alias when the mode is unavailable on this page
+		expect( parseTrigger( '#x', modes ) ).toBe( null );
+	} );
+
 	it( 'ignores unknown triggers and plain text', () => {
 		expect( parseTrigger( '/nope x', modes ) ).toBe( null );
 		expect( parseTrigger( 'user x', modes ) ).toBe( null );

@@ -5,6 +5,17 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+### Added
+- `/section` mode (shortcut `#`): jump to a heading of the page, numbered like
+  the table of contents, with DiscussionTools' comment summary on talk pages.
+- `/lang` mode (shortcut `@`): the page in other languages, from the skin's
+  links or, on Minerva, the API.
+- `/action` lists every menu link, grouped by menu, including menus other
+  gadgets add (such as Twinkle). Languages moved to `/lang`.
+- These three follow ideas from the command palette user scripts by Peter
+  Coombe (User:The wub) and User:DLynch (WMF), Wikimedia Hackathon 2026
+  (T425060). No code was copied.
+
 ### Changed
 - Search takeover also catches Vector 2022's sticky header search box and
   Minerva's search triggers by class. When it is on and the skin has its own
