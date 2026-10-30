@@ -32,8 +32,11 @@ running version can be read from the page itself.
 ## Description in preferences
 
 Gadgets shows the message `MediaWiki:Gadget-TACP` as TACP's line in
-*Special:Preferences → Gadgets*. The release ships it as three pages, all
-`createOnly` in `deploy.json` (a wiki's own edits are never overwritten):
+*Special:Preferences → Gadgets*. The release ships it as these pages, `createOnly`
+(a wiki's own edits are never overwritten). Litmus takes at most 8 files per
+release, so `deploy.json` lists only the base page and `/vi`; create `/en` (or
+another language) by hand from the release asset. The build fails if the
+manifest grows past 8 files.
 
 | File | Wiki page |
 |---|---|

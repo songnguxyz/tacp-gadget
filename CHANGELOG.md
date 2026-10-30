@@ -3,7 +3,16 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
+## 0.1.0-rc.7 — 2026-10-30
+
+### Changed
+- Only the Vietnamese description (`MediaWiki:Gadget-TACP/vi`) is deployed with
+  the base page: Litmus takes at most 8 files per release. The English text is
+  still a release asset (`Gadget-TACP.en.wiki`) for wikis to create by hand.
+
 ## 0.1.0-rc.6 — 2026-10-30
+
+Never deployed: Litmus rejected its `deploy.json` (9 files, limit 8).
 
 ### Added
 - The release deploys the preferences description (`MediaWiki:Gadget-TACP` and

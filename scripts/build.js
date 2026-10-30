@@ -87,15 +87,23 @@ writeFileSync( 'dist/Gadget-TACP.wiki', '{{MediaWiki:Gadget-TACP/{{CONTENTLANGUA
 
 // Manifest for Litmus gadget-deploy: which file goes to which wiki page.
 // createOnly pages belong to the wiki once created.
-writeFileSync( 'dist/deploy.json', JSON.stringify( {
+const manifest = {
 	pages: [ 'TACP.js', 'TACP.css', 'TACP-core.js', 'TACP-core.css' ]
 		.map( ( file ) => ( { file, title: 'MediaWiki:Gadget-' + file } ) )
 		.concat( { file: 'TACP-config.json', title: 'MediaWiki:Gadget-TACP-config.json', createOnly: true } )
 		.concat( { file: 'Gadget-TACP.wiki', title: 'MediaWiki:Gadget-TACP', createOnly: true } )
-		.concat( descriptions.map( ( lang ) => ( {
+		// ponytail: Litmus takes at most 8 files per release, so only the
+		// Vietnamese text is deployed; other languages are created by hand
+		// from the release assets. Add them here if Litmus raises its limit.
+		.concat( [ 'vi' ].map( ( lang ) => ( {
 			file: `Gadget-TACP.${ lang }.wiki`, title: 'MediaWiki:Gadget-TACP/' + lang, createOnly: true
 		} ) ) ),
 	definition: { file: 'Gadgets-definition.txt' }
-}, null, '\t' ) + '\n' );
+};
+// Litmus rejects the whole release otherwise (rc.6)
+if ( manifest.pages.length + 1 > 8 ) {
+	throw new Error( 'deploy.json lists ' + ( manifest.pages.length + 1 ) + ' files; Litmus takes at most 8' );
+}
+writeFileSync( 'dist/deploy.json', JSON.stringify( manifest, null, '\t' ) + '\n' );
 
 console.log( `Built TACP v${ pkg.version } (${ sha }) into dist/` );
