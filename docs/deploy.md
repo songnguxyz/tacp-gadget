@@ -14,7 +14,8 @@ creates the tag on the chosen branch). The workflow builds, creates the GitHub r
 | `TACP-config.json` | `MediaWiki:Gadget-TACP-config.json`, **only if it does not exist yet** |
 | `Gadgets-definition.txt` | Lines to add to `MediaWiki:Gadgets-definition` |
 | `Gadgets-TACP.json`, `Gadgets-TACP-core.json` | `MediaWiki:Gadgets/TACP.json`, `MediaWiki:Gadgets/TACP-core.json`, for wikis using JSON definitions instead |
-| `deploy.json` | Manifest for Litmus `gadget-deploy`: file to page, `createOnly` for the config |
+| `Gadget-TACP.wiki`, `Gadget-TACP.<lang>.wiki` | Preferences description, **only if missing** (see below) |
+| `deploy.json` | Manifest for Litmus `gadget-deploy`: file to page, `createOnly` for the config and descriptions |
 | `SHA256SUMS` | Checksums of all of the above |
 
 Each built file starts with a line naming the version and commit, so a wiki's
@@ -30,23 +31,20 @@ running version can be read from the page itself.
 
 ## Description in preferences
 
-Gadgets shows the page `MediaWiki:Gadget-TACP` as TACP's line in
-*Special:Preferences → Gadgets*; without it, users see the bare name "TACP". Create
-it once, by hand, in the wiki's **content language** (other languages go on
-subpages such as `MediaWiki:Gadget-TACP/en`). It is not in `deploy.json` because
-its title depends on the wiki's language.
+Gadgets shows the message `MediaWiki:Gadget-TACP` as TACP's line in
+*Special:Preferences → Gadgets*. The release ships it as three pages, all
+`createOnly` in `deploy.json` (a wiki's own edits are never overwritten):
 
-English:
+| File | Wiki page |
+|---|---|
+| `Gadget-TACP.en.wiki`, `Gadget-TACP.vi.wiki` | `MediaWiki:Gadget-TACP/en`, `/vi`: the text, from `i18n/description/` |
+| `Gadget-TACP.wiki` | `MediaWiki:Gadget-TACP`: `{{MediaWiki:Gadget-TACP/{{CONTENTLANGUAGE}}}}` |
 
-```wikitext
-'''TACP command palette''': press <kbd>Ctrl</kbd>+<kbd>K</kbd> (<kbd>⌘</kbd>+<kbd>K</kbd> on a Mac) or <kbd>/</kbd> to search pages, reopen recent ones, run page actions and jump to sections, languages, users, categories and page history. Type <code>/</code> in the palette to see its modes. On a phone, tap the search button. Not available in the Citizen skin. ([https://github.com/songnguxyz/tacp-gadget source code])
-```
-
-Vietnamese:
-
-```wikitext
-'''Bảng lệnh TACP''': nhấn <kbd>Ctrl</kbd>+<kbd>K</kbd> (<kbd>⌘</kbd>+<kbd>K</kbd> trên Mac) hoặc <kbd>/</kbd> để tìm trang, mở lại trang vừa xem, chạy thao tác trên trang và chuyển nhanh tới đề mục, ngôn ngữ, thành viên, thể loại, lịch sử trang. Gõ <code>/</code> trong bảng để xem các chế độ. Trên điện thoại, chạm nút tìm kiếm. Không dùng được với giao diện Citizen. ([https://github.com/songnguxyz/tacp-gadget mã nguồn])
-```
+MediaWiki uses the base page for users whose language is the wiki's content
+language, so the base page shows the subpage for that language; other users get
+their language's subpage, or English. On a wiki whose content language has no
+subpage yet, the base page shows a red link: create that subpage, or replace
+the base page with text.
 
 ## Recommended bot setup
 

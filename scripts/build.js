@@ -2,7 +2,7 @@
 import { build } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { execSync } from 'node:child_process';
-import { readFileSync, writeFileSync, copyFileSync, mkdirSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, copyFileSync, mkdirSync, rmSync, readdirSync } from 'node:fs';
 
 const pkg = JSON.parse( readFileSync( 'package.json', 'utf8' ) );
 const sha = ( process.env.GITHUB_SHA || execSync( 'git rev-parse HEAD' ).toString() ).trim().slice( 0, 7 );
@@ -75,11 +75,26 @@ const jsonDefinition = ( pages, settings, dependencies ) => JSON.stringify( {
 writeFileSync( 'dist/Gadgets-TACP.json', jsonDefinition( [ 'TACP.js', 'TACP-config.json', 'TACP.css' ], { default: DEFAULT_ON }, deps.TACP ) );
 writeFileSync( 'dist/Gadgets-TACP-core.json', jsonDefinition( [ 'TACP-core.js', 'TACP-core.css' ], { hidden: true }, deps[ 'TACP-core' ] ) );
 
-// Manifest for Litmus gadget-deploy: which file goes to which wiki page
+// Preferences description, one subpage per language. The base page must be in
+// the wiki's content language, which the build cannot know, so it shows the
+// subpage for that language. A content language without a subpage shows a
+// red link until the wiki creates one.
+const descriptions = readdirSync( 'i18n/description' ).map( ( name ) => name.replace( /\.wiki$/, '' ) );
+for ( const lang of descriptions ) {
+	copyFileSync( `i18n/description/${ lang }.wiki`, `dist/Gadget-TACP.${ lang }.wiki` );
+}
+writeFileSync( 'dist/Gadget-TACP.wiki', '{{MediaWiki:Gadget-TACP/{{CONTENTLANGUAGE}}}}\n' );
+
+// Manifest for Litmus gadget-deploy: which file goes to which wiki page.
+// createOnly pages belong to the wiki once created.
 writeFileSync( 'dist/deploy.json', JSON.stringify( {
 	pages: [ 'TACP.js', 'TACP.css', 'TACP-core.js', 'TACP-core.css' ]
 		.map( ( file ) => ( { file, title: 'MediaWiki:Gadget-' + file } ) )
-		.concat( { file: 'TACP-config.json', title: 'MediaWiki:Gadget-TACP-config.json', createOnly: true } ),
+		.concat( { file: 'TACP-config.json', title: 'MediaWiki:Gadget-TACP-config.json', createOnly: true } )
+		.concat( { file: 'Gadget-TACP.wiki', title: 'MediaWiki:Gadget-TACP', createOnly: true } )
+		.concat( descriptions.map( ( lang ) => ( {
+			file: `Gadget-TACP.${ lang }.wiki`, title: 'MediaWiki:Gadget-TACP/' + lang, createOnly: true
+		} ) ) ),
 	definition: { file: 'Gadgets-definition.txt' }
 }, null, '\t' ) + '\n' );
 

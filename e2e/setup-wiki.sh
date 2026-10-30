@@ -25,8 +25,10 @@ edit() {
 	php "$MW/maintenance/run.php" edit --summary "TACP e2e" "$1" < "$2" > /dev/null
 }
 
-for f in TACP.js TACP.css TACP-core.js TACP-core.css TACP-config.json; do
-	edit "MediaWiki:Gadget-$f" "$DIST/$f"
+# Every page of the Litmus manifest, as a deploy would write them
+node -e 'for ( const p of require( process.argv[ 1 ] ).pages ) console.log( p.file + "\t" + p.title )' \
+	"$DIST/deploy.json" | while IFS=$'\t' read -r file title; do
+	edit "$title" "$DIST/$file"
 done
 sed 's/^\* TACP\[ResourceLoader|/* TACP[ResourceLoader|default|/' "$DIST/Gadgets-definition.txt" > "$MW/tacp-definition.txt"
 edit 'MediaWiki:Gadgets-definition' "$MW/tacp-definition.txt"

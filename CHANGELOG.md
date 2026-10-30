@@ -3,6 +3,12 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
+## Unreleased
+
+### Added
+- The release deploys the preferences description (`MediaWiki:Gadget-TACP` and
+  its `/en` and `/vi` subpages) when the wiki does not have it yet.
+
 ## 0.1.0-rc.5 — 2026-10-29
 
 ### Added

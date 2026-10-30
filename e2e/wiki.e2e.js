@@ -77,6 +77,18 @@ test( 'keys typed while the core loads reach the palette', async () => {
 	await done( page );
 } );
 
+test( 'preferences description follows the user language', async () => {
+	const describe = async ( lang ) => {
+		const res = await fetch( SERVER + '/api.php?' + new URLSearchParams( {
+			action: 'parse', format: 'json', formatversion: 2, prop: 'text', contentmodel: 'wikitext',
+			uselang: lang, text: '{{int:Gadget-TACP}}'
+		} ) );
+		return ( await res.json() ).parse.text;
+	};
+	assert.match( await describe( 'en' ), /TACP command palette/ );
+	assert.match( await describe( 'vi' ), /Bảng lệnh TACP/ );
+} );
+
 test( '/ opens, Escape closes', async () => {
 	const page = await visit( 'Main_Page', { useskin: 'vector-2022' } );
 	await page.keyboard.press( '/' );
