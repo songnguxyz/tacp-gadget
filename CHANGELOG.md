@@ -3,6 +3,12 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
+## Unreleased
+
+### Added
+- `TACP-standalone.js` release asset: paste it into the browser console to try
+  TACP on any wiki without installing the gadget.
+
 ## 0.1.0-rc.7 — 2026-10-30
 
 ### Changed

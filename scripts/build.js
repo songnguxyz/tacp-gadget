@@ -2,6 +2,7 @@
 import { build } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, rmSync, readdirSync } from 'node:fs';
 
 const pkg = JSON.parse( readFileSync( 'package.json', 'utf8' ) );
@@ -39,7 +40,7 @@ for ( const [ name, entry ] of [ [ 'TACP', 'src/loader/TACP.js' ], [ 'TACP-core'
 		configFile: false,
 		logLevel: 'warn',
 		plugins: [ vue() ],
-		define: { __LOADER_MESSAGES__: JSON.stringify( loaderMessages ) },
+		define: { __LOADER_MESSAGES__: JSON.stringify( loaderMessages ), __STANDALONE__: 'false' },
 		build: {
 			outDir: 'dist',
 			emptyOutDir: false,
@@ -60,6 +61,45 @@ for ( const [ name, entry ] of [ [ 'TACP', 'src/loader/TACP.js' ], [ 'TACP-core'
 }
 
 copyFileSync( 'src/loader/TACP-config.json', 'dist/TACP-config.json' );
+
+// TACP-standalone.js: loader and core in one file, with the default config and
+// the styles, to try TACP on any wiki by pasting it into the browser console.
+// Not deployed; attached to the release.
+await build( {
+	configFile: false,
+	logLevel: 'warn',
+	plugins: [ vue() ],
+	define: { __LOADER_MESSAGES__: JSON.stringify( loaderMessages ), __STANDALONE__: 'true' },
+	resolve: { alias: { 'ext.gadget.TACP': fileURLToPath( new URL( '../src/loader/TACP.js', import.meta.url ) ) } },
+	build: {
+		outDir: 'build/standalone',
+		emptyOutDir: true,
+		target: 'es2015',
+		minify: false,
+		lib: { entry: 'src/loader/TACP.js', formats: [ 'cjs' ], fileName: () => 'standalone.js', cssFileName: 'standalone' },
+		rollupOptions: {
+			external: [ 'vue', '@wikimedia/codex' ],
+			output: { exports: 'named', inlineDynamicImports: true }
+		}
+	}
+} );
+const standaloneDeps = [ ...new Set( deps.TACP.concat( deps[ 'TACP-core' ] ) ) ]
+	.filter( ( dep ) => dep !== 'ext.gadget.TACP' );
+writeFileSync( 'dist/TACP-standalone.js', header + `( function () {
+	var running = [ 'loading', 'loaded', 'executing', 'ready' ];
+	if ( window.tacpStandalone || running.indexOf( mw.loader.getState( 'ext.gadget.TACP' ) ) !== -1 ) {
+		console.warn( 'TACP is already running on this page.' );
+		return;
+	}
+	window.tacpStandalone = true;
+	mw.loader.using( ${ JSON.stringify( standaloneDeps ) } ).then( function ( require ) {
+		mw.util.addCSS( ${ JSON.stringify( readFileSync( 'build/standalone/standalone.css', 'utf8' ) ) } );
+		var module = { exports: {} }, exports = module.exports;
+${ readFileSync( 'build/standalone/standalone.js', 'utf8' ) }
+		console.info( 'TACP ${ pkg.version } is ready: press Ctrl+K or /.' );
+	} );
+}() );
+` );
 
 // Legacy MediaWiki:Gadgets-definition lines
 writeFileSync( 'dist/Gadgets-definition.txt', [

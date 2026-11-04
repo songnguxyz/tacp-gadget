@@ -20,11 +20,19 @@ let button = null;
 
 function noop() {}
 
+// The console tryout build (TACP-standalone.js) bundles the core instead of
+// loading the gadget
+/* eslint-disable no-undef, es-x/no-dynamic-import */
+const fetchCore = __STANDALONE__ ?
+	() => import( '../core/init.js' ) :
+	() => mw.loader.using( 'ext.gadget.TACP-core' ).then( ( req ) => req( 'ext.gadget.TACP-core' ) );
+/* eslint-enable no-undef, es-x/no-dynamic-import */
+
 function loadCore() {
 	if ( !loading ) {
-		loading = mw.loader.using( 'ext.gadget.TACP-core' ).then(
-			( req ) => {
-				core = req( 'ext.gadget.TACP-core' );
+		loading = Promise.resolve( fetchCore() ).then(
+			( c ) => {
+				core = c;
 				return core;
 			},
 			( err ) => {

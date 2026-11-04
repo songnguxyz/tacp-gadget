@@ -32,6 +32,13 @@ Modes: `/ns`, `/action`, `/section` (or just `#`), `/lang` (or just `@`), `/user
 `Template:` or `Special:` (or a local name or alias the wiki accepts), turns it into a chip and
 searches only that namespace, like `/ns`.
 
+## Trying it without installing
+
+Each release has `TACP-standalone.js`: the whole gadget in one file, with the
+default configuration. Open any wiki page (MediaWiki 1.43 or later, not Citizen),
+paste the file's contents into the browser console and press Enter; TACP runs
+until the page is reloaded. It refuses to start where the gadget is already on.
+
 ## Installing on a wiki
 
 See [docs/deploy.md](docs/deploy.md). Site settings live in

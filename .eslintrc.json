@@ -42,6 +42,10 @@
 				"max-len": "off",
 				"no-jquery/no-global-selector": "off"
 			}
+		},
+		{
+			"files": [ "src/loader/TACP.js" ],
+			"parserOptions": { "ecmaVersion": 2020 }
 		}
 	]
 }
