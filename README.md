@@ -32,6 +32,13 @@ Modes: `/ns`, `/action`, `/section` (or just `#`), `/lang` (or just `@`), `/user
 `Template:` or `Special:` (or a local name or alias the wiki accepts), turns it into a chip and
 searches only that namespace, like `/ns`.
 
+## Trying it without installing
+
+Each release has `TACP-standalone.js`: the whole gadget in one file, with the
+default configuration. Open any wiki page (MediaWiki 1.43 or later, not Citizen),
+paste the file's contents into the browser console and press Enter; TACP runs
+until the page is reloaded. It refuses to start where the gadget is already on.
+
 ## Installing on a wiki
 
 See [docs/deploy.md](docs/deploy.md). Site settings live in
@@ -67,7 +74,7 @@ Browser tests against a real MediaWiki (PHP 8.3 with `intl`, `mbstring`,
 ```sh
 npm run build
 e2e/setup-wiki.sh 1.43.11 /tmp/mw          # download, install, deploy dist/
-php -S 127.0.0.1:8080 -t /tmp/mw &
+php -d apc.enabled=0 -S 127.0.0.1:8080 -t /tmp/mw &   # no APCu: tests edit pages from the CLI
 MW_DIR=/tmp/mw npm run e2e
 ```
 
