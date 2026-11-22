@@ -44,7 +44,8 @@ for ( const [ name, entry ] of [ [ 'TACP', 'src/loader/TACP.js' ], [ 'TACP-core'
 		build: {
 			outDir: 'dist',
 			emptyOutDir: false,
-			// MediaWiki 1.43 runs JS only on Chrome 63+, Firefox 58+, Safari 11.1+ (2017-18)
+			// The oldest maintained LTS (1.43) runs JS only on Chrome 63+, Firefox 58+,
+			// Safari 11.1+; raise this when the floor moves to the next LTS (README)
 			target: 'es2018',
 			minify: false,
 			lib: { entry, formats: [ 'cjs' ], fileName: () => name + '.js', cssFileName: name },

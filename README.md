@@ -7,7 +7,10 @@ namespaces, users, categories and page history.
 
 - Needs only MediaWiki core and the Gadgets extension: no PHP, no extension.
 - Supports every MediaWiki release mediawiki.org lists as supported
-  (currently 1.43 LTS, 1.45 and 1.46).
+  (currently 1.43 LTS, 1.45 and 1.46). The oldest maintained LTS sets the floor:
+  when it reaches end of life, the next TACP release requires the next LTS, and
+  the browser baseline (build target, CSS) moves up to what that LTS runs
+  JavaScript on.
 - Built from Codex, so it looks native to the skin, night mode included.
 - On by default for everyone from 1.0; users can turn it off in
   *Special:Preferences → Gadgets*. Release candidates are opt-in.
