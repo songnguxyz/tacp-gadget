@@ -35,6 +35,31 @@ export function safeUrl( url ) {
 	}
 }
 
+// Codex thumbnails are 40 CSS pixels wide
+const THUMB_CSS_WIDTH = 40;
+
+/**
+ * Thumbnail width in device pixels: 40 × devicePixelRatio, at most 3×.
+ *
+ * @return {number}
+ */
+export function thumbWidth() {
+	const ratio = Math.min( Math.max( window.devicePixelRatio || 1, 1 ), 3 );
+	return Math.round( THUMB_CSS_WIDTH * ratio );
+}
+
+/**
+ * A MediaWiki thumbnail URL ("…/thumb/…/60px-File.jpg") rewritten to the
+ * given width; other URLs come back unchanged.
+ *
+ * @param {string} url
+ * @param {number} width
+ * @return {string}
+ */
+export function sizedThumb( url, width ) {
+	return url.replace( /(\/thumb\/[^?#]*\/(?:[^/?#]*-)?)\d+px-([^/?#]+)$/, '$1' + width + 'px-$2' );
+}
+
 /**
  * Result item for a wiki page, with the standard secondary actions.
  *

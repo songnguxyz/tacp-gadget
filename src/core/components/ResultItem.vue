@@ -1,6 +1,7 @@
 <template>
 	<div
 		:id="id"
+		ref="root"
 		role="option"
 		class="tacp-item"
 		:class="{ 'tacp-item--active': active }"
@@ -10,8 +11,9 @@
 	>
 		<cdx-thumbnail
 			v-if="item.thumbnail"
+			:key="thumbUrl || ''"
 			class="tacp-item__thumbnail"
-			:thumbnail="item.thumbnail"
+			:thumbnail="thumbUrl ? { url: thumbUrl } : null"
 		></cdx-thumbnail>
 		<span v-else class="tacp-item__icon">
 			<cdx-icon :icon="item.icon || defaultIcon"></cdx-icon>
@@ -46,10 +48,11 @@
 </template>
 
 <script>
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { CdxIcon, CdxThumbnail } from '@wikimedia/codex';
 import icons from '../icons.js';
 import { highlight, msg } from '../text.js';
+import { thumbWidth, sizedThumb } from '../items.js';
 
 export default defineComponent( {
 	name: 'ResultItem',
@@ -63,7 +66,50 @@ export default defineComponent( {
 	},
 	emits: [ 'hover', 'activate', 'action' ],
 	setup( props ) {
+		const root = ref( null );
+		// Set once the image has loaded; until then CdxThumbnail shows its placeholder
+		const thumbUrl = ref( null );
+		let observer = null;
+
+		function preload( url, onError ) {
+			const img = new Image();
+			img.onload = () => {
+				thumbUrl.value = url;
+			};
+			img.onerror = onError;
+			img.src = url;
+		}
+
+		// The thumbnail at 40px × devicePixelRatio; the original URL if that
+		// width fails (e.g. wider than the file itself)
+		function load() {
+			const url = props.item.thumbnail.url;
+			const sized = sizedThumb( url, thumbWidth() );
+			preload( sized, () => sized !== url && preload( url ) );
+		}
+
+		// Lazy: only once the row is near the visible part of the list
+		onMounted( () => {
+			if ( !props.item.thumbnail ) {
+				return;
+			}
+			if ( typeof IntersectionObserver !== 'function' ) {
+				load();
+				return;
+			}
+			observer = new IntersectionObserver( ( entries ) => {
+				if ( entries.some( ( e ) => e.isIntersecting ) ) {
+					observer.disconnect();
+					load();
+				}
+			}, { rootMargin: '100px' } );
+			observer.observe( root.value );
+		} );
+		onBeforeUnmount( () => observer && observer.disconnect() );
+
 		return {
+			root,
+			thumbUrl,
 			defaultIcon: icons.article,
 			parts: computed( () => highlight( props.item.label, props.query ) ),
 			redirectText: computed( () => msg( 'tacp-redirected-from', props.item.redirectFrom ) )

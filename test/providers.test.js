@@ -8,6 +8,7 @@ import { createRegistry, defineMode } from '../src/core/services/registry.js';
 import { builtinCommands } from '../src/core/providers/commands.js';
 import { addRecent, getRecent, clearRecent } from '../src/core/services/recent.js';
 import icons from '../src/core/icons.js';
+import { sizedThumb, thumbWidth } from '../src/core/items.js';
 
 const context = Object.freeze( {
 	title: 'Main_Page', namespace: 0, articleId: 1, isArticle: true, canEdit: true
@@ -172,5 +173,25 @@ describe( 'search box behaviour', () => {
 		const fetch = mockFetch( { 'action=opensearch': [ 'ap', [ 'Apple' ], [ '' ], [] ] } );
 		await getGroups( { query: 'ap', mode: null, context, registry: registry() }, signal() );
 		expect( fetch.mock.calls.some( ( c ) => c[ 0 ].includes( 'list=search' ) ) ).toBe( false );
+	} );
+} );
+
+describe( 'thumbnails', () => {
+	it( 'rewrites MediaWiki thumbnail URLs to the wanted width only', () => {
+		expect( sizedThumb( '//w/images/thumb/a/ab/Apple.jpg/60px-Apple.jpg', 80 ) )
+			.toBe( '//w/images/thumb/a/ab/Apple.jpg/80px-Apple.jpg' );
+		expect( sizedThumb( '//w/images/thumb/a/ab/A.pdf/page1-60px-A.pdf.jpg', 120 ) )
+			.toBe( '//w/images/thumb/a/ab/A.pdf/page1-120px-A.pdf.jpg' );
+		expect( sizedThumb( '//w/images/a/ab/60px-Apple.jpg', 80 ) ).toBe( '//w/images/a/ab/60px-Apple.jpg' );
+		expect( sizedThumb( '//img/apple.jpg', 80 ) ).toBe( '//img/apple.jpg' );
+	} );
+
+	it( 'sizes thumbnails by device pixel ratio, between 1x and 3x', () => {
+		const dpr = window.devicePixelRatio;
+		[ [ 1, 40 ], [ 1.5, 60 ], [ 2, 80 ], [ 4, 120 ], [ 0.5, 40 ] ].forEach( ( [ r, w ] ) => {
+			window.devicePixelRatio = r;
+			expect( thumbWidth() ).toBe( w );
+		} );
+		window.devicePixelRatio = dpr;
 	} );
 } );
