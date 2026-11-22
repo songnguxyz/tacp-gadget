@@ -94,5 +94,8 @@
 	"tacp-hint-open": "Keyboard hint in the palette footer, shown after the key symbol.",
 	"tacp-hint-actions": "Keyboard hint in the palette footer, shown after the key symbol.",
 	"tacp-hint-close": "Keyboard hint in the palette footer, shown after the key symbol.",
-	"tacp-hint-help": "Keyboard hint in the palette footer, shown after the key symbol."
+	"tacp-hint-help": "Keyboard hint in the palette footer, shown after the key symbol.",
+	"tacp-sr-hint": "Instructions read by screen readers when the palette input gets focus; not shown on screen.\n\nParameters:\n* $1 – the modifier key: \"Command\" on Apple devices, \"Control\" elsewhere (not translated)",
+	"tacp-sr-results": "Announced by screen readers when the result list changes; not shown on screen.\n\nParameters:\n* $1 – number of results",
+	"tacp-sr-action": "Announced by screen readers when the right or left arrow selects a secondary action of a result; not shown on screen.\n\nParameters:\n* $1 – action label, e.g. \"Edit\"\n* $2 – position of the action\n* $3 – number of actions"
 }

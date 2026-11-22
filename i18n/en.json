@@ -92,5 +92,8 @@
 	"tacp-hint-open": "open",
 	"tacp-hint-actions": "actions",
 	"tacp-hint-close": "close",
-	"tacp-hint-help": "help"
+	"tacp-hint-help": "help",
+	"tacp-sr-hint": "Up and down arrows choose a result, Enter opens it, $1+Enter opens it in a new tab, Shift+Enter edits the page, the right arrow reaches more actions, Escape closes.",
+	"tacp-sr-results": "$1 {{PLURAL:$1|result|results}}",
+	"tacp-sr-action": "$1, action $2 of $3"
 }

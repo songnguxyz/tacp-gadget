@@ -29,16 +29,15 @@
 			<span v-if="item.description" class="tacp-item__description">{{ item.description }}</span>
 		</span>
 		<span v-if="item.actions.length" class="tacp-item__actions">
-			<!-- Not focusable: reached with → from the input (aria-activedescendant) -->
+			<!-- Not focusable: reached with → from the input; inside an option it
+				would not be exposed anyway, so the palette announces it -->
 			<span
 				v-for="( action, i ) in item.actions"
-				:id="id + '-action-' + i"
 				:key="action.id"
-				role="button"
 				class="tacp-item__action"
 				:class="{ 'tacp-item__action--active': active && activeAction === i }"
 				:title="action.label"
-				:aria-label="action.label"
+				aria-hidden="true"
 				@click.stop="$emit( 'action', action )"
 			>
 				<cdx-icon :icon="action.icon" size="small"></cdx-icon>
