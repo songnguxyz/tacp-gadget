@@ -30,7 +30,7 @@ namespaces, users, categories and page history.
 Modes: `/ns`, `/action`, `/section` (or just `#`), `/lang` (or just `@`), `/user`,
 `/category`, `/history`, `/help`. Typing a namespace name and a colon, such as
 `Template:` or `Special:` (or a local name or alias the wiki accepts), turns it into a chip and
-searches only that namespace, like `/ns`.
+searches only that namespace, like `/ns`; `{{` does the same for templates.
 
 ## Trying it without installing
 

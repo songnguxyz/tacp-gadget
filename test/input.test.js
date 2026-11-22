@@ -36,6 +36,17 @@ describe( 'parseTrigger', () => {
 		expect( parseTrigger( 'Template:X', modes ) ).toBe( null );
 	} );
 
+	it( 'turns "{{" into a template search, with or without "}}"', () => {
+		const withNs = modes.concat( { id: 'tacp-ns', trigger: '/ns' } );
+		expect( parseTrigger( '{{', withNs ) ).toMatchObject( { mode: { id: 'tacp-ns-10' }, rest: '' } );
+		expect( parseTrigger( '{{Info box', withNs ).rest ).toBe( 'Info box' );
+		expect( parseTrigger( '{{Info box}}', withNs ).rest ).toBe( 'Info box' );
+		// Closing braces alone, a single brace, or /ns hidden by the wiki
+		expect( parseTrigger( 'Info box}}', withNs ) ).toBe( null );
+		expect( parseTrigger( '{Info box', withNs ) ).toBe( null );
+		expect( parseTrigger( '{{X', modes ) ).toBe( null );
+	} );
+
 	it( 'ignores unknown triggers and plain text', () => {
 		expect( parseTrigger( '/nope x', modes ) ).toBe( null );
 		expect( parseTrigger( 'user x', modes ) ).toBe( null );

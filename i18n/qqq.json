@@ -62,7 +62,7 @@
 	"tacp-cmd-clear-recent": "Name of a palette command.",
 	"tacp-recent-cleared": "Notification after recent items were cleared.",
 	"tacp-mode-ns": "Name of a palette mode, shown in /help and in the mode chip.",
-	"tacp-mode-ns-desc": "Description of the mode {{msg-tacp|tacp-mode-ns}}, shown in /help.",
+	"tacp-mode-ns-desc": "Description of the mode {{msg-tacp|tacp-mode-ns}}, shown in /help. \"{{\" is typed literally to search templates.",
 	"tacp-mode-action": "Name of a palette mode, shown in /help and in the mode chip.",
 	"tacp-mode-action-desc": "Description of the mode {{msg-tacp|tacp-mode-action}}, shown in /help.",
 	"tacp-mode-user": "Name of a palette mode, shown in /help and in the mode chip.",

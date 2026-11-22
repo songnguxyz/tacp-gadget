@@ -60,7 +60,7 @@
 	"tacp-cmd-clear-recent": "Xóa mục gần đây",
 	"tacp-recent-cleared": "Đã xóa các mục gần đây.",
 	"tacp-mode-ns": "Không gian tên",
-	"tacp-mode-ns-desc": "Chọn một không gian tên rồi tìm trong đó",
+	"tacp-mode-ns-desc": "Chọn một không gian tên rồi tìm trong đó. Phím tắt cho bản mẫu: {{",
 	"tacp-mode-action": "Tác vụ",
 	"tacp-mode-action-desc": "Tác vụ trên trang này và các trang đặc biệt",
 	"tacp-mode-user": "Thành viên",

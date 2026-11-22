@@ -20,7 +20,8 @@ function namespaceSearch( ns, name ) {
 		id: 'tacp-ns-' + ns,
 		label: name,
 		getResults( query, context, signal ) {
-			const q = query.trim();
+			// A "}}" typed after "{{" (titles cannot hold braces)
+			const q = query.replace( /\}\}\s*$/, '' ).trim();
 			const params = q ?
 				{ action: 'query', list: 'prefixsearch', pssearch: q, psnamespace: ns, pslimit: LIMIT } :
 				{ action: 'query', list: 'allpages', apnamespace: ns, aplimit: LIMIT };

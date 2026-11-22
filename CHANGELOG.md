@@ -3,6 +3,11 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
+## Unreleased
+
+### Added
+- `{{` opens a template search, like `Template:`; a closing `}}` is ignored.
+
 ## 0.1.0-rc.8 — 2026-11-12
 
 ### Added
