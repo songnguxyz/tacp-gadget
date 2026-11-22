@@ -44,7 +44,9 @@ until the page is reloaded. It refuses to start where the gadget is already on.
 
 ## Installing on a wiki
 
-See [docs/deploy.md](docs/deploy.md). Site settings live in
+See [docs/deploy.md](docs/deploy.md). A wiki can also load TACP from jsDelivr with
+one line instead of installing the gadget: see
+[Loading from jsDelivr](docs/deploy.md#loading-from-jsdelivr). Site settings live in
 `MediaWiki:Gadget-TACP-config.json`:
 
 | Key | Default | Meaning |

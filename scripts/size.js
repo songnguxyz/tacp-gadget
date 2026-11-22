@@ -5,6 +5,8 @@ import { gzipSync } from 'node:zlib';
 const KB = 1024;
 const budgets = [
 	[ [ 'TACP.js', 'TACP.css' ], 4 * KB ],
+	// Loaded on every page too, with both stylesheet directions inline
+	[ [ 'TACP-cdn.js' ], 4 * KB ],
 	[ [ 'TACP-core.js', 'TACP-core.css' ], 60 * KB ]
 ];
 

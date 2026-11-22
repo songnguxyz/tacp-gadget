@@ -6,6 +6,7 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 ## Unreleased
 
 ### Added
+- `TACP-cdn.js` and its files, committed by each release to the `cdn` branch: load TACP from jsDelivr with one line, settings in `window.tacpConfig` (docs/deploy.md).
 - `{{` opens a template search, like `Template:`; a closing `}}` is ignored.
 
 ### Changed

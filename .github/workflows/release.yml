@@ -52,6 +52,50 @@ jobs:
             gh release create "$TAG" dist/* --title "TACP $TAG" --generate-notes "${flags[@]}"
           fi
 
+  # The CDN files of the release, committed to the cdn branch so jsDelivr can
+  # serve them at a commit that never changes (docs/deploy.md). The commit is
+  # added to the release notes with the line wikis paste.
+  cdn:
+    needs: assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Commit the CDN files to the cdn branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898088+github-actions[bot]@users.noreply.github.com'
+          tree="$RUNNER_TEMP/cdn"
+          if git ls-remote --exit-code --heads origin cdn > /dev/null; then
+            git fetch --depth 1 origin cdn
+            git worktree add --detach "$tree" FETCH_HEAD
+          else
+            git worktree add --detach "$tree"
+            git -C "$tree" checkout --orphan cdn
+          fi
+          git -C "$tree" rm -rfq --ignore-unmatch .
+          # The same bytes as the release assets
+          gh release download "$TAG" --pattern 'TACP-cdn*' --dir "$tree"
+          cp LICENSE THIRD_PARTY_NOTICES.md "$tree/"
+          printf '# TACP %s for jsDelivr\n\nBuilt files only: see https://github.com/%s/blob/main/docs/deploy.md\n' \
+            "$TAG" "$REPO" > "$tree/README.md"
+          git -C "$tree" add -A
+          git -C "$tree" diff --cached --quiet || git -C "$tree" commit -qm "TACP $TAG"
+          git -C "$tree" push origin HEAD:refs/heads/cdn
+          sha=$(git -C "$tree" rev-parse HEAD)
+          notes=$(gh release view "$TAG" --json body --jq .body)
+          if [[ "$notes" != *"$sha"* ]]; then
+            printf '%s\n\n### Load from jsDelivr\n\n```js\nwindow.tacpConfig = {};\nmw.loader.load( %s );\n```\n' \
+              "$notes" "'https://cdn.jsdelivr.net/gh/$REPO@$sha/TACP-cdn.js'" > notes.md
+            gh release edit "$TAG" --notes-file notes.md
+          fi
+          echo "::notice::jsDelivr: https://cdn.jsdelivr.net/gh/$REPO@$sha/TACP-cdn.js"
+
   # After the assets are attached, so Litmus never fetches a release without
   # SHA256SUMS and deploy.json. Creates dry-run gadget-deploy jobs only; a
   # person still approves the real write on the Litmus dashboard.

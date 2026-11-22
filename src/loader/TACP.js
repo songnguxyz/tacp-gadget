@@ -11,7 +11,10 @@ const BUTTON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" 
 	'<path d="M16.6.2l.84 2.16L19.6 3.2l-2.16.84L16.6 6.2l-.84-2.16L13.6 3.2l2.16-.84z"/>' +
 	'</svg>';
 
-export const config = normalizeConfig( rawConfig );
+// The CDN build reads the site's settings from window.tacpConfig, set before
+// it loads, in place of MediaWiki:Gadget-TACP-config.json
+// eslint-disable-next-line no-undef
+export const config = normalizeConfig( __CDN__ ? window.tacpConfig : rawConfig );
 
 const enabled = mw.config.get( 'skin' ) !== 'citizen';
 let core = null;
@@ -20,13 +23,44 @@ let button = null;
 
 function noop() {}
 
-// The console tryout build (TACP-standalone.js) bundles the core instead of
-// loading the gadget
-/* eslint-disable no-undef, es-x/no-dynamic-import */
-const fetchCore = __STANDALONE__ ?
-	() => import( '../core/init.js' ) :
-	() => mw.loader.using( 'ext.gadget.TACP-core' ).then( ( req ) => req( 'ext.gadget.TACP-core' ) );
-/* eslint-enable no-undef, es-x/no-dynamic-import */
+const isRtl = () => document.documentElement.dir === 'rtl';
+
+function loadStylesheet( href ) {
+	return new Promise( ( resolve, reject ) => {
+		const link = document.createElement( 'link' );
+		link.rel = 'stylesheet';
+		link.href = href;
+		link.onload = resolve;
+		link.onerror = () => reject( new Error( 'Could not load ' + href ) );
+		document.head.appendChild( link );
+	} );
+}
+
+/* eslint-disable no-undef */
+/**
+ * The CDN build (TACP-cdn.js) loads the core's files from where it was
+ * loaded itself, then runs the core with this module as ext.gadget.TACP.
+ *
+ * @return {Promise<Object>} The core's exports
+ */
+function fetchCdnCore() {
+	const css = __CDN_BASE__ + 'TACP-cdn-core' + ( isRtl() ? '.rtl' : '' ) + '.css';
+	return Promise.all( [
+		mw.loader.using( __CORE_DEPS__ ),
+		loadStylesheet( css ),
+		Promise.resolve( mw.loader.getScript( __CDN_BASE__ + 'TACP-cdn-core.js' ) )
+	] ).then( ( [ req ] ) => window.tacpCdnCore(
+		( name ) => ( name === 'ext.gadget.TACP' ? { config, open, close, setOpenState } : req( name ) )
+	) );
+}
+
+// The console tryout build (TACP-standalone.js) bundles the core; the gadget
+// loads it as the hidden gadget TACP-core
+// eslint-disable-next-line es-x/no-dynamic-import
+const fetchCore = __STANDALONE__ ? () => import( '../core/init.js' ) :
+	__CDN__ ? fetchCdnCore :
+		() => mw.loader.using( 'ext.gadget.TACP-core' ).then( ( req ) => req( 'ext.gadget.TACP-core' ) );
+/* eslint-enable no-undef */
 
 function loadCore() {
 	if ( !loading ) {
@@ -184,6 +218,7 @@ if ( enabled ) {
 	}
 
 	if ( config.prefetch ) {
-		mw.requestIdleCallback( () => mw.loader.load( 'ext.gadget.TACP-core' ) );
+		// eslint-disable-next-line no-undef
+		mw.requestIdleCallback( () => ( __CDN__ ? loadCore().catch( noop ) : mw.loader.load( 'ext.gadget.TACP-core' ) ) );
 	}
 }

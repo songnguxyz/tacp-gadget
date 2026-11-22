@@ -193,3 +193,43 @@ test( 'TACP-standalone.js pasted into the console on a wiki without the gadget',
 	await warned;
 	await done( page );
 } );
+
+test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async ( t ) => {
+	edit( 'MediaWiki:Gadgets-definition', '' );
+	t.after( () => edit( 'MediaWiki:Gadgets-definition', readFileSync( process.env.MW_DIR + '/tacp-definition.txt', 'utf8' ) ) );
+	const context = await browser.newContext();
+	// Stands in for cdn.jsdelivr.net/gh/<repo>@<commit>/
+	const served = [];
+	await context.route( 'https://cdn.test/tacp@abc123/*', ( route ) => {
+		const file = new URL( route.request().url() ).pathname.split( '/' ).pop();
+		served.push( file );
+		route.fulfill( {
+			body: readFileSync( new URL( '../dist/' + file, import.meta.url ) ),
+			contentType: file.endsWith( '.css' ) ? 'text/css' : 'text/javascript'
+		} );
+	} );
+	const page = await context.newPage();
+	page.errors = [];
+	page.on( 'pageerror', ( e ) => page.errors.push( e.message ) );
+	await page.goto( url( 'Apple', { useskin: 'vector-2022', uselang: 'he' } ) );
+	await page.waitForFunction( () => mw.loader.getState( 'mediawiki.base' ) === 'ready' );
+	await page.evaluate( () => {
+		window.tacpConfig = { slashShortcut: false };
+		mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js' );
+	} );
+	await page.waitForFunction( () => window.tacpCdn );
+	// Only the loader until the palette opens
+	await page.waitForTimeout( 300 );
+	assert.deepEqual( served, [ 'TACP-cdn.js' ] );
+	// slashShortcut: false from window.tacpConfig
+	await page.keyboard.press( '/' );
+	await page.waitForTimeout( 300 );
+	assert.equal( await page.getByRole( 'dialog' ).count(), 0 );
+	await page.keyboard.press( 'Control+k' );
+	await palette( page ).fill( 'apple' );
+	await page.getByRole( 'option', { name: /Apple pie/ } ).waitFor();
+	assert.deepEqual( served.sort(), [ 'TACP-cdn-core.js', 'TACP-cdn-core.rtl.css', 'TACP-cdn.js' ] );
+	// The right-to-left stylesheet: the highlight bar is on the right
+	assert.match( await page.locator( '.tacp-item--active' ).evaluate( ( el ) => getComputedStyle( el ).boxShadow ), /inset$|-4px 0px 0px/ );
+	await done( page );
+} );

@@ -16,6 +16,7 @@ creates the tag on the chosen branch). The workflow builds, creates the GitHub r
 | `Gadgets-TACP.json`, `Gadgets-TACP-core.json` | `MediaWiki:Gadgets/TACP.json`, `MediaWiki:Gadgets/TACP-core.json`, for wikis using JSON definitions instead |
 | `Gadget-TACP.wiki`, `Gadget-TACP.<lang>.wiki` | Preferences description, **only if missing** (see below) |
 | `deploy.json` | Manifest for Litmus `gadget-deploy`: file to page, `createOnly` for the config and descriptions |
+| `TACP-cdn.js`, `TACP-cdn-core.js`, `TACP-cdn-core.css`, `TACP-cdn-core.rtl.css` | None: served from jsDelivr (see [Loading from jsDelivr](#loading-from-jsdelivr)) |
 | `SHA256SUMS` | Checksums of all of the above |
 
 Each built file starts with a line naming the version and commit, so a wiki's
@@ -68,6 +69,39 @@ onto their pages, creates the config page if missing, and adds the gadget
 definitions. The gadget definitions need the Gadgets extension; JSON config pages
 need their content model to be JSON (the default for `.json` pages in the
 MediaWiki namespace).
+
+## Loading from jsDelivr
+
+A wiki can load TACP from jsDelivr instead of installing the gadget, as scripts
+on the Miraheze Developers Wiki are loaded. Each release commits its CDN files
+to the `cdn` branch and adds the line to paste, with that commit, to the
+release notes:
+
+```js
+// MediaWiki:Common.js (whole wiki), or Special:MyPage/common.js (yourself)
+window.tacpConfig = {}; // optional settings, same keys as Gadget-TACP-config.json
+mw.loader.load( 'https://cdn.jsdelivr.net/gh/songnguxyz/tacp-gadget@<commit>/TACP-cdn.js' );
+```
+
+Or as a gadget of one line: put the `mw.loader.load` line in
+`MediaWiki:Gadget-TACP.js` and define it without dependencies, e.g.
+`* TACP[ResourceLoader|default]|TACP.js`.
+
+- **Pin the commit** from the release notes, never a branch, a tag or
+  `@latest`: a commit's files never change, and nothing reaches the wiki
+  without someone editing that line. To update, replace the commit.
+- `TACP-cdn.js` (about 4 KB gzipped) loads on every page. The core and its
+  styles load from the same commit the first time the palette opens; the
+  right-to-left stylesheet is chosen from the page's direction, since
+  ResourceLoader does not flip files it does not serve.
+- Settings come from `window.tacpConfig`, set before the line; there is no
+  `MediaWiki:Gadget-TACP-config.json`. Message overrides go in its `messages`.
+- The wiki needs MediaWiki 1.43 or later (see the README for the support
+  floor), and its Content Security Policy must allow scripts and styles from
+  `cdn.jsdelivr.net`. Readers' browsers fetch the files from jsDelivr, which
+  sees their IP addresses; some wikis' policies ask for that to be disclosed.
+- Where the gadget, the console tryout or another copy already runs, the CDN
+  build does not start.
 
 ## SongNgư.xyz wikis (Litmus)
 
