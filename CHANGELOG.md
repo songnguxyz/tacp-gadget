@@ -3,7 +3,7 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
-## Unreleased
+## 0.1.0-rc.9 — 2026-11-22
 
 ### Added
 - `TACP-cdn.js` and its files, committed by each release to the `cdn` branch: load TACP from jsDelivr with one line, settings in `window.tacpConfig` (docs/deploy.md).
