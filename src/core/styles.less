@@ -27,6 +27,11 @@
 	padding: @spacing-75 @spacing-100;
 	border-bottom: @border-width-base solid @border-color-subtle;
 
+	// The input has no outline of its own: the rule under it shows its focus
+	&:has( .tacp-input:focus ) {
+		border-bottom-color: @border-color-progressive;
+	}
+
 	&__icon {
 		flex-shrink: 0;
 		color: @color-subtle;
@@ -103,8 +108,11 @@
 	color: @color-base;
 	cursor: pointer;
 
+	// The tint alone is about 1.1:1 against the dialog; the bar gives the
+	// keyboard highlight 3:1 or more (WCAG 1.4.11)
 	&--active {
 		background-color: @background-color-progressive-subtle;
+		box-shadow: inset 4px 0 0 @border-color-progressive;
 	}
 
 	&__icon {
@@ -266,6 +274,14 @@
 
 	.tacp-footer {
 		display: none;
+	}
+}
+
+// Forced colors (Windows high contrast) drop backgrounds and box shadows
+@media ( forced-colors: active ) {
+	.tacp-item--active {
+		outline: 2px solid Highlight;
+		outline-offset: -2px;
 	}
 }
 
