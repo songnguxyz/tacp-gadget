@@ -44,7 +44,8 @@ for ( const [ name, entry ] of [ [ 'TACP', 'src/loader/TACP.js' ], [ 'TACP-core'
 		build: {
 			outDir: 'dist',
 			emptyOutDir: false,
-			target: 'es2015',
+			// MediaWiki 1.43 runs JS only on Chrome 63+, Firefox 58+, Safari 11.1+ (2017-18)
+			target: 'es2018',
 			minify: false,
 			lib: { entry, formats: [ 'cjs' ], fileName: () => name + '.js', cssFileName: name },
 			rollupOptions: {
@@ -74,7 +75,7 @@ await build( {
 	build: {
 		outDir: 'build/standalone',
 		emptyOutDir: true,
-		target: 'es2015',
+		target: 'es2018',
 		minify: false,
 		lib: { entry: 'src/loader/TACP.js', formats: [ 'cjs' ], fileName: () => 'standalone.js', cssFileName: 'standalone' },
 		rollupOptions: {
