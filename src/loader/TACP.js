@@ -54,12 +54,9 @@ function fetchCdnCore() {
 	) );
 }
 
-// The console tryout build (TACP-standalone.js) bundles the core; the gadget
-// loads it as the hidden gadget TACP-core
-// eslint-disable-next-line es-x/no-dynamic-import
-const fetchCore = __STANDALONE__ ? () => import( '../core/init.js' ) :
-	__CDN__ ? fetchCdnCore :
-		() => mw.loader.using( 'ext.gadget.TACP-core' ).then( ( req ) => req( 'ext.gadget.TACP-core' ) );
+// The gadget loads the core as the hidden gadget TACP-core
+const fetchCore = __CDN__ ? fetchCdnCore :
+	() => mw.loader.using( 'ext.gadget.TACP-core' ).then( ( req ) => req( 'ext.gadget.TACP-core' ) );
 /* eslint-enable no-undef */
 
 function loadCore() {

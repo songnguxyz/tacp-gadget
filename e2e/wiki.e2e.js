@@ -169,31 +169,6 @@ test( 'search takeover', async ( t ) => {
 	} );
 } );
 
-test( 'TACP-standalone.js pasted into the console on a wiki without the gadget', async ( t ) => {
-	edit( 'MediaWiki:Gadgets-definition', '' );
-	t.after( () => edit( 'MediaWiki:Gadgets-definition', readFileSync( process.env.MW_DIR + '/tacp-definition.txt', 'utf8' ) ) );
-	const code = readFileSync( new URL( '../dist/TACP-standalone.js', import.meta.url ), 'utf8' );
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	page.errors = [];
-	page.on( 'pageerror', ( e ) => page.errors.push( e.message ) );
-	// Legacy Vector, as on Cookie Run Wiki
-	await page.goto( url( 'Apple', { useskin: 'vector' } ) );
-	await page.waitForFunction( () => mw.loader.getState( 'mediawiki.base' ) === 'ready' );
-	assert.equal( await page.evaluate( () => mw.loader.getState( 'ext.gadget.TACP' ) ), null );
-	const ready = page.waitForEvent( 'console', ( m ) => /TACP .* is ready/.test( m.text() ) );
-	await page.evaluate( code );
-	await ready;
-	await page.keyboard.press( 'Control+k' );
-	await palette( page ).fill( 'apple' );
-	await page.getByRole( 'option', { name: /Apple pie/ } ).waitFor();
-	// A second paste does not start a second copy
-	const warned = page.waitForEvent( 'console', ( m ) => /already running/.test( m.text() ) );
-	await page.evaluate( code );
-	await warned;
-	await done( page );
-} );
-
 test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async ( t ) => {
 	edit( 'MediaWiki:Gadgets-definition', '' );
 	t.after( () => edit( 'MediaWiki:Gadgets-definition', readFileSync( process.env.MW_DIR + '/tacp-definition.txt', 'utf8' ) ) );
@@ -230,6 +205,11 @@ test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async 
 	await page.getByRole( 'option', { name: /Apple pie/ } ).waitFor();
 	assert.deepEqual( served.sort(), [ 'TACP-cdn-core.js', 'TACP-cdn-core.rtl.css', 'TACP-cdn.js' ] );
 	// The right-to-left stylesheet: the highlight bar is on the right
-	assert.match( await page.locator( '.tacp-item--active' ).evaluate( ( el ) => getComputedStyle( el ).boxShadow ), /inset$|-4px 0px 0px/ );
+	const bar = await page.locator( '.tacp-item--active' ).evaluate( ( el ) => getComputedStyle( el ).boxShadow );
+	assert.match( bar, / -4px 0px 0px 0px inset$/ );
+	// Loading it a second time does not start a second copy
+	const warned = page.waitForEvent( 'console', ( m ) => /already running/.test( m.text() ) );
+	await page.evaluate( () => mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js?again' ) );
+	await warned;
 	await done( page );
 } );

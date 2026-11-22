@@ -100,8 +100,9 @@ Or as a gadget of one line: put the `mw.loader.load` line in
   floor), and its Content Security Policy must allow scripts and styles from
   `cdn.jsdelivr.net`. Readers' browsers fetch the files from jsDelivr, which
   sees their IP addresses; some wikis' policies ask for that to be disclosed.
-- Where the gadget, the console tryout or another copy already runs, the CDN
-  build does not start.
+- Where the gadget or another copy already runs, the CDN build does not start.
+- To try TACP without installing anything, paste the `mw.loader.load` line into
+  the browser console on any wiki page.
 
 ## SongNgư.xyz wikis (Litmus)
 

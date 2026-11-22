@@ -2,7 +2,6 @@
 import { build } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { execSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, rmSync, readdirSync } from 'node:fs';
 import cssjanus from 'cssjanus';
 
@@ -35,16 +34,15 @@ const deps = {
 
 const coreDeps = deps[ 'TACP-core' ].filter( ( dep ) => dep !== 'ext.gadget.TACP' );
 // Build-time constants of src/loader/TACP.js
-const defines = ( flags ) => Object.assign( {
+const defines = ( flags = {} ) => Object.assign( {
 	__LOADER_MESSAGES__: JSON.stringify( loaderMessages ),
-	__STANDALONE__: 'false',
 	__CDN__: 'false',
 	__CDN_BASE__: '""',
 	__CORE_DEPS__: JSON.stringify( coreDeps )
 }, flags );
-// Skips loading where the gadget, the console tryout or the CDN build already runs
+// Skips loading where the gadget or another copy of the CDN build already runs
 const alreadyRunning = `var running = [ 'loading', 'loaded', 'executing', 'ready' ];
-	if ( window.tacpStandalone || window.tacpCdn || running.indexOf( mw.loader.getState( 'ext.gadget.TACP' ) ) !== -1 ) {
+	if ( window.tacpCdn || running.indexOf( mw.loader.getState( 'ext.gadget.TACP' ) ) !== -1 ) {
 		console.warn( 'TACP is already running on this page.' );
 		return;
 	}`;
@@ -57,7 +55,7 @@ for ( const [ name, entry ] of [ [ 'TACP', 'src/loader/TACP.js' ], [ 'TACP-core'
 		configFile: false,
 		logLevel: 'warn',
 		plugins: [ vue() ],
-		define: defines( { __STANDALONE__: 'false' } ),
+		define: defines(),
 		build: {
 			outDir: 'dist',
 			emptyOutDir: false,
@@ -80,40 +78,6 @@ for ( const [ name, entry ] of [ [ 'TACP', 'src/loader/TACP.js' ], [ 'TACP-core'
 }
 
 copyFileSync( 'src/loader/TACP-config.json', 'dist/TACP-config.json' );
-
-// TACP-standalone.js: loader and core in one file, with the default config and
-// the styles, to try TACP on any wiki by pasting it into the browser console.
-// Not deployed; attached to the release.
-await build( {
-	configFile: false,
-	logLevel: 'warn',
-	plugins: [ vue() ],
-	define: defines( { __STANDALONE__: 'true' } ),
-	resolve: { alias: { 'ext.gadget.TACP': fileURLToPath( new URL( '../src/loader/TACP.js', import.meta.url ) ) } },
-	build: {
-		outDir: 'build/standalone',
-		emptyOutDir: true,
-		target: 'es2018',
-		minify: false,
-		lib: { entry: 'src/loader/TACP.js', formats: [ 'cjs' ], fileName: () => 'standalone.js', cssFileName: 'standalone' },
-		rollupOptions: {
-			external: [ 'vue', '@wikimedia/codex' ],
-			output: { exports: 'named', inlineDynamicImports: true }
-		}
-	}
-} );
-const standaloneDeps = [ ...new Set( deps.TACP.concat( coreDeps ) ) ];
-writeFileSync( 'dist/TACP-standalone.js', header + `( function () {
-	${ alreadyRunning }
-	window.tacpStandalone = true;
-	mw.loader.using( ${ JSON.stringify( standaloneDeps ) } ).then( function ( require ) {
-		mw.util.addCSS( ${ JSON.stringify( readFileSync( 'build/standalone/standalone.css', 'utf8' ) ) } );
-		var module = { exports: {} }, exports = module.exports;
-${ readFileSync( 'build/standalone/standalone.js', 'utf8' ) }
-		console.info( 'TACP ${ pkg.version } is ready: press Ctrl+K or /.' );
-	} );
-}() );
-` );
 
 // The CDN files, for wikis that load TACP from jsDelivr with one line instead
 // of installing the gadget (docs/deploy.md). TACP-cdn.js is the loader; when
