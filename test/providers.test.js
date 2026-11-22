@@ -36,7 +36,7 @@ describe( 'search provider', () => {
 		const items = await searchTitles( 'app', new AbortController().signal );
 		expect( items[ 0 ] ).toMatchObject( { label: 'Apple', description: 'A fruit', thumbnail: { url: '//img/apple.jpg' }, badge: '' } );
 		expect( items[ 1 ] ).toMatchObject( { label: 'Apple', badge: 'User', redirectFrom: 'Apples', title: 'User:Apple' } );
-		expect( items[ 0 ].actions.map( ( a ) => a.id ) ).toEqual( [ 'edit', 'history', 'copy' ] );
+		expect( items[ 0 ].actions.map( ( a ) => a.id ) ).toEqual( [ 'edit', 'history' ] );
 	} );
 
 	it( 'falls back to opensearch when rest.php fails', async () => {

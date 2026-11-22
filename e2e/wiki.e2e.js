@@ -60,6 +60,23 @@ test( 'Vector 2022: Ctrl+K, search, Enter goes to the exact title', async () => 
 	await done( page );
 } );
 
+test( 'a page result is a link; Ctrl+click opens one new tab', async () => {
+	const page = await visit( 'Main_Page', { useskin: 'vector-2022' } );
+	await page.keyboard.press( 'Control+k' );
+	await palette( page ).fill( 'apple pie' );
+	const result = page.getByRole( 'option', { name: /Apple pie/ } ).first();
+	await result.waitFor();
+	assert.match( await result.getAttribute( 'href' ), /Apple_pie$/ );
+	const tabs = [];
+	page.context().on( 'page', ( p ) => tabs.push( p ) );
+	await result.click( { modifiers: [ 'Control' ] } );
+	await page.waitForTimeout( 500 );
+	assert.equal( tabs.length, 1 );
+	// The palette stays open with the focus in the input
+	assert.equal( await page.evaluate( () => document.activeElement.className ), await palette( page ).evaluate( ( el ) => el.className ) );
+	await done( page );
+} );
+
 test( 'keys typed while the core loads reach the palette', async () => {
 	const page = await visit( 'Main_Page', { useskin: 'vector-2022' } );
 	// Make the first load slow enough to type into

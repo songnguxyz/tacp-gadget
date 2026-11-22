@@ -64,8 +64,7 @@ export function pageItem( title, extra ) {
 	const prefixed = t.getPrefixedText();
 	const actions = ns < 0 ? [] : [
 		{ id: 'edit', label: msg( 'tacp-action-edit' ), icon: icons.edit, url: t.getUrl( { action: 'edit' } ) },
-		{ id: 'history', label: msg( 'tacp-action-history' ), icon: icons.history, url: t.getUrl( { action: 'history' } ) },
-		{ id: 'copy', label: msg( 'tacp-action-copy' ), icon: icons.link, run: () => copyText( safeUrl( t.getUrl() ) ) }
+		{ id: 'history', label: msg( 'tacp-action-history' ), icon: icons.history, url: t.getUrl( { action: 'history' } ) }
 	];
 	return Object.assign( {
 		id: 'page:' + prefixed,

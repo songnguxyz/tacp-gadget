@@ -3,6 +3,14 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
+## Unreleased
+
+### Changed
+- Results that open a page are links: right-click, long-press or middle-click them to copy the address or open it in a new tab.
+
+### Removed
+- The "Copy link" action on page results; the link's own menu does it.
+
 ## 0.1.0-rc.9 — 2026-11-22
 
 ### Added

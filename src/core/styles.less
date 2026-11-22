@@ -112,8 +112,15 @@
 	align-items: center;
 	min-height: @min-size-interactive-pointer;
 	padding: @spacing-50 @spacing-100;
-	color: @color-base;
 	cursor: pointer;
+
+	// Results that open a page are links; skins style links
+	&,
+	&:hover,
+	&:visited {
+		color: @color-base;
+		text-decoration: none;
+	}
 
 	> * + * {
 		margin-left: @spacing-75;
