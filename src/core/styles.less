@@ -2,6 +2,9 @@
 
 // Layout only; everything else comes from Codex. All selectors start with
 // .tacp-, so nothing here can restyle the rest of the page.
+// Spacing uses margins, not flex `gap`: Safari 11.1-14.0 and Chrome 63-83,
+// which MediaWiki 1.43 supports, lack it. margin-left is flipped for RTL by
+// ResourceLoader (or at build time for the CDN files).
 
 .tacp-palette.cdx-dialog {
 	align-self: flex-start;
@@ -23,9 +26,17 @@
 .tacp-header {
 	display: flex;
 	align-items: center;
-	gap: @spacing-50;
 	padding: @spacing-75 @spacing-100;
 	border-bottom: @border-width-base solid @border-color-subtle;
+
+	// The input has no outline of its own: the rule under it shows its focus
+	> * + * {
+		margin-left: @spacing-50;
+	}
+
+	&:has( .tacp-input:focus ) {
+		border-bottom-color: @border-color-progressive;
+	}
 
 	&__icon {
 		flex-shrink: 0;
@@ -58,8 +69,9 @@
 	display: inline-flex;
 	flex-shrink: 0;
 	align-items: center;
-	gap: @spacing-25;
-	padding: 0 @spacing-25 0 @spacing-50;
+	// Separate sides: CSSJanus does not flip a four-value shorthand of var()s
+	padding-right: @spacing-25;
+	padding-left: @spacing-50;
 	border-radius: @border-radius-pill;
 	background-color: @background-color-interactive;
 	color: @color-base;
@@ -67,6 +79,7 @@
 	white-space: nowrap;
 
 	&__remove {
+		margin-left: @spacing-25;
 		display: inline-flex;
 		border: 0;
 		border-radius: @border-radius-pill;
@@ -97,14 +110,20 @@
 .tacp-item {
 	display: flex;
 	align-items: center;
-	gap: @spacing-75;
 	min-height: @min-size-interactive-pointer;
 	padding: @spacing-50 @spacing-100;
 	color: @color-base;
 	cursor: pointer;
 
+	> * + * {
+		margin-left: @spacing-75;
+	}
+
+	// The tint alone is about 1.1:1 against the dialog; the bar gives the
+	// keyboard highlight 3:1 or more (WCAG 1.4.11)
 	&--active {
 		background-color: @background-color-progressive-subtle;
+		box-shadow: inset 4px 0 0 @border-color-progressive;
 	}
 
 	&__icon {
@@ -131,7 +150,6 @@
 	&__title {
 		display: flex;
 		align-items: baseline;
-		gap: @spacing-50;
 	}
 
 	&__label,
@@ -148,6 +166,7 @@
 
 	&__badge {
 		flex-shrink: 0;
+		margin-left: @spacing-50;
 		padding: 0 @spacing-25;
 		border-radius: @border-radius-base;
 		background-color: @background-color-interactive;
@@ -168,7 +187,6 @@
 	&__actions {
 		display: flex;
 		flex-shrink: 0;
-		gap: @spacing-25;
 		visibility: hidden;
 	}
 
@@ -193,12 +211,26 @@
 			outline: 2px solid @border-color-progressive;
 		}
 	}
+
+	&__action + &__action {
+		margin-left: @spacing-25;
+	}
 }
 
 @media ( hover: none ) {
 	.tacp-item__actions {
 		visibility: visible;
 	}
+}
+
+// Read by screen readers, not shown
+.tacp-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect( 0, 0, 0, 0 );
+	white-space: nowrap;
 }
 
 .tacp-state {
@@ -225,11 +257,16 @@
 .tacp-footer {
 	display: flex;
 	flex-wrap: wrap;
-	gap: @spacing-75;
-	padding: @spacing-50 @spacing-100;
+	padding: @spacing-25 @spacing-100;
 	border-top: @border-width-base solid @border-color-subtle;
 	color: @color-subtle;
 	font-size: @font-size-x-small;
+
+	> * {
+		margin-top: @spacing-25;
+		margin-right: @spacing-75;
+		margin-bottom: @spacing-25;
+	}
 
 	kbd {
 		display: inline-block;
@@ -266,6 +303,14 @@
 
 	.tacp-footer {
 		display: none;
+	}
+}
+
+// Forced colors (Windows high contrast) drop backgrounds and box shadows
+@media ( forced-colors: active ) {
+	.tacp-item--active {
+		outline: 2px solid Highlight;
+		outline-offset: -2px;
 	}
 }
 

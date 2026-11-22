@@ -36,6 +36,27 @@ export function restGet( path, signal ) {
 	return getJson( mw.config.get( 'wgScriptPath' ) + '/rest.php' + path, signal );
 }
 
+/**
+ * An AbortController, or on browsers without one (Chrome 63-65, Safari
+ * 11.1-12.0) a stand-in whose signal only sets `aborted`: requests then run
+ * to the end, and their results are dropped.
+ *
+ * @return {AbortController|{signal: Object, abort: Function}}
+ */
+export function newController() {
+	if ( typeof AbortController === 'function' ) {
+		return new AbortController();
+	}
+	const noop = () => {};
+	const signal = { aborted: false, addEventListener: noop, removeEventListener: noop };
+	return {
+		signal,
+		abort() {
+			signal.aborted = true;
+		}
+	};
+}
+
 export function isAbort( err ) {
 	return !!err && err.name === 'AbortError';
 }

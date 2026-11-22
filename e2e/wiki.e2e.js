@@ -149,6 +149,45 @@ test( 'Minerva on a phone: the floating button opens the palette', async () => {
 	await done( page );
 } );
 
+test( 'keys pressed while the core loads', async ( t ) => {
+	// Slow down the core so the keys land before it is ready
+	async function slowCore( title ) {
+		const page = await visit( title, { useskin: 'vector-2022' } );
+		await page.route( /load\.php\?.*TACP-core/, async ( route ) => {
+			await new Promise( ( resolve ) => {
+				setTimeout( resolve, 1500 );
+			} );
+			await route.continue();
+		} );
+		return page;
+	}
+
+	await t.test( 'typed text and Enter open the first result', async () => {
+		const page = await slowCore( 'Main_Page' );
+		await page.keyboard.press( 'Control+k' );
+		await page.keyboard.type( 'apple' );
+		await Promise.all( [ page.waitForURL( /Apple$/ ), page.keyboard.press( 'Enter' ) ] );
+		await done( page );
+	} );
+
+	await t.test( 'Escape, or the shortcut again, cancels', async () => {
+		const page = await slowCore( 'Main_Page' );
+		for ( const key of [ 'Escape', 'Control+k' ] ) {
+			await page.keyboard.press( 'Control+k' );
+			await page.keyboard.type( 'app' );
+			await page.keyboard.press( key );
+			await page.waitForFunction( () => mw.loader.getState( 'ext.gadget.TACP-core' ) === 'ready' );
+			await page.waitForTimeout( 300 );
+			assert.equal( await page.getByRole( 'dialog' ).count(), 0, key );
+		}
+		// The page has the keys back, and the palette still opens
+		await page.keyboard.press( 'Control+k' );
+		await palette( page ).waitFor();
+		assert.equal( await palette( page ).inputValue(), '' );
+		await done( page );
+	} );
+} );
+
 test( 'search takeover', async ( t ) => {
 	setConfig( { searchTakeover: true } );
 	t.after( () => setConfig( {} ) );
@@ -169,27 +208,47 @@ test( 'search takeover', async ( t ) => {
 	} );
 } );
 
-test( 'TACP-standalone.js pasted into the console on a wiki without the gadget', async ( t ) => {
+test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async ( t ) => {
 	edit( 'MediaWiki:Gadgets-definition', '' );
 	t.after( () => edit( 'MediaWiki:Gadgets-definition', readFileSync( process.env.MW_DIR + '/tacp-definition.txt', 'utf8' ) ) );
-	const code = readFileSync( new URL( '../dist/TACP-standalone.js', import.meta.url ), 'utf8' );
 	const context = await browser.newContext();
+	// Stands in for cdn.jsdelivr.net/gh/<repo>@<commit>/
+	const served = [];
+	await context.route( 'https://cdn.test/tacp@abc123/*', ( route ) => {
+		const file = new URL( route.request().url() ).pathname.split( '/' ).pop();
+		served.push( file );
+		route.fulfill( {
+			body: readFileSync( new URL( '../dist/' + file, import.meta.url ) ),
+			contentType: file.endsWith( '.css' ) ? 'text/css' : 'text/javascript'
+		} );
+	} );
 	const page = await context.newPage();
 	page.errors = [];
 	page.on( 'pageerror', ( e ) => page.errors.push( e.message ) );
-	// Legacy Vector, as on Cookie Run Wiki
-	await page.goto( url( 'Apple', { useskin: 'vector' } ) );
+	await page.goto( url( 'Apple', { useskin: 'vector-2022', uselang: 'he' } ) );
 	await page.waitForFunction( () => mw.loader.getState( 'mediawiki.base' ) === 'ready' );
-	assert.equal( await page.evaluate( () => mw.loader.getState( 'ext.gadget.TACP' ) ), null );
-	const ready = page.waitForEvent( 'console', ( m ) => /TACP .* is ready/.test( m.text() ) );
-	await page.evaluate( code );
-	await ready;
+	await page.evaluate( () => {
+		window.tacpConfig = { slashShortcut: false };
+		mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js' );
+	} );
+	await page.waitForFunction( () => window.tacpCdn );
+	// Only the loader until the palette opens
+	await page.waitForTimeout( 300 );
+	assert.deepEqual( served, [ 'TACP-cdn.js' ] );
+	// slashShortcut: false from window.tacpConfig
+	await page.keyboard.press( '/' );
+	await page.waitForTimeout( 300 );
+	assert.equal( await page.getByRole( 'dialog' ).count(), 0 );
 	await page.keyboard.press( 'Control+k' );
 	await palette( page ).fill( 'apple' );
 	await page.getByRole( 'option', { name: /Apple pie/ } ).waitFor();
-	// A second paste does not start a second copy
+	assert.deepEqual( served.sort(), [ 'TACP-cdn-core.js', 'TACP-cdn-core.rtl.css', 'TACP-cdn.js' ] );
+	// The right-to-left stylesheet: the highlight bar is on the right
+	const bar = await page.locator( '.tacp-item--active' ).evaluate( ( el ) => getComputedStyle( el ).boxShadow );
+	assert.match( bar, / -4px 0px 0px 0px inset$/ );
+	// Loading it a second time does not start a second copy
 	const warned = page.waitForEvent( 'console', ( m ) => /already running/.test( m.text() ) );
-	await page.evaluate( code );
+	await page.evaluate( () => mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js?again' ) );
 	await warned;
 	await done( page );
 } );

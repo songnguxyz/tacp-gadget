@@ -1,9 +1,9 @@
 // Builds the four gadget files, the default config and the gadget definitions into dist/.
-import { build } from 'vite';
+import { build, transformWithEsbuild } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { execSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, rmSync, readdirSync } from 'node:fs';
+import cssjanus from 'cssjanus';
 
 const pkg = JSON.parse( readFileSync( 'package.json', 'utf8' ) );
 const sha = ( process.env.GITHUB_SHA || execSync( 'git rev-parse HEAD' ).toString() ).trim().slice( 0, 7 );
@@ -32,6 +32,21 @@ const deps = {
 	]
 };
 
+const coreDeps = deps[ 'TACP-core' ].filter( ( dep ) => dep !== 'ext.gadget.TACP' );
+// Build-time constants of src/loader/TACP.js
+const defines = ( flags = {} ) => Object.assign( {
+	__LOADER_MESSAGES__: JSON.stringify( loaderMessages ),
+	__CDN__: 'false',
+	__CDN_BASE__: '""',
+	__CORE_DEPS__: JSON.stringify( coreDeps )
+}, flags );
+// Skips loading where the gadget or another copy of the CDN build already runs
+const alreadyRunning = `var running = [ 'loading', 'loaded', 'executing', 'ready' ];
+	if ( window.tacpCdn || running.indexOf( mw.loader.getState( 'ext.gadget.TACP' ) ) !== -1 ) {
+		console.warn( 'TACP is already running on this page.' );
+		return;
+	}`;
+
 rmSync( 'dist', { recursive: true, force: true } );
 mkdirSync( 'dist' );
 
@@ -40,11 +55,13 @@ for ( const [ name, entry ] of [ [ 'TACP', 'src/loader/TACP.js' ], [ 'TACP-core'
 		configFile: false,
 		logLevel: 'warn',
 		plugins: [ vue() ],
-		define: { __LOADER_MESSAGES__: JSON.stringify( loaderMessages ), __STANDALONE__: 'false' },
+		define: defines(),
 		build: {
 			outDir: 'dist',
 			emptyOutDir: false,
-			target: 'es2015',
+			// The oldest maintained LTS (1.43) runs JS only on Chrome 63+, Firefox 58+,
+			// Safari 11.1+; raise this when the floor moves to the next LTS (README)
+			target: 'es2018',
 			minify: false,
 			lib: { entry, formats: [ 'cjs' ], fileName: () => name + '.js', cssFileName: name },
 			rollupOptions: {
@@ -62,44 +79,52 @@ for ( const [ name, entry ] of [ [ 'TACP', 'src/loader/TACP.js' ], [ 'TACP-core'
 
 copyFileSync( 'src/loader/TACP-config.json', 'dist/TACP-config.json' );
 
-// TACP-standalone.js: loader and core in one file, with the default config and
-// the styles, to try TACP on any wiki by pasting it into the browser console.
-// Not deployed; attached to the release.
+// The CDN files, for wikis that load TACP from jsDelivr with one line instead
+// of installing the gadget (docs/deploy.md). TACP-cdn.js is the loader; when
+// the palette first opens it loads the gadget's core, wrapped as
+// window.tacpCdnCore, and its styles, from the same directory. ResourceLoader
+// does not flip these files for right-to-left languages, so CSSJanus does it
+// here. Nothing minifies them on the way either, so the build does.
+const minify = async ( code, file ) => ( await transformWithEsbuild( code, file, { minify: true, legalComments: 'none', target: 'es2018' } ) ).code;
 await build( {
 	configFile: false,
 	logLevel: 'warn',
 	plugins: [ vue() ],
-	define: { __LOADER_MESSAGES__: JSON.stringify( loaderMessages ), __STANDALONE__: 'true' },
-	resolve: { alias: { 'ext.gadget.TACP': fileURLToPath( new URL( '../src/loader/TACP.js', import.meta.url ) ) } },
+	define: defines( { __CDN__: 'true', __CDN_BASE__: 'cdnBase' } ),
 	build: {
-		outDir: 'build/standalone',
+		outDir: 'build/cdn',
 		emptyOutDir: true,
-		target: 'es2015',
+		target: 'es2018',
 		minify: false,
-		lib: { entry: 'src/loader/TACP.js', formats: [ 'cjs' ], fileName: () => 'standalone.js', cssFileName: 'standalone' },
-		rollupOptions: {
-			external: [ 'vue', '@wikimedia/codex' ],
-			output: { exports: 'named', inlineDynamicImports: true }
-		}
+		lib: { entry: 'src/loader/TACP.js', formats: [ 'cjs' ], fileName: () => 'loader.js', cssFileName: 'loader' },
+		rollupOptions: { output: { exports: 'named' } }
 	}
 } );
-const standaloneDeps = [ ...new Set( deps.TACP.concat( deps[ 'TACP-core' ] ) ) ]
-	.filter( ( dep ) => dep !== 'ext.gadget.TACP' );
-writeFileSync( 'dist/TACP-standalone.js', header + `( function () {
-	var running = [ 'loading', 'loaded', 'executing', 'ready' ];
-	if ( window.tacpStandalone || running.indexOf( mw.loader.getState( 'ext.gadget.TACP' ) ) !== -1 ) {
-		console.warn( 'TACP is already running on this page.' );
-		return;
-	}
-	window.tacpStandalone = true;
-	mw.loader.using( ${ JSON.stringify( standaloneDeps ) } ).then( function ( require ) {
-		mw.util.addCSS( ${ JSON.stringify( readFileSync( 'build/standalone/standalone.css', 'utf8' ) ) } );
+const loaderCss = await minify( readFileSync( 'build/cdn/loader.css', 'utf8' ), 'loader.css' );
+writeFileSync( 'dist/TACP-cdn.js', header + await minify( `( function () {
+	${ alreadyRunning }
+	window.tacpCdn = true;
+	// Captured now: currentScript is only set while this file first runs
+	var cdnBase = ( document.currentScript ? document.currentScript.src : '' ).replace( /[^/]*$/, '' );
+	mw.loader.using( ${ JSON.stringify( deps.TACP ) } ).then( function ( require ) {
+		mw.util.addCSS( document.documentElement.dir === 'rtl' ?
+			${ JSON.stringify( cssjanus.transform( loaderCss ) ) } :
+			${ JSON.stringify( loaderCss ) } );
 		var module = { exports: {} }, exports = module.exports;
-${ readFileSync( 'build/standalone/standalone.js', 'utf8' ) }
-		console.info( 'TACP ${ pkg.version } is ready: press Ctrl+K or /.' );
+${ readFileSync( 'build/cdn/loader.js', 'utf8' ) }
 	} );
 }() );
-` );
+`, 'TACP-cdn.js' ) );
+const coreJs = readFileSync( 'dist/TACP-core.js', 'utf8' ).replace( header, '' );
+writeFileSync( 'dist/TACP-cdn-core.js', header + await minify( `window.tacpCdnCore = function ( require ) {
+	var module = { exports: {} }, exports = module.exports;
+${ coreJs }
+	return module.exports;
+};
+`, 'TACP-cdn-core.js' ) );
+const coreCss = await minify( readFileSync( 'dist/TACP-core.css', 'utf8' ).replace( header, '' ), 'core.css' );
+writeFileSync( 'dist/TACP-cdn-core.css', header + coreCss );
+writeFileSync( 'dist/TACP-cdn-core.rtl.css', header + cssjanus.transform( coreCss ) );
 
 // Legacy MediaWiki:Gadgets-definition lines
 writeFileSync( 'dist/Gadgets-definition.txt', [

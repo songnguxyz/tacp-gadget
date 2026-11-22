@@ -1,9 +1,9 @@
 import { apiGet } from '../services/api.js';
 import { getSiteInfo } from '../services/siteinfo.js';
-import { pageItem } from '../items.js';
+import { pageItem, thumbWidth } from '../items.js';
 
 const LIMIT = 5;
-const PROPS = { prop: 'pageimages|description', piprop: 'thumbnail', pithumbsize: 80 };
+const props = () => ( { prop: 'pageimages|description', piprop: 'thumbnail', pithumbsize: thumbWidth() } );
 
 function toItems( data ) {
 	const pages = ( data.query && data.query.pages ) || [];
@@ -13,7 +13,7 @@ function toItems( data ) {
 		.slice( 0, LIMIT )
 		.map( ( p ) => pageItem( p.title, {
 			description: p.description || '',
-			thumbnail: p.thumbnail ? { url: p.thumbnail.source } : null
+			thumbnail: p.thumbnail ? { url: p.thumbnail.source, width: p.thumbnail.width } : null
 		} ) )
 		.filter( Boolean );
 }
@@ -38,7 +38,7 @@ export function getRelated( context, signal ) {
 		const has = ( name ) => info.extensions.includes( name );
 		const curated = mw.config.get( 'wgRelatedArticles' );
 		if ( has( 'RelatedArticles' ) && Array.isArray( curated ) && curated.length ) {
-			return apiGet( Object.assign( { action: 'query', titles: curated.slice( 0, LIMIT ).join( '|' ) }, PROPS ), signal )
+			return apiGet( Object.assign( { action: 'query', titles: curated.slice( 0, LIMIT ).join( '|' ) }, props() ), signal )
 				.then( toItems );
 		}
 		if ( has( 'CirrusSearch' ) ) {
@@ -48,7 +48,7 @@ export function getRelated( context, signal ) {
 				gsrsearch: 'morelike:' + context.title,
 				gsrnamespace: context.namespace,
 				gsrlimit: LIMIT
-			}, PROPS ), signal ).then( toItems );
+			}, props() ), signal ).then( toItems );
 		}
 		return [];
 	} );

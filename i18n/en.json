@@ -60,7 +60,7 @@
 	"tacp-cmd-clear-recent": "Clear recent items",
 	"tacp-recent-cleared": "Recent items cleared.",
 	"tacp-mode-ns": "Namespaces",
-	"tacp-mode-ns-desc": "Pick a namespace, then search within it",
+	"tacp-mode-ns-desc": "Pick a namespace, then search within it. Shortcut for templates: {{",
 	"tacp-mode-action": "Actions",
 	"tacp-mode-action-desc": "Actions on this page, and special pages",
 	"tacp-mode-user": "Users",
@@ -92,5 +92,8 @@
 	"tacp-hint-open": "open",
 	"tacp-hint-actions": "actions",
 	"tacp-hint-close": "close",
-	"tacp-hint-help": "help"
+	"tacp-hint-help": "help",
+	"tacp-sr-hint": "Up and down arrows choose a result, Enter opens it, $1+Enter opens it in a new tab, Shift+Enter edits the page, the right arrow reaches more actions, Escape closes.",
+	"tacp-sr-results": "$1 {{PLURAL:$1|result|results}}",
+	"tacp-sr-action": "$1, action $2 of $3"
 }

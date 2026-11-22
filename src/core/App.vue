@@ -34,6 +34,7 @@
 					:aria-controls="listId"
 					:aria-expanded="flat.length ? 'true' : 'false'"
 					:aria-activedescendant="activeDescendant"
+					:aria-describedby="listId + '-hint'"
 					:placeholder="placeholder"
 					@keydown="onKeydown"
 				>
@@ -78,6 +79,10 @@
 				></result-item>
 			</div>
 		</div>
+		<!-- Screen readers: how to use the list, what it holds, which action is chosen -->
+		<span :id="listId + '-hint'" class="tacp-sr-only">{{ msg( 'tacp-sr-hint', modKey ) }}</span>
+		<span class="tacp-sr-only" role="status">{{ resultsAnnouncement }}</span>
+		<span class="tacp-sr-only" aria-live="assertive">{{ actionAnnouncement }}</span>
 		<div v-if="emptyState" class="tacp-state">
 			<cdx-icon class="tacp-state__icon" :icon="emptyState.icon"></cdx-icon>
 			<p class="tacp-state__title">
@@ -109,7 +114,7 @@ import icons from './icons.js';
 import { msg, text } from './text.js';
 import { getGroups } from './results.js';
 import { parseTrigger } from './input.js';
-import { isAbort } from './services/api.js';
+import { isAbort, newController } from './services/api.js';
 import { addRecent } from './services/recent.js';
 
 const DEBOUNCE = 150;
@@ -183,8 +188,23 @@ export default defineComponent( {
 			if ( !activeItem.value ) {
 				return undefined;
 			}
-			const id = listId + '-' + activeIndex.value;
-			return activeAction.value >= 0 ? id + '-action-' + activeAction.value : id;
+			// Always the option: what is inside an option is not exposed to
+			// assistive technology, so the chosen action is announced instead
+			return listId + '-' + activeIndex.value;
+		} );
+		// Not "loading": announced on every keystroke, it would talk over typing
+		const resultsAnnouncement = computed( () => {
+			if ( status.value === 'error' ) {
+				return msg( 'tacp-state-error-title' );
+			}
+			return flat.value.length ? msg( 'tacp-sr-results', flat.value.length ) :
+				query.value.trim() ? msg( 'tacp-state-noresults-title' ) : '';
+		} );
+		const actionAnnouncement = computed( () => {
+			const item = activeItem.value;
+			const action = item && item.actions[ activeAction.value ];
+			return action ?
+				msg( 'tacp-sr-action', action.label, activeAction.value + 1, item.actions.length ) : '';
 		} );
 		const placeholder = computed( () => currentMode.value ?
 			msg( 'tacp-placeholder-mode', modeLabel.value ) :
@@ -275,7 +295,7 @@ export default defineComponent( {
 			if ( controller ) {
 				controller.abort();
 			}
-			const ctrl = controller = new AbortController();
+			const ctrl = controller = newController();
 			status.value = 'loading';
 			const state = { query: query.value, mode: currentMode.value, context, registry: props.registry };
 			timer = setTimeout( () => {
@@ -385,6 +405,9 @@ export default defineComponent( {
 				modeStack.value = [];
 				groups.value = [];
 				query.value = store.prefill !== null ? store.prefill : fromSelection || '';
+				// Enter pressed while the core loaded: runs on the first results
+				pendingEnter = store.enter;
+				store.enter = null;
 				openCount.value++;
 				// After CdxDialog's own focus handling, which runs on nextTick
 				setTimeout( () => {
@@ -404,9 +427,13 @@ export default defineComponent( {
 			}
 		} );
 
+		// Key names, not translated: what screen readers read for aria-keyshortcuts
+		const modKey = /Mac|iPhone|iPad/.test( navigator.platform ) ? 'Command' : 'Control';
+
 		return {
 			store, icons, msg, input, query, listId, view, flat, activeIndex, activeAction,
-			activeItem, activeDescendant, currentMode, modeLabel, placeholder, emptyState,
+			activeItem, activeDescendant, resultsAnnouncement, actionAnnouncement, currentMode, modeLabel,
+			placeholder, emptyState, modKey,
 			popMode, hover, onClick, onKeydown, runAction
 		};
 	}

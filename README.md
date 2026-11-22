@@ -1,13 +1,16 @@
-# TACP — The Amazing Command Palette
+# TACP: The Amazing Command Palette
 
 A MediaWiki gadget that adds a keyboard-driven command palette to every skin
-except Citizen. Press **Ctrl+K** / **Cmd+K** or **/** (or tap the floating search button
-on a phone) to search pages, jump to recent pages, run page actions and browse
+except Citizen. Press Ctrl+K (Cmd+K on a Mac) or `/`, or tap the floating search button
+on a phone, to search pages, jump to recent pages, run page actions and browse
 namespaces, users, categories and page history.
 
 - Needs only MediaWiki core and the Gadgets extension: no PHP, no extension.
 - Supports every MediaWiki release mediawiki.org lists as supported
-  (currently 1.43 LTS, 1.45 and 1.46).
+  (currently 1.43 LTS, 1.45 and 1.46). The oldest maintained LTS sets the floor:
+  when it reaches end of life, the next TACP release requires the next LTS, and
+  the browser baseline (build target, CSS) moves up to what that LTS runs
+  JavaScript on.
 - Built from Codex, so it looks native to the skin, night mode included.
 - On by default for everyone from 1.0; users can turn it off in
   *Special:Preferences → Gadgets*. Release candidates are opt-in.
@@ -30,18 +33,21 @@ namespaces, users, categories and page history.
 Modes: `/ns`, `/action`, `/section` (or just `#`), `/lang` (or just `@`), `/user`,
 `/category`, `/history`, `/help`. Typing a namespace name and a colon, such as
 `Template:` or `Special:` (or a local name or alias the wiki accepts), turns it into a chip and
-searches only that namespace, like `/ns`.
+searches only that namespace, like `/ns`; `{{` does the same for templates.
 
 ## Trying it without installing
 
-Each release has `TACP-standalone.js`: the whole gadget in one file, with the
-default configuration. Open any wiki page (MediaWiki 1.43 or later, not Citizen),
-paste the file's contents into the browser console and press Enter; TACP runs
-until the page is reloaded. It refuses to start where the gadget is already on.
+Open any wiki page (MediaWiki 1.43 or later, not Citizen), paste the
+`mw.loader.load( … )` line from a release's notes into the browser console and
+press Enter: TACP loads from jsDelivr and runs until the page is reloaded. It
+does not start where the gadget is already on, nor on wikis whose Content
+Security Policy blocks `cdn.jsdelivr.net`.
 
 ## Installing on a wiki
 
-See [docs/deploy.md](docs/deploy.md). Site settings live in
+See [docs/deploy.md](docs/deploy.md). A wiki can also load TACP from jsDelivr with
+one line instead of installing the gadget: see
+[Loading from jsDelivr](docs/deploy.md#loading-from-jsdelivr). Site settings live in
 `MediaWiki:Gadget-TACP-config.json`:
 
 | Key | Default | Meaning |

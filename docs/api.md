@@ -79,7 +79,8 @@ Commands appear when the typed text matches their label.
 		description: 'A fruit',      // optional, one line
 		badge: 'Food',               // optional, small tag after the label
 		icon: tacp.icons.article,    // optional, ignored when thumbnail is set
-		thumbnail: { url: '…' },     // optional
+		thumbnail: { url: '…', width: 60 }, // optional; width (px) lets TACP fetch a sharper
+		                             // one for `title` on high-density screens
 		title: 'Apple',              // optional wiki page title: enables Shift+Enter (edit) and Recent
 		url: '/wiki/Apple',          // opened on Enter; Ctrl/Cmd+Enter opens a new tab
 		run: function () {},         // called on Enter instead of opening url
@@ -110,20 +111,19 @@ relative URLs are kept; any other `url` is dropped. Empty groups are hidden.
 
 ## Rules for registrants
 
-- **Naming.** Every `id` starts with your gadget's name, e.g. `mygadget-purge`.
+- Every `id` starts with your gadget's name, e.g. `mygadget-purge`.
   The `tacp-` prefix is reserved for TACP.
-- **Trigger collisions.** `/ns`, `/action`, `/user`, `/category`, `/history`,
-  `/help`, `/section`, `/lang`, `/file`, `/cargo`, `/bucket` and `/smw` are reserved,
+- These triggers are reserved: `/ns`, `/action`, `/user`, `/category`, `/history`,
+  `/help`, `/section`, `/lang`, `/file`, `/cargo`, `/bucket` and `/smw`,
   as are the one-character shortcuts `#` and `@`. For any other
   trigger the first registration wins; later ones are rejected with a
   `mw.log.warn` and the user sees nothing.
-- **No overriding built-ins.** Wikis hide built-in modes with `disabledModes` in
+- A gadget cannot override a built-in mode. Wikis hide built-in modes with `disabledModes` in
   `MediaWiki:Gadget-TACP-config.json`.
-- **Plain text only.** Labels, descriptions and result fields are rendered as text.
-- **Writing to the wiki.** TACP itself never writes. A registered `run()` may;
+- TACP itself never writes to the wiki. A registered `run()` may;
   that is your gadget's responsibility. Commands that change anything should set
   `confirm: true`.
-- **Ordering.** Your results appear after TACP's own within the same group.
+- Your results appear after TACP's own within the same group.
 
 ## Timing
 

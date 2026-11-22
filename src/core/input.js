@@ -8,7 +8,7 @@ export const ALIASES = { '#': 'tacp-section', '@': 'tacp-lang' };
  * Detect a mode trigger typed at the start of the input, e.g. "/user al".
  * The trigger only counts once followed by a space; an alias ("#", "@")
  * counts at once. A namespace name and colon ("Template:") scopes the search
- * to that namespace, through /ns.
+ * to that namespace, through /ns, and so does "{{" for templates.
  *
  * @param {string} query
  * @param {Object[]} modes Available modes
@@ -21,8 +21,13 @@ export function parseTrigger( query, modes ) {
 	if ( alias ) {
 		return { mode: alias, rest: query.slice( 1 ) };
 	}
+	const hasNs = modes.some( ( x ) => x.id === 'tacp-ns' );
+	// "{{" searches templates, with or without the closing "}}"
+	if ( hasNs && query.startsWith( '{{' ) ) {
+		return { mode: namespaceForPrefix( 'template' ), rest: query.slice( 2 ).replace( /\}\}\s*$/, '' ) };
+	}
 	const prefixed = /^([^:/]+):([\s\S]*)$/.exec( query );
-	const scoped = prefixed && modes.some( ( x ) => x.id === 'tacp-ns' ) && namespaceForPrefix( prefixed[ 1 ] );
+	const scoped = prefixed && hasNs && namespaceForPrefix( prefixed[ 1 ] );
 	if ( scoped ) {
 		return { mode: scoped, rest: prefixed[ 2 ] };
 	}

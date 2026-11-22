@@ -11,7 +11,10 @@ const BUTTON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" 
 	'<path d="M16.6.2l.84 2.16L19.6 3.2l-2.16.84L16.6 6.2l-.84-2.16L13.6 3.2l2.16-.84z"/>' +
 	'</svg>';
 
-export const config = normalizeConfig( rawConfig );
+// The CDN build reads the site's settings from window.tacpConfig, set before
+// it loads, in place of MediaWiki:Gadget-TACP-config.json
+// eslint-disable-next-line no-undef
+export const config = normalizeConfig( __CDN__ ? window.tacpConfig : rawConfig );
 
 const enabled = mw.config.get( 'skin' ) !== 'citizen';
 let core = null;
@@ -20,13 +23,41 @@ let button = null;
 
 function noop() {}
 
-// The console tryout build (TACP-standalone.js) bundles the core instead of
-// loading the gadget
-/* eslint-disable no-undef, es-x/no-dynamic-import */
-const fetchCore = __STANDALONE__ ?
-	() => import( '../core/init.js' ) :
+const isRtl = () => document.documentElement.dir === 'rtl';
+
+function loadStylesheet( href ) {
+	return new Promise( ( resolve, reject ) => {
+		const link = document.createElement( 'link' );
+		link.rel = 'stylesheet';
+		link.href = href;
+		link.onload = resolve;
+		link.onerror = () => reject( new Error( 'Could not load ' + href ) );
+		document.head.appendChild( link );
+	} );
+}
+
+/* eslint-disable no-undef */
+/**
+ * The CDN build (TACP-cdn.js) loads the core's files from where it was
+ * loaded itself, then runs the core with this module as ext.gadget.TACP.
+ *
+ * @return {Promise<Object>} The core's exports
+ */
+function fetchCdnCore() {
+	const css = __CDN_BASE__ + 'TACP-cdn-core' + ( isRtl() ? '.rtl' : '' ) + '.css';
+	return Promise.all( [
+		mw.loader.using( __CORE_DEPS__ ),
+		loadStylesheet( css ),
+		Promise.resolve( mw.loader.getScript( __CDN_BASE__ + 'TACP-cdn-core.js' ) )
+	] ).then( ( [ req ] ) => window.tacpCdnCore(
+		( name ) => ( name === 'ext.gadget.TACP' ? { config, open, close, setOpenState } : req( name ) )
+	) );
+}
+
+// The gadget loads the core as the hidden gadget TACP-core
+const fetchCore = __CDN__ ? fetchCdnCore :
 	() => mw.loader.using( 'ext.gadget.TACP-core' ).then( ( req ) => req( 'ext.gadget.TACP-core' ) );
-/* eslint-enable no-undef, es-x/no-dynamic-import */
+/* eslint-enable no-undef */
 
 function loadCore() {
 	if ( !loading ) {
@@ -48,12 +79,27 @@ function loadCore() {
 
 // Keys typed while the core loads, or null when not loading
 let typed = null;
+// Enter pressed meanwhile: how to open the first result once there is one
+let enter = null;
+// Escape, or the toggle shortcut, pressed meanwhile: do not open after all
+let cancelled = false;
 
 function bufferKey( e ) {
-	if ( e.isComposing || e.ctrlKey || e.metaKey || e.altKey ) {
+	if ( e.isComposing ) {
 		return;
 	}
-	if ( e.key.length === 1 ) {
+	if ( e.key === 'Escape' ) {
+		cancelled = true;
+		takeTyped();
+	} else if ( e.key === 'Enter' ) {
+		// Only with a query: on an empty palette the first item is a suggestion.
+		// Either way the key must not reach a focused link on the page.
+		if ( typed.trim() ) {
+			enter = e.ctrlKey || e.metaKey ? 'newtab' : e.shiftKey ? 'edit' : 'open';
+		}
+	} else if ( e.ctrlKey || e.metaKey || e.altKey ) {
+		return;
+	} else if ( e.key.length === 1 ) {
 		typed += e.key;
 	} else if ( e.key === 'Backspace' ) {
 		typed = typed.slice( 0, -1 );
@@ -84,11 +130,17 @@ export function open( prefill ) {
 	}
 	if ( !core && typed === null ) {
 		typed = '';
+		enter = null;
+		cancelled = false;
 		document.addEventListener( 'keydown', bufferKey, true );
 	}
 	return Promise.resolve( loadCore() ).then( ( c ) => {
+		const how = enter;
+		const skip = cancelled;
 		const text = ( prefill || '' ) + takeTyped();
-		return c.open( text || prefill );
+		enter = null;
+		cancelled = false;
+		return skip ? undefined : c.open( text || prefill, how || undefined );
 	}, ( err ) => {
 		takeTyped();
 		throw err;
@@ -114,7 +166,11 @@ export function setOpenState( isOpen ) {
 }
 
 function toggle() {
-	if ( core && core.isOpen() ) {
+	if ( !core && typed !== null ) {
+		// Pressed again while the core loads: cancel, as it would close
+		cancelled = true;
+		takeTyped();
+	} else if ( core && core.isOpen() ) {
 		core.close();
 	} else {
 		open().catch( noop );
@@ -184,6 +240,7 @@ if ( enabled ) {
 	}
 
 	if ( config.prefetch ) {
-		mw.requestIdleCallback( () => mw.loader.load( 'ext.gadget.TACP-core' ) );
+		// eslint-disable-next-line no-undef
+		mw.requestIdleCallback( () => ( __CDN__ ? loadCore().catch( noop ) : mw.loader.load( 'ext.gadget.TACP-core' ) ) );
 	}
 }

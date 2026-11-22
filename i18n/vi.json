@@ -60,7 +60,7 @@
 	"tacp-cmd-clear-recent": "Xóa mục gần đây",
 	"tacp-recent-cleared": "Đã xóa các mục gần đây.",
 	"tacp-mode-ns": "Không gian tên",
-	"tacp-mode-ns-desc": "Chọn một không gian tên rồi tìm trong đó",
+	"tacp-mode-ns-desc": "Chọn một không gian tên rồi tìm trong đó. Phím tắt cho bản mẫu: {{",
 	"tacp-mode-action": "Tác vụ",
 	"tacp-mode-action-desc": "Tác vụ trên trang này và các trang đặc biệt",
 	"tacp-mode-user": "Thành viên",
@@ -92,5 +92,8 @@
 	"tacp-hint-open": "mở",
 	"tacp-hint-actions": "tác vụ",
 	"tacp-hint-close": "đóng",
-	"tacp-hint-help": "trợ giúp"
+	"tacp-hint-help": "trợ giúp",
+	"tacp-sr-hint": "Mũi tên lên xuống để chọn kết quả, Enter để mở, $1+Enter để mở trong tab mới, Shift+Enter để sửa trang, mũi tên phải để tới các tác vụ khác, Escape để đóng.",
+	"tacp-sr-results": "$1 kết quả",
+	"tacp-sr-action": "$1, tác vụ $2 trên $3"
 }

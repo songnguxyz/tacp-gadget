@@ -1,6 +1,7 @@
 <template>
 	<div
 		:id="id"
+		ref="root"
 		role="option"
 		class="tacp-item"
 		:class="{ 'tacp-item--active': active }"
@@ -10,8 +11,9 @@
 	>
 		<cdx-thumbnail
 			v-if="item.thumbnail"
+			:key="thumbUrl || ''"
 			class="tacp-item__thumbnail"
-			:thumbnail="item.thumbnail"
+			:thumbnail="thumbUrl ? { url: thumbUrl } : null"
 		></cdx-thumbnail>
 		<span v-else class="tacp-item__icon">
 			<cdx-icon :icon="item.icon || defaultIcon"></cdx-icon>
@@ -27,16 +29,15 @@
 			<span v-if="item.description" class="tacp-item__description">{{ item.description }}</span>
 		</span>
 		<span v-if="item.actions.length" class="tacp-item__actions">
-			<!-- Not focusable: reached with → from the input (aria-activedescendant) -->
+			<!-- Not focusable: reached with → from the input; inside an option it
+				would not be exposed anyway, so the palette announces it -->
 			<span
 				v-for="( action, i ) in item.actions"
-				:id="id + '-action-' + i"
 				:key="action.id"
-				role="button"
 				class="tacp-item__action"
 				:class="{ 'tacp-item__action--active': active && activeAction === i }"
 				:title="action.label"
-				:aria-label="action.label"
+				aria-hidden="true"
 				@click.stop="$emit( 'action', action )"
 			>
 				<cdx-icon :icon="action.icon" size="small"></cdx-icon>
@@ -46,10 +47,12 @@
 </template>
 
 <script>
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { CdxIcon, CdxThumbnail } from '@wikimedia/codex';
 import icons from '../icons.js';
 import { highlight, msg } from '../text.js';
+import { thumbWidth } from '../items.js';
+import { sharpThumb } from '../services/thumbs.js';
 
 export default defineComponent( {
 	name: 'ResultItem',
@@ -63,7 +66,58 @@ export default defineComponent( {
 	},
 	emits: [ 'hover', 'activate', 'action' ],
 	setup( props ) {
+		const root = ref( null );
+		// Set once the image has loaded; until then CdxThumbnail shows its placeholder
+		const thumbUrl = ref( null );
+		let observer = null;
+
+		let sharp = false;
+
+		function preload( url, isSharp ) {
+			const img = new Image();
+			img.onload = () => {
+				// The plain thumbnail must not replace a sharper one that loaded first
+				if ( isSharp || !sharp ) {
+					sharp = sharp || isSharp;
+					thumbUrl.value = url;
+				}
+			};
+			img.src = url;
+		}
+
+		// The thumbnail as given, then, on screens that need more pixels than
+		// it has (e.g. 60px at 2x), one at 40px × devicePixelRatio
+		function load() {
+			const { url, width } = props.item.thumbnail;
+			preload( url, false );
+			if ( props.item.title && width && width < thumbWidth() ) {
+				sharpThumb( props.item.title )
+					.then( ( better ) => better && better !== url && preload( better, true ) );
+			}
+		}
+
+		// Lazy: only once the row is near the visible part of the list
+		onMounted( () => {
+			if ( !props.item.thumbnail ) {
+				return;
+			}
+			if ( typeof IntersectionObserver !== 'function' ) {
+				load();
+				return;
+			}
+			observer = new IntersectionObserver( ( entries ) => {
+				if ( entries.some( ( e ) => e.isIntersecting ) ) {
+					observer.disconnect();
+					load();
+				}
+			}, { rootMargin: '100px' } );
+			observer.observe( root.value );
+		} );
+		onBeforeUnmount( () => observer && observer.disconnect() );
+
 		return {
+			root,
+			thumbUrl,
 			defaultIcon: icons.article,
 			parts: computed( () => highlight( props.item.label, props.query ) ),
 			redirectText: computed( () => msg( 'tacp-redirected-from', props.item.redirectFrom ) )

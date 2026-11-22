@@ -8,6 +8,9 @@ import { createRegistry, defineMode } from '../src/core/services/registry.js';
 import { builtinCommands } from '../src/core/providers/commands.js';
 import { addRecent, getRecent, clearRecent } from '../src/core/services/recent.js';
 import icons from '../src/core/icons.js';
+import { thumbWidth } from '../src/core/items.js';
+import { sharpThumb } from '../src/core/services/thumbs.js';
+import { newController } from '../src/core/services/api.js';
 
 const context = Object.freeze( {
 	title: 'Main_Page', namespace: 0, articleId: 1, isArticle: true, canEdit: true
@@ -172,5 +175,47 @@ describe( 'search box behaviour', () => {
 		const fetch = mockFetch( { 'action=opensearch': [ 'ap', [ 'Apple' ], [ '' ], [] ] } );
 		await getGroups( { query: 'ap', mode: null, context, registry: registry() }, signal() );
 		expect( fetch.mock.calls.some( ( c ) => c[ 0 ].includes( 'list=search' ) ) ).toBe( false );
+	} );
+} );
+
+describe( 'thumbnails', () => {
+	it( 'fetches sharp thumbnails in one batched, cached request', async () => {
+		window.devicePixelRatio = 2;
+		const fetch = mockFetch( { 'prop=pageimages': ( url ) => {
+			expect( url ).toContain( 'pithumbsize=80' );
+			return { query: {
+				normalized: [ { from: 'apple', to: 'Apple' } ],
+				pages: [ { title: 'Apple', thumbnail: { source: '//img/80px-apple.jpg' } }, { title: 'Pear' } ]
+			} };
+		} } );
+		const urls = await Promise.all( [ sharpThumb( 'apple' ), sharpThumb( 'Pear' ), sharpThumb( 'apple' ) ] );
+		expect( urls ).toEqual( [ '//img/80px-apple.jpg', null, '//img/80px-apple.jpg' ] );
+		expect( await sharpThumb( 'Pear' ) ).toBe( null );
+		expect( fetch ).toHaveBeenCalledTimes( 1 );
+		expect( decodeURIComponent( fetch.mock.calls[ 0 ][ 0 ] ) ).toContain( 'titles=apple|Pear' );
+		window.devicePixelRatio = 1;
+	} );
+
+	it( 'sizes thumbnails by device pixel ratio, between 1x and 3x', () => {
+		const dpr = window.devicePixelRatio;
+		[ [ 1, 40 ], [ 1.5, 60 ], [ 2, 80 ], [ 4, 120 ], [ 0.5, 40 ] ].forEach( ( [ r, w ] ) => {
+			window.devicePixelRatio = r;
+			expect( thumbWidth() ).toBe( w );
+		} );
+		window.devicePixelRatio = dpr;
+	} );
+} );
+
+describe( 'newController', () => {
+	it( 'stands in for AbortController where the browser has none', () => {
+		const real = global.AbortController;
+		global.AbortController = undefined;
+		const ctrl = newController();
+		expect( ctrl.signal.aborted ).toBe( false );
+		ctrl.signal.addEventListener( 'abort', () => {} );
+		ctrl.abort();
+		expect( ctrl.signal.aborted ).toBe( true );
+		global.AbortController = real;
+		expect( newController() ).toBeInstanceOf( real );
 	} );
 } );

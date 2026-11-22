@@ -83,6 +83,36 @@ describe( 'App', () => {
 		expect( selected() ).toBe( 'Banana' );
 	} );
 
+	it( 'tells screen readers the result count and the chosen action', async () => {
+		const registry = createRegistry( [] );
+		registry.register( defineMode( {
+			id: 'mygadget-tools', trigger: '/tools', label: 'Tools', description: 'Tools',
+			getResults: () => [ { items: [ { id: 'x', label: 'X', run() {}, actions: [
+				{ id: 'e', label: 'Edit', run() {} }, { id: 'h', label: 'History', run() {} }
+			] } ] } ]
+		} ) );
+		wrapper = mount( App, { props: { registry }, attachTo: document.body } );
+		const input = await openWith( '/tools ' );
+		const status = document.querySelector( '[role="status"]' );
+		const hint = document.getElementById( input.getAttribute( 'aria-describedby' ) );
+		expect( hint.textContent ).toMatch( /Enter/ );
+		expect( status.textContent ).toBe( '1 result' );
+		await key( input, 'ArrowRight' );
+		const option = document.querySelector( '[role="option"]' );
+		expect( input.getAttribute( 'aria-activedescendant' ) ).toBe( option.id );
+		expect( document.querySelector( '[aria-live="assertive"]' ).textContent ).toBe( 'Edit, action 1 of 2' );
+		await key( input, 'ArrowLeft' );
+		expect( document.querySelector( '[aria-live="assertive"]' ).textContent ).toBe( '' );
+	} );
+
+	it( 'runs the first result when Enter was pressed before the palette loaded', async () => {
+		const { run } = setup();
+		store.enter = 'open';
+		await openWith( '/fruit ban' );
+		expect( run ).toHaveBeenCalledTimes( 1 );
+		expect( store.enter ).toBe( null );
+	} );
+
 	it( 'leaves the mode with Backspace in an empty input', async () => {
 		setup();
 		const input = await openWith( '/fruit ' );

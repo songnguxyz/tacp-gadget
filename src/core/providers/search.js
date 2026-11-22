@@ -8,7 +8,7 @@ function viaRest( query, signal ) {
 	return restGet( '/v1/search/title?limit=' + LIMIT + '&q=' + encodeURIComponent( query ), signal )
 		.then( ( data ) => data.pages.map( ( page ) => pageItem( page.title, {
 			description: page.description || '',
-			thumbnail: page.thumbnail && page.thumbnail.url ? { url: page.thumbnail.url } : null,
+			thumbnail: page.thumbnail && page.thumbnail.url ? { url: page.thumbnail.url, width: page.thumbnail.width } : null,
 			redirectFrom: page.matched_title || ''
 		} ) ) );
 }

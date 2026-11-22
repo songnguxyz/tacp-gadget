@@ -35,6 +35,19 @@ export function safeUrl( url ) {
 	}
 }
 
+// Codex thumbnails are 40 CSS pixels wide
+const THUMB_CSS_WIDTH = 40;
+
+/**
+ * Thumbnail width in device pixels: 40 × devicePixelRatio, at most 3×.
+ *
+ * @return {number}
+ */
+export function thumbWidth() {
+	const ratio = Math.min( Math.max( window.devicePixelRatio || 1, 1 ), 3 );
+	return Math.round( THUMB_CSS_WIDTH * ratio );
+}
+
 /**
  * Result item for a wiki page, with the standard secondary actions.
  *
