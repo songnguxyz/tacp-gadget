@@ -65,7 +65,7 @@ function resolveIcon( icon ) {
  * @param {Object} cmd
  * @param {Object} context
  */
-export function runCommand( cmd, context ) {
+function runCommand( cmd, context ) {
 	// eslint-disable-next-line no-alert
 	if ( cmd.confirm && !window.confirm( msg( 'tacp-confirm', text( cmd.label ) ) ) ) {
 		return;
@@ -77,7 +77,7 @@ export function runCommand( cmd, context ) {
 	}
 }
 
-export function commandItem( cmd, context ) {
+function commandItem( cmd, context ) {
 	return {
 		id: 'cmd:' + cmd.id,
 		label: text( cmd.label ),

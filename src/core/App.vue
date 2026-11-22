@@ -143,7 +143,7 @@ function selectedText() {
 function remember( item ) {
 	const t = item.title && mw.Title.newFromText( item.title );
 	if ( t ) {
-		addRecent( t.getPrefixedText(), t.getNamespaceId() );
+		addRecent( t.getPrefixedText() );
 	}
 }
 
@@ -161,7 +161,6 @@ export default defineComponent( {
 		const status = ref( 'ready' );
 		const activeIndex = ref( 0 );
 		const activeAction = ref( -1 );
-		const openCount = ref( 0 );
 		const listId = 'tacp-results';
 		let context = getContext();
 		let controller = null;
@@ -263,12 +262,9 @@ export default defineComponent( {
 			} else if ( item.query !== null && item.query !== undefined ) {
 				// e.g. "did you mean": search for the suggestion instead
 				query.value = item.query;
-			} else if ( item.run ) {
-				close();
-				item.run();
-			} else if ( item.url ) {
+			} else if ( item.run || item.url ) {
 				remember( item );
-				go( item.url );
+				runAction( item );
 			}
 		}
 
@@ -396,7 +392,7 @@ export default defineComponent( {
 			}
 		}
 
-		watch( [ query, () => modeStack.value.length, openCount ], refresh );
+		watch( [ query, () => modeStack.value.length ], refresh );
 
 		watch( () => store.open, ( isOpen ) => {
 			if ( isOpen ) {
@@ -408,7 +404,6 @@ export default defineComponent( {
 				// Enter pressed while the core loaded: runs on the first results
 				pendingEnter = store.enter;
 				store.enter = null;
-				openCount.value++;
 				// After CdxDialog's own focus handling, which runs on nextTick
 				setTimeout( () => {
 					if ( input.value ) {
@@ -418,6 +413,8 @@ export default defineComponent( {
 						}
 					}
 				} );
+				// Also when reopened with an unchanged query, which the watch above misses
+				refresh();
 			} else {
 				clearTimeout( timer );
 				if ( controller ) {

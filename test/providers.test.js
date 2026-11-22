@@ -70,9 +70,9 @@ describe( 'related provider', () => {
 describe( 'recent items', () => {
 	it( 'keeps newest first without duplicates, up to 20', () => {
 		for ( let i = 0; i < 25; i++ ) {
-			addRecent( 'Page ' + i, 0 );
+			addRecent( 'Page ' + i );
 		}
-		addRecent( 'Page 3', 0 );
+		addRecent( 'Page 3' );
 		const list = getRecent();
 		expect( list ).toHaveLength( 20 );
 		expect( list[ 0 ].title ).toBe( 'Page 3' );
@@ -94,7 +94,7 @@ describe( 'getGroups', () => {
 
 	it( 'shows recent, related and suggested commands for an empty query', async () => {
 		mockFetch( { 'meta=siteinfo': siteinfo, morelike: { query: { pages: [ { title: 'Rel', index: 1 } ] } } } );
-		addRecent( 'Seen', 0 );
+		addRecent( 'Seen' );
 		const groups = await getGroups( { query: '', mode: null, context, registry: registry() }, signal() );
 		expect( groups.map( ( g ) => g.label ) ).toEqual( [ 'Recent', 'Related', 'Commands' ] );
 		expect( groups[ 2 ].items.map( ( i ) => i.label ) ).toEqual( [ 'Edit this page', 'View history', 'Random page', 'Discussion' ] );

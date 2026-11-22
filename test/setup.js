@@ -114,6 +114,7 @@ beforeEach( () => {
 		[ 'wgUserLanguage', 'en' ],
 		[ 'wgPageName', 'Main_Page' ],
 		[ 'wgNamespaceNumber', 0 ],
+		[ 'wgContentNamespaces', [ 0 ] ],
 		[ 'wgArticleId', 1 ],
 		[ 'wgRevisionId', 10 ],
 		[ 'wgAction', 'view' ],
@@ -153,10 +154,6 @@ export function mockFetch( routes ) {
 export const siteinfo = {
 	query: {
 		extensions: [ { name: 'CirrusSearch' } ],
-		namespaces: {
-			0: { id: 0, name: '', content: true },
-			2: { id: 2, name: 'User' }
-		},
 		specialpagealiases: [
 			{ realname: 'Recentchanges', aliases: [ 'RecentChanges' ] },
 			{ realname: 'Randompage', aliases: [ 'Random', 'RandomPage' ] }

@@ -11,7 +11,7 @@ import { msg, matches } from '../text.js';
  *
  * @return {Object[]} Items
  */
-export function readLanguageLinks() {
+function readLanguageLinks() {
 	return Array.from( document.querySelectorAll( 'li.interlanguage-link > a' ) ).map( ( a ) => {
 		const code = a.getAttribute( 'hreflang' ) || a.getAttribute( 'lang' ) || '';
 		return {

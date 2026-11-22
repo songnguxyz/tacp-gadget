@@ -71,7 +71,6 @@ export function pageItem( title, extra ) {
 		label: ns === 0 ? prefixed : t.getMainText(),
 		badge: ns === 0 ? '' : mw.config.get( 'wgFormattedNamespaces' )[ ns ] || '',
 		title: prefixed,
-		ns,
 		url: t.getUrl(),
 		icon: ns < 0 ? icons.specialPages : icons.article,
 		actions

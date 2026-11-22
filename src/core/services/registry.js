@@ -1,5 +1,5 @@
 // Built-in triggers, reserved even before their mode exists (v2, v3)
-export const RESERVED_TRIGGERS = [
+const RESERVED_TRIGGERS = [
 	'/ns', '/action', '/user', '/category', '/history', '/help', '/section', '/lang',
 	'/file', '/cargo', '/bucket', '/smw'
 ];

@@ -31,8 +31,7 @@ export function getRelated( context, signal ) {
 		return Promise.resolve( [] );
 	}
 	return getSiteInfo().then( ( info ) => {
-		const ns = info.namespaces.find( ( n ) => n.id === context.namespace );
-		if ( !ns || !ns.content ) {
+		if ( !mw.config.get( 'wgContentNamespaces' ).includes( context.namespace ) ) {
 			return [];
 		}
 		const has = ( name ) => info.extensions.includes( name );

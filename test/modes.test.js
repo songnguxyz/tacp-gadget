@@ -136,7 +136,7 @@ describe( '/help', () => {
 		const [ modes, tools ] = help.getResults( '', context );
 		expect( modes.items.map( ( i ) => i.badge ) ).toEqual( [ '/help', '/user' ] );
 
-		addRecent( 'X', 0 );
+		addRecent( 'X' );
 		tools.items[ 0 ].run();
 		expect( getRecent() ).toEqual( [] );
 		expect( mw.notify ).toHaveBeenCalled();

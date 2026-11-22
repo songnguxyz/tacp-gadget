@@ -6,6 +6,7 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 ## Unreleased
 
 ### Changed
+- Internal simplifications (siteinfo no longer fetches namespaces, Recent stores titles only); no change in behaviour.
 - Results that open a page are links: right-click, long-press or middle-click them to copy the address or open it in a new tab.
 
 ### Removed
