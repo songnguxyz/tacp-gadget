@@ -9,7 +9,7 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 - `{{` opens a template search, like `Template:`; a closing `}}` is ignored.
 
 ### Changed
-- Result thumbnails load only when their row scrolls into view, at 40px × the screen's pixel ratio.
+- Result thumbnails load only when their row scrolls into view. Related pages ask for 40px × the screen's pixel ratio; on screens where a search thumbnail has too few pixels, a sharper one is fetched through PageImages for the rows in view, one request per batch.
 - The highlighted result has a bar at its start edge, and an outline in forced-colors (high contrast) mode, where it was invisible; the line under the search input shows its focus.
 - Screen readers hear how to use the palette, the number of results, and the secondary action chosen with → (actions are no longer exposed as buttons inside options, where they were not read).
 

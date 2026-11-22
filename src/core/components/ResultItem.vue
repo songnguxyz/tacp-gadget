@@ -51,7 +51,8 @@ import { defineComponent, computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { CdxIcon, CdxThumbnail } from '@wikimedia/codex';
 import icons from '../icons.js';
 import { highlight, msg } from '../text.js';
-import { thumbWidth, sizedThumb } from '../items.js';
+import { thumbWidth } from '../items.js';
+import { sharpThumb } from '../services/thumbs.js';
 
 export default defineComponent( {
 	name: 'ResultItem',
@@ -70,21 +71,29 @@ export default defineComponent( {
 		const thumbUrl = ref( null );
 		let observer = null;
 
-		function preload( url, onError ) {
+		let sharp = false;
+
+		function preload( url, isSharp ) {
 			const img = new Image();
 			img.onload = () => {
-				thumbUrl.value = url;
+				// The plain thumbnail must not replace a sharper one that loaded first
+				if ( isSharp || !sharp ) {
+					sharp = sharp || isSharp;
+					thumbUrl.value = url;
+				}
 			};
-			img.onerror = onError;
 			img.src = url;
 		}
 
-		// The thumbnail at 40px × devicePixelRatio; the original URL if that
-		// width fails (e.g. wider than the file itself)
+		// The thumbnail as given, then, on screens that need more pixels than
+		// it has (e.g. 60px at 2x), one at 40px × devicePixelRatio
 		function load() {
-			const url = props.item.thumbnail.url;
-			const sized = sizedThumb( url, thumbWidth() );
-			preload( sized, () => sized !== url && preload( url ) );
+			const { url, width } = props.item.thumbnail;
+			preload( url, false );
+			if ( props.item.title && width && width < thumbWidth() ) {
+				sharpThumb( props.item.title )
+					.then( ( better ) => better && better !== url && preload( better, true ) );
+			}
 		}
 
 		// Lazy: only once the row is near the visible part of the list

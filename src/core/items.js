@@ -49,18 +49,6 @@ export function thumbWidth() {
 }
 
 /**
- * A MediaWiki thumbnail URL ("…/thumb/…/60px-File.jpg") rewritten to the
- * given width; other URLs come back unchanged.
- *
- * @param {string} url
- * @param {number} width
- * @return {string}
- */
-export function sizedThumb( url, width ) {
-	return url.replace( /(\/thumb\/[^?#]*\/(?:[^/?#]*-)?)\d+px-([^/?#]+)$/, '$1' + width + 'px-$2' );
-}
-
-/**
  * Result item for a wiki page, with the standard secondary actions.
  *
  * @param {string|mw.Title} title

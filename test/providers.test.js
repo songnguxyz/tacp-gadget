@@ -8,7 +8,8 @@ import { createRegistry, defineMode } from '../src/core/services/registry.js';
 import { builtinCommands } from '../src/core/providers/commands.js';
 import { addRecent, getRecent, clearRecent } from '../src/core/services/recent.js';
 import icons from '../src/core/icons.js';
-import { sizedThumb, thumbWidth } from '../src/core/items.js';
+import { thumbWidth } from '../src/core/items.js';
+import { sharpThumb } from '../src/core/services/thumbs.js';
 
 const context = Object.freeze( {
 	title: 'Main_Page', namespace: 0, articleId: 1, isArticle: true, canEdit: true
@@ -177,13 +178,21 @@ describe( 'search box behaviour', () => {
 } );
 
 describe( 'thumbnails', () => {
-	it( 'rewrites MediaWiki thumbnail URLs to the wanted width only', () => {
-		expect( sizedThumb( '//w/images/thumb/a/ab/Apple.jpg/60px-Apple.jpg', 80 ) )
-			.toBe( '//w/images/thumb/a/ab/Apple.jpg/80px-Apple.jpg' );
-		expect( sizedThumb( '//w/images/thumb/a/ab/A.pdf/page1-60px-A.pdf.jpg', 120 ) )
-			.toBe( '//w/images/thumb/a/ab/A.pdf/page1-120px-A.pdf.jpg' );
-		expect( sizedThumb( '//w/images/a/ab/60px-Apple.jpg', 80 ) ).toBe( '//w/images/a/ab/60px-Apple.jpg' );
-		expect( sizedThumb( '//img/apple.jpg', 80 ) ).toBe( '//img/apple.jpg' );
+	it( 'fetches sharp thumbnails in one batched, cached request', async () => {
+		window.devicePixelRatio = 2;
+		const fetch = mockFetch( { 'prop=pageimages': ( url ) => {
+			expect( url ).toContain( 'pithumbsize=80' );
+			return { query: {
+				normalized: [ { from: 'apple', to: 'Apple' } ],
+				pages: [ { title: 'Apple', thumbnail: { source: '//img/80px-apple.jpg' } }, { title: 'Pear' } ]
+			} };
+		} } );
+		const urls = await Promise.all( [ sharpThumb( 'apple' ), sharpThumb( 'Pear' ), sharpThumb( 'apple' ) ] );
+		expect( urls ).toEqual( [ '//img/80px-apple.jpg', null, '//img/80px-apple.jpg' ] );
+		expect( await sharpThumb( 'Pear' ) ).toBe( null );
+		expect( fetch ).toHaveBeenCalledTimes( 1 );
+		expect( decodeURIComponent( fetch.mock.calls[ 0 ][ 0 ] ) ).toContain( 'titles=apple|Pear' );
+		window.devicePixelRatio = 1;
 	} );
 
 	it( 'sizes thumbnails by device pixel ratio, between 1x and 3x', () => {

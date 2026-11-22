@@ -13,7 +13,7 @@ function toItems( data ) {
 		.slice( 0, LIMIT )
 		.map( ( p ) => pageItem( p.title, {
 			description: p.description || '',
-			thumbnail: p.thumbnail ? { url: p.thumbnail.source } : null
+			thumbnail: p.thumbnail ? { url: p.thumbnail.source, width: p.thumbnail.width } : null
 		} ) )
 		.filter( Boolean );
 }

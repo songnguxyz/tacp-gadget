@@ -126,7 +126,10 @@ export function normalizeGroups( groups, prefix ) {
 			redirectFrom: str( it.redirectFrom ),
 			title: str( it.title ),
 			icon: resolveIcon( it.icon ),
-			thumbnail: it.thumbnail && safeUrl( it.thumbnail.url ) ? { url: safeUrl( it.thumbnail.url ) } : null,
+			thumbnail: it.thumbnail && safeUrl( it.thumbnail.url ) ? {
+				url: safeUrl( it.thumbnail.url ),
+				width: Number( it.thumbnail.width ) || 0
+			} : null,
 			url: safeUrl( it.url ),
 			run: typeof it.run === 'function' ? it.run : null,
 			mode: it.mode && typeof it.mode.getResults === 'function' ? it.mode : null,

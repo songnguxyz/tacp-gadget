@@ -79,7 +79,8 @@ Commands appear when the typed text matches their label.
 		description: 'A fruit',      // optional, one line
 		badge: 'Food',               // optional, small tag after the label
 		icon: tacp.icons.article,    // optional, ignored when thumbnail is set
-		thumbnail: { url: '…' },     // optional
+		thumbnail: { url: '…', width: 60 }, // optional; width (px) lets TACP fetch a sharper
+		                             // one for `title` on high-density screens
 		title: 'Apple',              // optional wiki page title: enables Shift+Enter (edit) and Recent
 		url: '/wiki/Apple',          // opened on Enter; Ctrl/Cmd+Enter opens a new tab
 		run: function () {},         // called on Enter instead of opening url
