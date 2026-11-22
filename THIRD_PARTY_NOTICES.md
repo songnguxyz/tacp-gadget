@@ -33,5 +33,5 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## Not bundled
 
-- **Vue** and **Codex components** (`@wikimedia/codex`, GPL-2.0+) are served by MediaWiki core through ResourceLoader and loaded with `require()`. They are not part of TACP's files.
-- **Codex design tokens** (`@wikimedia/codex-design-tokens`, GPL-2.0+) are not a dependency. `src/styles/tokens.less` only names the tokens as CSS custom properties, with hand-written fallback values.
+- Vue and the Codex components (`@wikimedia/codex`, GPL-2.0+) are served by MediaWiki core through ResourceLoader and loaded with `require()`. They are not part of TACP's files.
+- Codex design tokens (`@wikimedia/codex-design-tokens`, GPL-2.0+) are not a dependency. `src/styles/tokens.less` only names the tokens as CSS custom properties, with hand-written fallback values.

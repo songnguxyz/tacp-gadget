@@ -26,7 +26,7 @@ running version can be read from the page itself.
 
 - **Never overwrite `MediaWiki:Gadget-TACP-config.json`.** It belongs to the wiki.
   Create it from the release's defaults only when it is missing.
-- **Verify `SHA256SUMS`** before writing any page: `sha256sum -c SHA256SUMS`.
+- Verify `SHA256SUMS` before writing any page: `sha256sum -c SHA256SUMS`.
 - Edit summaries include the version and commit, e.g.
   `TACP v0.1.0 (abc1234)`.
 
@@ -87,9 +87,9 @@ Or as a gadget of one line: put the `mw.loader.load` line in
 `MediaWiki:Gadget-TACP.js` and define it without dependencies, e.g.
 `* TACP[ResourceLoader|default]|TACP.js`.
 
-- **Pin the commit** from the release notes, never a branch, a tag or
-  `@latest`: a commit's files never change, and nothing reaches the wiki
-  without someone editing that line. To update, replace the commit.
+- Pin the commit from the release notes, never a branch, a tag or
+  `@latest`. A commit's files never change, so nothing reaches the wiki
+  until someone edits that line. To update, replace the commit.
 - `TACP-cdn.js` (about 3 KB gzipped) loads on every page. The core and its
   styles load from the same commit the first time the palette opens; the
   right-to-left stylesheet is chosen from the page's direction, since

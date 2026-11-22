@@ -1,8 +1,8 @@
-# TACP — The Amazing Command Palette
+# TACP: The Amazing Command Palette
 
 A MediaWiki gadget that adds a keyboard-driven command palette to every skin
-except Citizen. Press **Ctrl+K** / **Cmd+K** or **/** (or tap the floating search button
-on a phone) to search pages, jump to recent pages, run page actions and browse
+except Citizen. Press Ctrl+K (Cmd+K on a Mac) or `/`, or tap the floating search button
+on a phone, to search pages, jump to recent pages, run page actions and browse
 namespaces, users, categories and page history.
 
 - Needs only MediaWiki core and the Gadgets extension: no PHP, no extension.
