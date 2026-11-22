@@ -9,9 +9,15 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 - `{{` opens a template search, like `Template:`; a closing `}}` is ignored.
 
 ### Changed
+- Built for ES2018, the level of the browsers MediaWiki 1.43 runs JavaScript on.
 - Result thumbnails load only when their row scrolls into view. Related pages ask for 40px × the screen's pixel ratio; on screens where a search thumbnail has too few pixels, a sharper one is fetched through PageImages for the rows in view, one request per batch.
 - The highlighted result has a bar at its start edge, and an outline in forced-colors (high contrast) mode, where it was invisible; the line under the search input shows its focus.
 - Screen readers hear how to use the palette, the number of results, and the secondary action chosen with → (actions are no longer exposed as buttons inside options, where they were not read).
+
+### Fixed
+- Searching no longer fails on Chrome 63–65 and Safari 11.1–12.0, which have no AbortController.
+- Spacing in the palette no longer collapses on browsers without flex `gap` (Safari before 14.1, Chrome before 84).
+- The mode chip's padding is mirrored in right-to-left languages.
 
 ## 0.1.0-rc.8 — 2026-11-12
 

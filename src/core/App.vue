@@ -114,7 +114,7 @@ import icons from './icons.js';
 import { msg, text } from './text.js';
 import { getGroups } from './results.js';
 import { parseTrigger } from './input.js';
-import { isAbort } from './services/api.js';
+import { isAbort, newController } from './services/api.js';
 import { addRecent } from './services/recent.js';
 
 const DEBOUNCE = 150;
@@ -295,7 +295,7 @@ export default defineComponent( {
 			if ( controller ) {
 				controller.abort();
 			}
-			const ctrl = controller = new AbortController();
+			const ctrl = controller = newController();
 			status.value = 'loading';
 			const state = { query: query.value, mode: currentMode.value, context, registry: props.registry };
 			timer = setTimeout( () => {

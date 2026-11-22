@@ -10,6 +10,7 @@ import { addRecent, getRecent, clearRecent } from '../src/core/services/recent.j
 import icons from '../src/core/icons.js';
 import { thumbWidth } from '../src/core/items.js';
 import { sharpThumb } from '../src/core/services/thumbs.js';
+import { newController } from '../src/core/services/api.js';
 
 const context = Object.freeze( {
 	title: 'Main_Page', namespace: 0, articleId: 1, isArticle: true, canEdit: true
@@ -202,5 +203,19 @@ describe( 'thumbnails', () => {
 			expect( thumbWidth() ).toBe( w );
 		} );
 		window.devicePixelRatio = dpr;
+	} );
+} );
+
+describe( 'newController', () => {
+	it( 'stands in for AbortController where the browser has none', () => {
+		const real = global.AbortController;
+		global.AbortController = undefined;
+		const ctrl = newController();
+		expect( ctrl.signal.aborted ).toBe( false );
+		ctrl.signal.addEventListener( 'abort', () => {} );
+		ctrl.abort();
+		expect( ctrl.signal.aborted ).toBe( true );
+		global.AbortController = real;
+		expect( newController() ).toBeInstanceOf( real );
 	} );
 } );
