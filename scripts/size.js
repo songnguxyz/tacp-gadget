@@ -1,11 +1,13 @@
-// Checks the built files against the size budget in the specification (§9).
-import { readFileSync } from 'node:fs';
+// Checks the built files against the size budget in the specification (§9),
+// and that their syntax is no newer than the build target (scripts/build.js).
+import { readFileSync, readdirSync } from 'node:fs';
+import { parse } from 'acorn';
 import { gzipSync } from 'node:zlib';
 
 const KB = 1024;
 const budgets = [
 	[ [ 'TACP.js', 'TACP.css' ], 4 * KB ],
-	// Loaded on every page too, with both stylesheet directions inline
+	// Loaded on every page too, minified, with both stylesheet directions inline
 	[ [ 'TACP-cdn.js' ], 4 * KB ],
 	[ [ 'TACP-core.js', 'TACP-core.css' ], 60 * KB ]
 ];
@@ -16,5 +18,13 @@ for ( const [ files, limit ] of budgets ) {
 	const ok = size <= limit;
 	failed = failed || !ok;
 	console.log( `${ ok ? 'ok  ' : 'FAIL' } ${ files.join( ' + ' ) }: ${ ( size / KB ).toFixed( 1 ) } KB gzipped (budget ${ limit / KB } KB)` );
+}
+for ( const f of readdirSync( 'dist' ).filter( ( name ) => name.endsWith( '.js' ) ) ) {
+	try {
+		parse( readFileSync( 'dist/' + f, 'utf8' ), { ecmaVersion: 2018 } );
+	} catch ( e ) {
+		failed = true;
+		console.log( `FAIL ${ f }: not ES2018 (${ e.message })` );
+	}
 }
 process.exitCode = failed ? 1 : 0;

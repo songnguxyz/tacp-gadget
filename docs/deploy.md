@@ -90,7 +90,7 @@ Or as a gadget of one line: put the `mw.loader.load` line in
 - **Pin the commit** from the release notes, never a branch, a tag or
   `@latest`: a commit's files never change, and nothing reaches the wiki
   without someone editing that line. To update, replace the commit.
-- `TACP-cdn.js` (about 4 KB gzipped) loads on every page. The core and its
+- `TACP-cdn.js` (about 3 KB gzipped) loads on every page. The core and its
   styles load from the same commit the first time the palette opens; the
   right-to-left stylesheet is chosen from the page's direction, since
   ResourceLoader does not flip files it does not serve.

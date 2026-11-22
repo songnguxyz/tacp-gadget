@@ -1,5 +1,5 @@
 // Builds the four gadget files, the default config and the gadget definitions into dist/.
-import { build } from 'vite';
+import { build, transformWithEsbuild } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, rmSync, readdirSync } from 'node:fs';
@@ -84,7 +84,8 @@ copyFileSync( 'src/loader/TACP-config.json', 'dist/TACP-config.json' );
 // the palette first opens it loads the gadget's core, wrapped as
 // window.tacpCdnCore, and its styles, from the same directory. ResourceLoader
 // does not flip these files for right-to-left languages, so CSSJanus does it
-// here.
+// here. Nothing minifies them on the way either, so the build does.
+const minify = async ( code, file ) => ( await transformWithEsbuild( code, file, { minify: true, legalComments: 'none', target: 'es2018' } ) ).code;
 await build( {
 	configFile: false,
 	logLevel: 'warn',
@@ -99,8 +100,8 @@ await build( {
 		rollupOptions: { output: { exports: 'named' } }
 	}
 } );
-const loaderCss = readFileSync( 'build/cdn/loader.css', 'utf8' );
-writeFileSync( 'dist/TACP-cdn.js', header + `( function () {
+const loaderCss = await minify( readFileSync( 'build/cdn/loader.css', 'utf8' ), 'loader.css' );
+writeFileSync( 'dist/TACP-cdn.js', header + await minify( `( function () {
 	${ alreadyRunning }
 	window.tacpCdn = true;
 	// Captured now: currentScript is only set while this file first runs
@@ -113,17 +114,17 @@ writeFileSync( 'dist/TACP-cdn.js', header + `( function () {
 ${ readFileSync( 'build/cdn/loader.js', 'utf8' ) }
 	} );
 }() );
-` );
+`, 'TACP-cdn.js' ) );
 const coreJs = readFileSync( 'dist/TACP-core.js', 'utf8' ).replace( header, '' );
-writeFileSync( 'dist/TACP-cdn-core.js', header + `window.tacpCdnCore = function ( require ) {
+writeFileSync( 'dist/TACP-cdn-core.js', header + await minify( `window.tacpCdnCore = function ( require ) {
 	var module = { exports: {} }, exports = module.exports;
 ${ coreJs }
 	return module.exports;
 };
-` );
-const coreCss = readFileSync( 'dist/TACP-core.css', 'utf8' );
-writeFileSync( 'dist/TACP-cdn-core.css', coreCss );
-writeFileSync( 'dist/TACP-cdn-core.rtl.css', cssjanus.transform( coreCss ) );
+`, 'TACP-cdn-core.js' ) );
+const coreCss = await minify( readFileSync( 'dist/TACP-core.css', 'utf8' ).replace( header, '' ), 'core.css' );
+writeFileSync( 'dist/TACP-cdn-core.css', header + coreCss );
+writeFileSync( 'dist/TACP-cdn-core.rtl.css', header + cssjanus.transform( coreCss ) );
 
 // Legacy MediaWiki:Gadgets-definition lines
 writeFileSync( 'dist/Gadgets-definition.txt', [
