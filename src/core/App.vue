@@ -405,6 +405,9 @@ export default defineComponent( {
 				modeStack.value = [];
 				groups.value = [];
 				query.value = store.prefill !== null ? store.prefill : fromSelection || '';
+				// Enter pressed while the core loaded: runs on the first results
+				pendingEnter = store.enter;
+				store.enter = null;
 				openCount.value++;
 				// After CdxDialog's own focus handling, which runs on nextTick
 				setTimeout( () => {

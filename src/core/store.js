@@ -4,5 +4,7 @@ import { reactive } from 'vue';
 export default reactive( {
 	open: false,
 	/** @type {string|null} Text to put in the input on open */
-	prefill: null
+	prefill: null,
+	/** @type {string|null} Enter pressed before the palette loaded: 'open', 'newtab' or 'edit' */
+	enter: null
 } );

@@ -79,12 +79,27 @@ function loadCore() {
 
 // Keys typed while the core loads, or null when not loading
 let typed = null;
+// Enter pressed meanwhile: how to open the first result once there is one
+let enter = null;
+// Escape, or the toggle shortcut, pressed meanwhile: do not open after all
+let cancelled = false;
 
 function bufferKey( e ) {
-	if ( e.isComposing || e.ctrlKey || e.metaKey || e.altKey ) {
+	if ( e.isComposing ) {
 		return;
 	}
-	if ( e.key.length === 1 ) {
+	if ( e.key === 'Escape' ) {
+		cancelled = true;
+		takeTyped();
+	} else if ( e.key === 'Enter' ) {
+		// Only with a query: on an empty palette the first item is a suggestion.
+		// Either way the key must not reach a focused link on the page.
+		if ( typed.trim() ) {
+			enter = e.ctrlKey || e.metaKey ? 'newtab' : e.shiftKey ? 'edit' : 'open';
+		}
+	} else if ( e.ctrlKey || e.metaKey || e.altKey ) {
+		return;
+	} else if ( e.key.length === 1 ) {
 		typed += e.key;
 	} else if ( e.key === 'Backspace' ) {
 		typed = typed.slice( 0, -1 );
@@ -115,11 +130,17 @@ export function open( prefill ) {
 	}
 	if ( !core && typed === null ) {
 		typed = '';
+		enter = null;
+		cancelled = false;
 		document.addEventListener( 'keydown', bufferKey, true );
 	}
 	return Promise.resolve( loadCore() ).then( ( c ) => {
+		const how = enter;
+		const skip = cancelled;
 		const text = ( prefill || '' ) + takeTyped();
-		return c.open( text || prefill );
+		enter = null;
+		cancelled = false;
+		return skip ? undefined : c.open( text || prefill, how || undefined );
 	}, ( err ) => {
 		takeTyped();
 		throw err;
@@ -145,7 +166,11 @@ export function setOpenState( isOpen ) {
 }
 
 function toggle() {
-	if ( core && core.isOpen() ) {
+	if ( !core && typed !== null ) {
+		// Pressed again while the core loads: cancel, as it would close
+		cancelled = true;
+		takeTyped();
+	} else if ( core && core.isOpen() ) {
 		core.close();
 	} else {
 		open().catch( noop );

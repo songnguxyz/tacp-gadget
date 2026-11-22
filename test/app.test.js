@@ -105,6 +105,14 @@ describe( 'App', () => {
 		expect( document.querySelector( '[aria-live="assertive"]' ).textContent ).toBe( '' );
 	} );
 
+	it( 'runs the first result when Enter was pressed before the palette loaded', async () => {
+		const { run } = setup();
+		store.enter = 'open';
+		await openWith( '/fruit ban' );
+		expect( run ).toHaveBeenCalledTimes( 1 );
+		expect( store.enter ).toBe( null );
+	} );
+
 	it( 'leaves the mode with Backspace in an empty input', async () => {
 		setup();
 		const input = await openWith( '/fruit ' );

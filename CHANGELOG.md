@@ -19,6 +19,7 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 - `TACP-standalone.js`: to try TACP from the console, paste the one `mw.loader.load` line of `TACP-cdn.js` instead.
 
 ### Fixed
+- Keys pressed while the palette first loads: Enter (also with Ctrl/Cmd or Shift) opens the first result for the typed text; Escape or the shortcut again cancels opening. They no longer reach the page.
 - Searching no longer fails on Chrome 63–65 and Safari 11.1–12.0, which have no AbortController.
 - Spacing in the palette no longer collapses on browsers without flex `gap` (Safari before 14.1, Chrome before 84).
 - The mode chip's padding is mirrored in right-to-left languages.

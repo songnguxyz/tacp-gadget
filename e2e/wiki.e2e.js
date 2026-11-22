@@ -149,6 +149,45 @@ test( 'Minerva on a phone: the floating button opens the palette', async () => {
 	await done( page );
 } );
 
+test( 'keys pressed while the core loads', async ( t ) => {
+	// Slow down the core so the keys land before it is ready
+	async function slowCore( title ) {
+		const page = await visit( title, { useskin: 'vector-2022' } );
+		await page.route( /load\.php\?.*TACP-core/, async ( route ) => {
+			await new Promise( ( resolve ) => {
+				setTimeout( resolve, 1500 );
+			} );
+			await route.continue();
+		} );
+		return page;
+	}
+
+	await t.test( 'typed text and Enter open the first result', async () => {
+		const page = await slowCore( 'Main_Page' );
+		await page.keyboard.press( 'Control+k' );
+		await page.keyboard.type( 'apple' );
+		await Promise.all( [ page.waitForURL( /Apple$/ ), page.keyboard.press( 'Enter' ) ] );
+		await done( page );
+	} );
+
+	await t.test( 'Escape, or the shortcut again, cancels', async () => {
+		const page = await slowCore( 'Main_Page' );
+		for ( const key of [ 'Escape', 'Control+k' ] ) {
+			await page.keyboard.press( 'Control+k' );
+			await page.keyboard.type( 'app' );
+			await page.keyboard.press( key );
+			await page.waitForFunction( () => mw.loader.getState( 'ext.gadget.TACP-core' ) === 'ready' );
+			await page.waitForTimeout( 300 );
+			assert.equal( await page.getByRole( 'dialog' ).count(), 0, key );
+		}
+		// The page has the keys back, and the palette still opens
+		await page.keyboard.press( 'Control+k' );
+		await palette( page ).waitFor();
+		assert.equal( await palette( page ).inputValue(), '' );
+		await done( page );
+	} );
+} );
+
 test( 'search takeover', async ( t ) => {
 	setConfig( { searchTakeover: true } );
 	t.after( () => setConfig( {} ) );

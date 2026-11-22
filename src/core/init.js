@@ -22,10 +22,12 @@ import './styles.less';
  * Open the palette.
  *
  * @param {string} [prefill] Text for the input; omitted uses the page selection
+ * @param {string} [enter] Then open the first result: 'open', 'newtab' or 'edit'
  */
-export function open( prefill ) {
+export function open( prefill, enter ) {
 	if ( !store.open ) {
 		store.prefill = typeof prefill === 'string' ? prefill : null;
+		store.enter = enter || null;
 		store.open = true;
 	}
 }
