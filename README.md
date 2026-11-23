@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/brand/logo.svg" alt="TACP" width="360"></p>
+
 # TACP: The Amazing Command Palette
 
 A MediaWiki gadget that adds a keyboard-driven command palette to every skin
