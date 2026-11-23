@@ -87,9 +87,15 @@ Or as a gadget of one line: put the `mw.loader.load` line in
 `MediaWiki:Gadget-TACP.js` and define it without dependencies, e.g.
 `* TACP[ResourceLoader|default]|TACP.js`.
 
-- Pin the commit from the release notes, never a branch, a tag or
-  `@latest`. A commit's files never change, so nothing reaches the wiki
-  until someone edits that line. To update, replace the commit.
+- Pin the commit from the release notes. A commit's files never change, so
+  nothing reaches the wiki until someone edits that line. To update, replace
+  the commit.
+- To always get the latest release, load `@cdn` (the branch) instead of a
+  commit. Every release, release candidates included, then reaches the wiki
+  without anyone reviewing it. Each release purges jsDelivr's cache of the
+  branch; if that fails, a release can take up to 12 hours to arrive, and in
+  the meantime the loader and the core may come from different releases. Never
+  use a tag or `@latest`: tags are not on the `cdn` branch.
 - `TACP-cdn.js` (about 3 KB gzipped) loads on every page. The core and its
   styles load from the same commit the first time the palette opens; the
   right-to-left stylesheet is chosen from the page's direction, since
