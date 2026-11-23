@@ -118,9 +118,8 @@ Or as a gadget of one line: put the `mw.loader.load` line in
   real write on the Litmus dashboard. It needs a Cloudflare Access service token:
   the repository variable (or secret) `LITMUS_CLIENT_ID` and the secret
   `LITMUS_CLIENT_SECRET`.
-- Releases tagged `vX.Y.Z-rc.N` go to hsckwiki only (and to publictestwiki.com
-  once Miraheze grants Litmus's bot interface-admin rights there; until then they
-  are copied by hand). Other releases go to every SongNgư.xyz wiki.
+- Releases tagged `vX.Y.Z-rc.N` go to hsckwiki only. Other releases go to every
+  SongNgư.xyz wiki.
 
 ## Rollback
 
