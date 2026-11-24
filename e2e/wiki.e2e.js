@@ -28,6 +28,8 @@ async function visit( title, params, options ) {
 	const page = await context.newPage();
 	page.errors = [];
 	page.on( 'pageerror', ( e ) => page.errors.push( e.message ) );
+	page.logs = [];
+	page.on( 'console', ( m ) => page.logs.push( m.text() ) );
 	await page.goto( url( title, params ) );
 	// The loader gadget is in place once its module is ready
 	await page.waitForFunction( () => mw.loader.getState( 'ext.gadget.TACP' ) === 'ready' );
@@ -56,7 +58,13 @@ test( 'Vector 2022: Ctrl+K, search, Enter goes to the exact title', async () => 
 	const options = page.getByRole( 'option' );
 	await options.filter( { hasText: 'Apple pie' } ).waitFor();
 	assert.match( await options.first().innerText(), /^Apple\b(?! pie)/ );
+	// Every bundled message must parse: jqueryMsg only logs its errors
+	await page.evaluate( () => Object.keys( mw.messages.values )
+		.filter( ( key ) => key.startsWith( 'tacp-' ) )
+		.forEach( ( key ) => mw.message( key, '1', 1 ).text() ) );
+	assert.deepEqual( page.logs.filter( ( l ) => /jqueryMsg/.test( l ) ), [] );
 	await Promise.all( [ page.waitForURL( /Apple$/ ), palette( page ).press( 'Enter' ) ] );
+	assert.ok( page.logs.some( ( l ) => /TACP.* is running \(gadget\)/.test( l ) ), page.logs.join( '\n' ) );
 	await done( page );
 } );
 
@@ -292,7 +300,9 @@ test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async 
 		const page = await context.newPage();
 		page.errors = [];
 		page.on( 'pageerror', ( e ) => page.errors.push( e.message ) );
+		const hello = page.waitForEvent( 'console', ( m ) => /is running \(jsDelivr\)/.test( m.text() ) );
 		await page.goto( url( 'Apple', { useskin: 'vector-2022' } ) );
+		await hello;
 		await page.waitForFunction( () => window.tacpRunning );
 		await page.keyboard.press( 'Control+k' );
 		await palette( page ).fill( 'apple' );

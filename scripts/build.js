@@ -20,7 +20,7 @@ for ( const lang of [ 'en', 'vi' ] ) {
 	);
 }
 
-// Opt-in while release candidates are tested on hsckwiki; true from 1.0 (spec §4.2)
+// Opt-in while release candidates are tested on hsckwiki and crwvi; true from 1.0 (spec §4.2)
 const DEFAULT_ON = false;
 
 const deps = {

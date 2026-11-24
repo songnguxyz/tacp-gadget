@@ -110,6 +110,19 @@ Or as a gadget of one line: put the `mw.loader.load` line in
 - To try TACP without installing anything, paste the `mw.loader.load` line into
   the browser console on any wiki page.
 
+## Customizing
+
+| To change | Edit |
+| --- | --- |
+| Settings | `MediaWiki:Gadget-TACP-config.json` (jsDelivr: `window.tacpConfig`) |
+| Interface text | Its `messages` key, e.g. `{ "vi": { "tacp-placeholder": "…" } }`. `MediaWiki:Tacp-…` pages have no effect. |
+| Look | `MediaWiki:Common.css`, a skin's CSS page or your own gadget, using only the classes listed in [api.md](api.md#css-classes) |
+| Modes and commands | `MediaWiki:Common.js` or your own gadget, through the `tacp.register` hook ([api.md](api.md)) |
+
+Do not edit `MediaWiki:Gadget-TACP.js`, `Gadget-TACP.css`, `Gadget-TACP-core.js`
+or `Gadget-TACP-core.css`: each release overwrites them. A wiki that loads TACP
+from jsDelivr through its own gadget owns that gadget's pages, whatever its name.
+
 ## SongNgư.xyz wikis (Litmus)
 
 - The `litmus` job in `.github/workflows/release.yml` runs after the release is
@@ -118,8 +131,8 @@ Or as a gadget of one line: put the `mw.loader.load` line in
   real write on the Litmus dashboard. It needs a Cloudflare Access service token:
   the repository variable (or secret) `LITMUS_CLIENT_ID` and the secret
   `LITMUS_CLIENT_SECRET`.
-- Releases tagged `vX.Y.Z-rc.N` go to hsckwiki only. Other releases go to every
-  SongNgư.xyz wiki.
+- Releases tagged `vX.Y.Z-rc.N` go to hsckwiki and crwvi. Other releases go to
+  every SongNgư.xyz wiki.
 
 ## Rollback
 

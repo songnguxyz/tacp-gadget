@@ -3,6 +3,18 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
+## 0.1.0-rc.12 — 2026-11-24
+
+### Fixed
+- The `/ns` description no longer logs a jqueryMsg parse error for `{{`.
+- `/user` shows UserProfileV2 avatars and "about me"; it read the API's answer as an object, not a list.
+- Result icons sit in a 40px square, like thumbnails; they were 40px wide and only as tall as the icon.
+
+### Added
+- `docs/deploy.md` says where a wiki changes TACP's settings, text, look and modes.
+- `docs/api.md` lists the CSS classes wikis may style; they change only in a major release.
+- A line in the browser console says TACP is running, with its version and whether it came from the gadget or jsDelivr.
+
 ## 0.1.0-rc.11 — 2026-11-24
 
 ### Added

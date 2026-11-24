@@ -61,7 +61,12 @@ export default {
 	id: 'tacp-ns',
 	trigger: '/ns',
 	label: 'tacp-mode-ns',
-	description: 'tacp-mode-ns-desc',
+	// "{{" goes in as a parameter: in the message text jqueryMsg would parse it
+	// as a template and log a parse error. Read when the mode is registered,
+	// after the messages are loaded.
+	get description() {
+		return msg( 'tacp-mode-ns-desc', '{{' );
+	},
 	icon: icons.folder,
 	getResults( query ) {
 		const names = mw.config.get( 'wgFormattedNamespaces' );
