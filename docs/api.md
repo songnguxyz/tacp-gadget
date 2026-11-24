@@ -146,3 +146,24 @@ relative URLs are kept; any other `url` is dropped. Empty groups are hidden.
   version equals `apiVersion`.
 - A deprecated member keeps working, with a `mw.log.warn`, for at least one minor
   release, and is removed only in the next major release.
+
+### CSS classes
+
+Wikis may style the palette in their own CSS through these classes. Renaming or
+removing one counts as a breaking change, like an API member:
+
+| Class | Element |
+| --- | --- |
+| `.tacp-palette` | The dialog (also has Codex's `.cdx-dialog`) |
+| `.tacp-header`, `.tacp-input`, `.tacp-chip` | Search row, its input, the mode chip |
+| `.tacp-results` | The list of groups |
+| `.tacp-group`, `.tacp-group__label` | A group and its heading |
+| `.tacp-item`, `.tacp-item--active` | A result, and the highlighted one |
+| `.tacp-item__icon`, `.tacp-item__thumbnail` | Its 40px square icon or thumbnail |
+| `.tacp-item__label`, `.tacp-item__description` | Its title and the line under it |
+| `.tacp-footer` | The key hints |
+| `.tacp-mobile-button` | The floating button on narrow screens |
+
+Every other `tacp-` class, the nesting of elements, and Codex's own classes can
+change in any release. The keys move through results in list order, so a layout
+that shows a group in columns makes ↑ and ↓ jump sideways.
