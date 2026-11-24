@@ -62,6 +62,7 @@ export default {
 	trigger: '/ns',
 	label: 'tacp-mode-ns',
 	description: 'tacp-mode-ns-desc',
+	icon: icons.folder,
 	getResults( query ) {
 		const names = mw.config.get( 'wgFormattedNamespaces' );
 		const items = Object.keys( names )

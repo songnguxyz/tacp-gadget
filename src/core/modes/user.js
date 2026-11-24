@@ -8,6 +8,7 @@ export default {
 	trigger: '/user',
 	label: 'tacp-mode-user',
 	description: 'tacp-mode-user-desc',
+	icon: icons.user,
 	getResults( query, context, signal ) {
 		const params = { action: 'query', list: 'allusers', aulimit: 10, auprop: 'editcount' };
 		// Normalise case the way this wiki does for user names

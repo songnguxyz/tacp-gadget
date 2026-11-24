@@ -46,6 +46,7 @@ A complete example that registers a mode and a command is in
 | `getResults( query, context, signal )` | ✔ | Returns result groups, or a Promise of them; must honour `signal` (an `AbortSignal`) |
 | `layout` | | `list` (default). `gallery` is accepted but only takes effect from TACP v2 |
 | `getItemDetail( item, signal )` | | Accepted; used by the detail pane from TACP v2 |
+| `icon` | | One of `tacp.icons`, shown in `/help` |
 | `isAvailable( context )` | | Return `false` to hide the mode on this page |
 
 The user enters a mode by typing its trigger followed by a space, or by picking it

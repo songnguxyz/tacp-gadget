@@ -6,6 +6,7 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 ## Unreleased
 
 ### Added
+- Modes take an optional `icon`, shown in `/help`; each built-in mode has its own. `tacp.icons` adds `code`, `info` and `linkExternal`.
 - `/about`: version, source code, issue tracker, API documentation and credits.
 
 ### Fixed

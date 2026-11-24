@@ -13,6 +13,7 @@ export default function createHelpMode( registry ) {
 		trigger: '/help',
 		label: 'tacp-mode-help',
 		description: 'tacp-mode-help-desc',
+		icon: icons.help,
 		getResults( query, context ) {
 			const modes = registry.getModes( context )
 				.filter( ( m ) => matches( m.trigger + ' ' + text( m.label ) + ' ' + text( m.description ), query ) )

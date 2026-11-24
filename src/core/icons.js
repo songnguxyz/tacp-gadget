@@ -5,7 +5,8 @@ import {
 	cdxIconHistory, cdxIconImage, cdxIconLink, cdxIconListBullet, cdxIconNewWindow,
 	cdxIconNext, cdxIconRecentChanges, cdxIconReload, cdxIconSearch, cdxIconSettings,
 	cdxIconSpecialPages, cdxIconSpeechBubbles, cdxIconTag, cdxIconTrash, cdxIconUserAvatar,
-	cdxIconUserContributions, cdxIconUserTalk, cdxIconAlert, cdxIconLanguage
+	cdxIconUserContributions, cdxIconUserTalk, cdxIconAlert, cdxIconLanguage,
+	cdxIconCode, cdxIconInfo, cdxIconLinkExternal
 } from '@wikimedia/codex-icons';
 
 export default Object.freeze( {
@@ -14,6 +15,7 @@ export default Object.freeze( {
 	article: cdxIconArticle,
 	articles: cdxIconArticles,
 	clock: cdxIconClock,
+	code: cdxIconCode,
 	close: cdxIconClose,
 	copy: cdxIconCopy,
 	die: cdxIconDie,
@@ -23,8 +25,10 @@ export default Object.freeze( {
 	help: cdxIconHelp,
 	history: cdxIconHistory,
 	image: cdxIconImage,
+	info: cdxIconInfo,
 	language: cdxIconLanguage,
 	link: cdxIconLink,
+	linkExternal: cdxIconLinkExternal,
 	listBullet: cdxIconListBullet,
 	newWindow: cdxIconNewWindow,
 	next: cdxIconNext,

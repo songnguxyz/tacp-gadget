@@ -16,6 +16,7 @@ const MODE_KEYS = {
 	getResults: isFn,
 	layout: optional( ( v ) => v === 'list' || v === 'gallery' ),
 	getItemDetail: optional( isFn ),
+	icon: optional( ( v ) => !!v && ( typeof v === 'string' || typeof v === 'object' ) ),
 	isAvailable: optional( isFn )
 };
 

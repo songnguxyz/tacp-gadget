@@ -215,3 +215,15 @@ describe( '/about', () => {
 		expect( aboutMode.getResults( 'tacp 0.0' )[ 0 ].items ).toHaveLength( 1 );
 	} );
 } );
+
+describe( 'mode icons', () => {
+	it( '/help shows each mode with its own icon', () => {
+		const registry = createRegistry( [] );
+		registry.register( defineMode( langMode ), true );
+		registry.register( defineMode( aboutMode ), true );
+		const [ modes ] = defineMode( createHelpMode( registry ) ).getResults( '', context );
+		const icons = modes.items.map( ( i ) => i.icon );
+		expect( icons[ 0 ] ).toBe( langMode.icon );
+		expect( new Set( icons ).size ).toBe( icons.length );
+	} );
+} );
