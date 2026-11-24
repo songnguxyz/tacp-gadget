@@ -26,7 +26,7 @@ function portletLabel( portlet ) {
  *
  * @return {Object[]} Groups
  */
-export function readPortletGroups() {
+function readPortletGroups() {
 	const seen = new Set();
 	const groups = new Map( [ [ 'page', { id: 'page', label: msg( 'tacp-group-page-actions' ), items: [] } ] ] );
 	Array.from( document.querySelectorAll( '.mw-portlet li > a, li[id^="ca-"] > a, li[id^="t-"] > a, a[id^="ca-"]' ) ).forEach( ( a ) => {

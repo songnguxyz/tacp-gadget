@@ -37,7 +37,6 @@
 	"tacp-redirected-from": "Shown under a search result reached through a redirect.\n\nParameters:\n* $1 - title of the redirect",
 	"tacp-action-edit": "Label of a secondary action button on a result item.",
 	"tacp-action-history": "Label of a secondary action button on a result item.",
-	"tacp-action-copy": "Label of a secondary action button on a result item.",
 	"tacp-action-contribs": "Label of a secondary action button on a result item.",
 	"tacp-action-talk": "Label of a secondary action button on a result item.",
 	"tacp-action-diff": "Label of a secondary action button on a result item.",

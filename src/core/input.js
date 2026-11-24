@@ -2,7 +2,7 @@ import { namespaceForPrefix } from './modes/ns.js';
 
 // "#" jumps to a section, "@" to another language, as in the command palette
 // user script by Peter Coombe (User:The wub), Wikimedia Hackathon 2026 (T425060)
-export const ALIASES = { '#': 'tacp-section', '@': 'tacp-lang' };
+const ALIASES = { '#': 'tacp-section', '@': 'tacp-lang' };
 
 /**
  * Detect a mode trigger typed at the start of the input, e.g. "/user al".

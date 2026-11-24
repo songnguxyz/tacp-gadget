@@ -60,6 +60,23 @@ test( 'Vector 2022: Ctrl+K, search, Enter goes to the exact title', async () => 
 	await done( page );
 } );
 
+test( 'a page result is a link; Ctrl+click opens one new tab', async () => {
+	const page = await visit( 'Main_Page', { useskin: 'vector-2022' } );
+	await page.keyboard.press( 'Control+k' );
+	await palette( page ).fill( 'apple pie' );
+	const result = page.getByRole( 'option', { name: /Apple pie/ } ).first();
+	await result.waitFor();
+	assert.match( await result.getAttribute( 'href' ), /Apple_pie$/ );
+	const tabs = [];
+	page.context().on( 'page', ( p ) => tabs.push( p ) );
+	await result.click( { modifiers: [ 'Control' ] } );
+	await page.waitForTimeout( 500 );
+	assert.equal( tabs.length, 1 );
+	// The palette stays open with the focus in the input
+	assert.equal( await page.evaluate( () => document.activeElement.className ), await palette( page ).evaluate( ( el ) => el.className ) );
+	await done( page );
+} );
+
 test( 'keys typed while the core loads reach the palette', async () => {
 	const page = await visit( 'Main_Page', { useskin: 'vector-2022' } );
 	// Make the first load slow enough to type into
@@ -231,7 +248,7 @@ test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async 
 		window.tacpConfig = { slashShortcut: false };
 		mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js' );
 	} );
-	await page.waitForFunction( () => window.tacpCdn );
+	await page.waitForFunction( () => window.tacpRunning );
 	// Only the loader until the palette opens
 	await page.waitForTimeout( 300 );
 	assert.deepEqual( served, [ 'TACP-cdn.js' ] );
@@ -250,5 +267,32 @@ test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async 
 	const warned = page.waitForEvent( 'console', ( m ) => /already running/.test( m.text() ) );
 	await page.evaluate( () => mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js?again' ) );
 	await warned;
+	await done( page );
+} );
+
+test( 'TACP-cdn.js wrapped in a gadget of its own named TACP', async ( t ) => {
+	edit( 'MediaWiki:Gadgets-definition', '* TACP[ResourceLoader|default]|TACP.js' );
+	edit( 'MediaWiki:Gadget-TACP.js', "mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js' );" );
+	t.after( () => {
+		edit( 'MediaWiki:Gadget-TACP.js', readFileSync( new URL( '../dist/TACP.js', import.meta.url ), 'utf8' ) );
+		edit( 'MediaWiki:Gadgets-definition', readFileSync( process.env.MW_DIR + '/tacp-definition.txt', 'utf8' ) );
+	} );
+	const context = await browser.newContext();
+	await context.route( 'https://cdn.test/tacp@abc123/*', ( route ) => {
+		const file = new URL( route.request().url() ).pathname.split( '/' ).pop();
+		route.fulfill( {
+			body: readFileSync( new URL( '../dist/' + file, import.meta.url ) ),
+			contentType: file.endsWith( '.css' ) ? 'text/css' : 'text/javascript'
+		} );
+	} );
+	const page = await context.newPage();
+	page.errors = [];
+	page.on( 'pageerror', ( e ) => page.errors.push( e.message ) );
+	await page.goto( url( 'Apple', { useskin: 'vector-2022' } ) );
+	// The wrapper is ext.gadget.TACP too, and must not count as TACP already running
+	await page.waitForFunction( () => window.tacpRunning );
+	await page.keyboard.press( 'Control+k' );
+	await palette( page ).fill( 'apple' );
+	await page.getByRole( 'option', { name: /Apple pie/ } ).waitFor();
 	await done( page );
 } );

@@ -9,12 +9,13 @@ const clean = ( s ) => s.replace( /\s+/g, ' ' ).trim();
 
 /**
  * Headings of the page content, numbered like the table of contents.
- * Reads both heading markups: `<h2 id>` (MediaWiki 1.43+) and
- * `<h2><span class="mw-headline" id>` (older parser output).
+ * Reads both heading markups: `<h2 id>` (new heading markup, default from
+ * 1.44) and `<h2><span class="mw-headline" id>` (legacy markup, still the
+ * default on 1.43).
  *
  * @return {Object[]} Items
  */
-export function readSections() {
+function readSections() {
 	const found = Array.from( document.querySelectorAll( HEADINGS ) ).map( ( h ) => {
 		const legacy = h.querySelector( '.mw-headline' );
 		const id = legacy ? legacy.id : h.id;

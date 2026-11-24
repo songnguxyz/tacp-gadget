@@ -16,7 +16,15 @@ const BUTTON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" 
 // eslint-disable-next-line no-undef
 export const config = normalizeConfig( __CDN__ ? window.tacpConfig : rawConfig );
 
-const enabled = mw.config.get( 'skin' ) !== 'citizen';
+// The gadget and the CDN build start once per page, whichever runs first. A
+// flag, not the module state: a wiki may wrap TACP-cdn.js in a gadget of its
+// own, even one named TACP (docs/deploy.md).
+const duplicate = !!window.tacpRunning;
+if ( duplicate ) {
+	mw.log.warn( 'TACP is already running on this page.' );
+}
+window.tacpRunning = true;
+const enabled = !duplicate && mw.config.get( 'skin' ) !== 'citizen';
 let core = null;
 let loading = null;
 let button = null;

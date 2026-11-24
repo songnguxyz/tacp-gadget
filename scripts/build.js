@@ -40,12 +40,6 @@ const defines = ( flags = {} ) => Object.assign( {
 	__CDN_BASE__: '""',
 	__CORE_DEPS__: JSON.stringify( coreDeps )
 }, flags );
-// Skips loading where the gadget or another copy of the CDN build already runs
-const alreadyRunning = `var running = [ 'loading', 'loaded', 'executing', 'ready' ];
-	if ( window.tacpCdn || running.indexOf( mw.loader.getState( 'ext.gadget.TACP' ) ) !== -1 ) {
-		console.warn( 'TACP is already running on this page.' );
-		return;
-	}`;
 
 rmSync( 'dist', { recursive: true, force: true } );
 mkdirSync( 'dist' );
@@ -102,10 +96,14 @@ await build( {
 } );
 const loaderCss = await minify( readFileSync( 'build/cdn/loader.css', 'utf8' ), 'loader.css' );
 writeFileSync( 'dist/TACP-cdn.js', header + await minify( `( function () {
-	${ alreadyRunning }
-	window.tacpCdn = true;
-	// Captured now: currentScript is only set while this file first runs
-	var cdnBase = ( document.currentScript ? document.currentScript.src : '' ).replace( /[^/]*$/, '' );
+	// Captured now: currentScript is only set while this file first runs. The
+	// core loads from the same directory.
+	var self = document.currentScript || document.querySelector( 'script[src*="/TACP-cdn.js"]' );
+	if ( !self ) {
+		mw.log.error( 'TACP: load TACP-cdn.js with mw.loader.load(), not by pasting it.' );
+		return;
+	}
+	var cdnBase = self.src.replace( /[?#].*$/, '' ).replace( /[^/]*$/, '' );
 	mw.loader.using( ${ JSON.stringify( deps.TACP ) } ).then( function ( require ) {
 		mw.util.addCSS( document.documentElement.dir === 'rtl' ?
 			${ JSON.stringify( cssjanus.transform( loaderCss ) ) } :

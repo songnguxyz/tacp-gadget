@@ -1,13 +1,19 @@
 <template>
-	<div
+	<!-- A real link where the item opens a page, so right-click, long-press and
+		middle-click work as on any link; the input keeps the focus -->
+	<component
+		:is="href ? 'a' : 'div'"
 		:id="id"
 		ref="root"
+		:href="href || undefined"
+		:tabindex="href ? -1 : undefined"
 		role="option"
 		class="tacp-item"
 		:class="{ 'tacp-item--active': active }"
 		:aria-selected="active ? 'true' : 'false'"
 		@mousemove="$emit( 'hover' )"
-		@click="$emit( 'activate', $event )"
+		@mousedown.prevent
+		@click.prevent="$emit( 'activate', $event )"
 	>
 		<cdx-thumbnail
 			v-if="item.thumbnail"
@@ -43,7 +49,7 @@
 				<cdx-icon :icon="action.icon" size="small"></cdx-icon>
 			</span>
 		</span>
-	</div>
+	</component>
 </template>
 
 <script>
@@ -51,7 +57,7 @@ import { defineComponent, computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { CdxIcon, CdxThumbnail } from '@wikimedia/codex';
 import icons from '../icons.js';
 import { highlight, msg } from '../text.js';
-import { thumbWidth } from '../items.js';
+import { thumbWidth, safeUrl } from '../items.js';
 import { sharpThumb } from '../services/thumbs.js';
 
 export default defineComponent( {
@@ -119,6 +125,11 @@ export default defineComponent( {
 			root,
 			thumbUrl,
 			defaultIcon: icons.article,
+			// Only items that open their url (App.vue activate()); modes, queries and commands do not
+			href: computed( () => {
+				const it = props.item;
+				return it.mode || ( it.query !== null && it.query !== undefined ) || it.run ? null : safeUrl( it.url );
+			} ),
 			parts: computed( () => highlight( props.item.label, props.query ) ),
 			redirectText: computed( () => msg( 'tacp-redirected-from', props.item.redirectFrom ) )
 		};

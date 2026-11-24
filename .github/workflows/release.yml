@@ -95,6 +95,13 @@ jobs:
             gh release edit "$TAG" --notes-file notes.md
           fi
           echo "::notice::jsDelivr: https://cdn.jsdelivr.net/gh/$REPO@$sha/TACP-cdn.js"
+          # Wikis loading @cdn (latest) get the release now instead of within
+          # jsDelivr's 12-hour branch cache. The core files first, so a new loader
+          # never meets an old core. A failed purge only delays them.
+          for f in TACP-cdn-core.js TACP-cdn-core.css TACP-cdn-core.rtl.css TACP-cdn.js; do
+            curl -fsS -o /dev/null "https://purge.jsdelivr.net/gh/$REPO@cdn/$f" ||
+              echo "::warning::jsDelivr purge failed for $f"
+          done
 
   # After the assets are attached, so Litmus never fetches a release without
   # SHA256SUMS and deploy.json. Creates dry-run gadget-deploy jobs only; a
