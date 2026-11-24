@@ -270,29 +270,32 @@ test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async 
 	await done( page );
 } );
 
-test( 'TACP-cdn.js wrapped in a gadget of its own named TACP', async ( t ) => {
-	edit( 'MediaWiki:Gadgets-definition', '* TACP[ResourceLoader|default]|TACP.js' );
-	edit( 'MediaWiki:Gadget-TACP.js', "mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js' );" );
-	t.after( () => {
-		edit( 'MediaWiki:Gadget-TACP.js', readFileSync( new URL( '../dist/TACP.js', import.meta.url ), 'utf8' ) );
-		edit( 'MediaWiki:Gadgets-definition', readFileSync( process.env.MW_DIR + '/tacp-definition.txt', 'utf8' ) );
-	} );
-	const context = await browser.newContext();
-	await context.route( 'https://cdn.test/tacp@abc123/*', ( route ) => {
-		const file = new URL( route.request().url() ).pathname.split( '/' ).pop();
-		route.fulfill( {
-			body: readFileSync( new URL( '../dist/' + file, import.meta.url ) ),
-			contentType: file.endsWith( '.css' ) ? 'text/css' : 'text/javascript'
+// TACP is the hard case: the wrapper is ext.gadget.TACP too. Any other name must work as well.
+[ 'TACP', 'My-palette' ].forEach( ( name ) => test(
+	`TACP-cdn.js wrapped in a gadget of its own named ${ name }`, async ( t ) => {
+		edit( 'MediaWiki:Gadgets-definition', `* ${ name }[ResourceLoader|default]|${ name }.js` );
+		edit( `MediaWiki:Gadget-${ name }.js`, "mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js' );" );
+		t.after( () => {
+			if ( name === 'TACP' ) {
+				edit( 'MediaWiki:Gadget-TACP.js', readFileSync( new URL( '../dist/TACP.js', import.meta.url ), 'utf8' ) );
+			}
+			edit( 'MediaWiki:Gadgets-definition', readFileSync( process.env.MW_DIR + '/tacp-definition.txt', 'utf8' ) );
 		} );
-	} );
-	const page = await context.newPage();
-	page.errors = [];
-	page.on( 'pageerror', ( e ) => page.errors.push( e.message ) );
-	await page.goto( url( 'Apple', { useskin: 'vector-2022' } ) );
-	// The wrapper is ext.gadget.TACP too, and must not count as TACP already running
-	await page.waitForFunction( () => window.tacpRunning );
-	await page.keyboard.press( 'Control+k' );
-	await palette( page ).fill( 'apple' );
-	await page.getByRole( 'option', { name: /Apple pie/ } ).waitFor();
-	await done( page );
-} );
+		const context = await browser.newContext();
+		await context.route( 'https://cdn.test/tacp@abc123/*', ( route ) => {
+			const file = new URL( route.request().url() ).pathname.split( '/' ).pop();
+			route.fulfill( {
+				body: readFileSync( new URL( '../dist/' + file, import.meta.url ) ),
+				contentType: file.endsWith( '.css' ) ? 'text/css' : 'text/javascript'
+			} );
+		} );
+		const page = await context.newPage();
+		page.errors = [];
+		page.on( 'pageerror', ( e ) => page.errors.push( e.message ) );
+		await page.goto( url( 'Apple', { useskin: 'vector-2022' } ) );
+		await page.waitForFunction( () => window.tacpRunning );
+		await page.keyboard.press( 'Control+k' );
+		await palette( page ).fill( 'apple' );
+		await page.getByRole( 'option', { name: /Apple pie/ } ).waitFor();
+		await done( page );
+	} ) );
