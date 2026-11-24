@@ -7,6 +7,7 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ### Fixed
 - The `/ns` description no longer logs a jqueryMsg parse error for `{{`.
+- `/user` shows UserProfileV2 avatars and "about me"; it read the API's answer as an object, not a list.
 
 ### Added
 - A line in the browser console says TACP is running, with its version and whether it came from the gadget or jsDelivr.
