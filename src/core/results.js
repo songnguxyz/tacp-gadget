@@ -246,12 +246,19 @@ export function getGroups( { query, mode, context, registry }, signal ) {
 		pending = Promise.all( [ soft( searchTitles( q, signal ) ), userCanEdit(), fullText( q, signal ) ] )
 			.then( ( [ results, canEdit, full ] ) => {
 				const seen = new Set( results.map( ( it ) => it.title ) );
+				const ordered = exactFirst( results, q );
+				// Pages outside the content namespaces (templates, help…) go below
+				// the commands: readers look for content, and editors after a
+				// template have Template: and {{ to go straight there
+				const content = mw.config.get( 'wgContentNamespaces' );
+				const isContent = ( it ) => content.includes( mw.Title.newFromText( it.title ).getNamespaceId() );
 				return [
-					group( 'results', exactFirst( results, q ) ),
+					group( 'results', ordered.filter( isContent ) ),
 					group( 'fulltext', full.items.filter( ( it ) => !seen.has( it.title ) ) ),
 					group( 'commands', commands
 						.filter( ( c ) => matches( text( c.label ), query ) )
 						.map( ( c ) => commandItem( c, context ) ) ),
+					group( 'other-pages', ordered.filter( ( it ) => !isContent( it ) ) ),
 					group( 'query', queryActions( query, canEdit, full.suggestion ) )
 				];
 			} );

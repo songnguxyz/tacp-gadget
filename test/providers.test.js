@@ -111,6 +111,14 @@ describe( 'getGroups', () => {
 		] );
 	} );
 
+	it( 'puts pages outside the content namespaces below the commands', async () => {
+		mockFetch( { 'action=opensearch': [ 'random', [ 'Random walk', 'User:Random' ], [ '', '' ], [] ] } );
+		const groups = await getGroups( { query: 'random', mode: null, context, registry: registry() }, signal() );
+		expect( groups.map( ( g ) => g.label ) ).toEqual( [ 'Results', 'Commands', 'Other pages', 'More' ] );
+		expect( groups[ 0 ].items.map( ( i ) => i.title ) ).toEqual( [ 'Random walk' ] );
+		expect( groups[ 2 ].items.map( ( i ) => i.title ) ).toEqual( [ 'User:Random' ] );
+	} );
+
 	it( 'lists modes for a query starting with /', async () => {
 		const groups = await getGroups( { query: '/us', mode: null, context, registry: registry() }, signal() );
 		expect( groups[ 0 ].items[ 0 ] ).toMatchObject( { label: 'Users', badge: '/user' } );

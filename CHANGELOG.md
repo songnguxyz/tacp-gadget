@@ -3,6 +3,11 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
+## Unreleased
+
+### Changed
+- While typing, pages outside the content namespaces (templates, help pages and so on) are listed under "Other pages", below the commands.
+
 ## 0.1.0-rc.12 — 2026-11-24
 
 ### Fixed
