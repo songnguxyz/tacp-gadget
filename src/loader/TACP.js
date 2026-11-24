@@ -186,6 +186,9 @@ function toggle() {
 }
 
 if ( enabled ) {
+	// A hello in the console, so anyone can check TACP loaded and which build
+	// eslint-disable-next-line no-console, no-undef
+	console.info( '%cTACP%c ' + __TACP_VERSION__ + ' is running (' + ( __CDN__ ? 'jsDelivr' : 'gadget' ) + '). Press Ctrl+K or / to open it.', 'color:#6549ed;font-weight:bold', '' );
 	const lang = mw.config.get( 'wgUserLanguage' );
 	// eslint-disable-next-line no-undef
 	loadMessages( __LOADER_MESSAGES__, config.messages, [ lang, lang.split( '-' )[ 0 ], 'en' ] );

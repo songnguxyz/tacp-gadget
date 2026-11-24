@@ -3,6 +3,11 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
+## Unreleased
+
+### Added
+- A line in the browser console says TACP is running, with its version and whether it came from the gadget or jsDelivr.
+
 ## 0.1.0-rc.11 — 2026-11-24
 
 ### Added
