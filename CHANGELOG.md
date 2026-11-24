@@ -3,7 +3,7 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
-## Unreleased
+## 0.1.0-rc.12 — 2026-11-24
 
 ### Fixed
 - The `/ns` description no longer logs a jqueryMsg parse error for `{{`.
