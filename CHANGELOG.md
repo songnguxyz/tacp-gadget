@@ -3,7 +3,7 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
-## Unreleased
+## 0.1.0-rc.11 — 2026-11-24
 
 ### Added
 - Modes take an optional `icon`, shown in `/help`; each built-in mode has its own. `tacp.icons` adds `code`, `info` and `linkExternal`.
