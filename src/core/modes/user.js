@@ -4,15 +4,16 @@ import { pageItem } from '../items.js';
 import icons from '../icons.js';
 import { msg } from '../text.js';
 
-// UserProfileV2: avatar and "about me". One request per user, as the
-// extension has no batch query; a failure only loses that user's profile.
+// UserProfileV2: avatar and "about me", answered as query: [ { 'profile-avatar': … } ].
+// One request per user, as the extension has no batch query; a failure only
+// loses that user's profile.
 // ponytail: up to 10 parallel requests per keystroke, batch if the extension gains one
 function getProfiles( users, signal ) {
 	return getSiteInfo().then( ( info ) => Promise.all( users.map( ( u ) => (
 		info.extensions.includes( 'UserProfileV2' ) ?
 			// eslint-disable-next-line camelcase
 			apiGet( { action: 'query', list: 'queryuserprofilev2', user_name: u.name }, signal )
-				.then( ( data ) => data.query || {}, () => ( {} ) ) :
+				.then( ( data ) => ( data.query && data.query[ 0 ] ) || {}, () => ( {} ) ) :
 			{}
 	) ) ), () => users.map( () => ( {} ) ) );
 }

@@ -85,7 +85,7 @@ describe( '/user', () => {
 		mockFetch( {
 			'meta=siteinfo': siteinfo,
 			'list=allusers': { query: { allusers: [ { name: 'Alice', editcount: 1 }, { name: 'Bob', editcount: 2 } ] } },
-			'user_name=Alice': { query: { 'profile-avatar': '/images/upv2avatars/x_1.png?r=5', 'profile-aboutme': 'Hi' } },
+			'user_name=Alice': { query: [ { 'profile-avatar': '/images/upv2avatars/x_1.png?r=5', 'profile-aboutme': 'Hi' } ] },
 			'user_name=Bob': new Error()
 		} );
 		const [ { items } ] = await userMode.getResults( '', context, signal() );
