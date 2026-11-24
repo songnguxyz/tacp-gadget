@@ -5,6 +5,9 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+### Fixed
+- The `/ns` description no longer logs a jqueryMsg parse error for `{{`.
+
 ### Added
 - A line in the browser console says TACP is running, with its version and whether it came from the gadget or jsDelivr.
 

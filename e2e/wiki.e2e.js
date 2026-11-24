@@ -58,6 +58,11 @@ test( 'Vector 2022: Ctrl+K, search, Enter goes to the exact title', async () => 
 	const options = page.getByRole( 'option' );
 	await options.filter( { hasText: 'Apple pie' } ).waitFor();
 	assert.match( await options.first().innerText(), /^Apple\b(?! pie)/ );
+	// Every bundled message must parse: jqueryMsg only logs its errors
+	await page.evaluate( () => Object.keys( mw.messages.values )
+		.filter( ( key ) => key.startsWith( 'tacp-' ) )
+		.forEach( ( key ) => mw.message( key, '1', 1 ).text() ) );
+	assert.deepEqual( page.logs.filter( ( l ) => /jqueryMsg/.test( l ) ), [] );
 	await Promise.all( [ page.waitForURL( /Apple$/ ), palette( page ).press( 'Enter' ) ] );
 	assert.ok( page.logs.some( ( l ) => /TACP.* is running \(gadget\)/.test( l ) ), page.logs.join( '\n' ) );
 	await done( page );

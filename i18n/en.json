@@ -59,7 +59,7 @@
 	"tacp-cmd-clear-recent": "Clear recent items",
 	"tacp-recent-cleared": "Recent items cleared.",
 	"tacp-mode-ns": "Namespaces",
-	"tacp-mode-ns-desc": "Pick a namespace, then search within it. Shortcut for templates: {{",
+	"tacp-mode-ns-desc": "Pick a namespace, then search within it. Shortcut for templates: $1",
 	"tacp-mode-action": "Actions",
 	"tacp-mode-action-desc": "Actions on this page, and special pages",
 	"tacp-mode-user": "Users",
