@@ -17,7 +17,6 @@
 	"tacp-group-fulltext": "Heading of the group of full-text search results from CirrusSearch, shown with a snippet of the matching text.",
 	"tacp-group-results": "Heading of a group of results in the palette.",
 	"tacp-group-commands": "Heading of a group of results in the palette.",
-	"tacp-group-other-pages": "Heading of the group of title search results outside the content namespaces (templates, help pages and so on), shown below the commands.",
 	"tacp-group-query": "Heading of a group of results in the palette.",
 	"tacp-group-namespaces": "Heading of a group of results in the palette.",
 	"tacp-group-pages": "Heading of a group of results in the palette.",
