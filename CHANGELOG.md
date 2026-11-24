@@ -3,13 +3,11 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
-## Unreleased
+## 0.1.0-rc.10 — 2026-11-24
 
 ### Added
 - Loading `@cdn` from jsDelivr gets the latest release; each release purges jsDelivr's cache of it (docs/deploy.md).
-
-### Fixed
-- `TACP-cdn.js` loaded from a gadget named `TACP` did nothing: it took that gadget for TACP already running. Pasted into the console, it now says to use `mw.loader.load` instead of loading the core from the wiki.
+- A logo and a banner, in `docs/brand/`.
 
 ### Changed
 - Internal simplifications (siteinfo no longer fetches namespaces, Recent stores titles only); no change in behaviour.
@@ -17,6 +15,9 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ### Removed
 - The "Copy link" action on page results; the link's own menu does it.
+
+### Fixed
+- `TACP-cdn.js` loaded from a gadget named `TACP` did nothing: it took that gadget for TACP already running. Pasted into the console, it now says to use `mw.loader.load` instead of loading the core from the wiki.
 
 ## 0.1.0-rc.9 — 2026-11-22
 
