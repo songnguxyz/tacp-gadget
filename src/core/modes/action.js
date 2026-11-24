@@ -77,6 +77,7 @@ export default {
 	trigger: '/action',
 	label: 'tacp-mode-action',
 	description: 'tacp-mode-action-desc',
+	icon: icons.specialPages,
 	getResults( query ) {
 		const menus = readPortletGroups().map( ( g ) => Object.assign( {}, g, {
 			items: g.items.filter( ( item ) => matches( item.label + ' ' + item.description + ' ' + g.label, query ) )

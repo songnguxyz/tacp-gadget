@@ -10,7 +10,7 @@ function categoryItem( name, size ) {
 	return t && pageItem( t, {
 		label: t.getMainText(),
 		badge: '',
-		icon: icons.folder,
+		icon: icons.tag,
 		description: size === undefined ? '' : msg( 'tacp-category-size', mw.language.convertNumber( size ), size ),
 		actions: [ { id: 'open', label: msg( 'tacp-action-open' ), icon: icons.article, url: t.getUrl() } ],
 		mode: members( t.getMainText() )
@@ -59,6 +59,7 @@ export default {
 	trigger: '/category',
 	label: 'tacp-mode-category',
 	description: 'tacp-mode-category-desc',
+	icon: icons.tag,
 	getResults( query, context, signal ) {
 		const params = { action: 'query', list: 'allcategories', aclimit: 20, acprop: 'size' };
 		const prefix = query.trim() && mw.Title.makeTitle( 14, query.trim() );

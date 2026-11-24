@@ -153,7 +153,7 @@ export function mockFetch( routes ) {
 
 export const siteinfo = {
 	query: {
-		extensions: [ { name: 'CirrusSearch' } ],
+		extensions: [ { name: 'CirrusSearch' }, { name: 'UserProfileV2' } ],
 		specialpagealiases: [
 			{ realname: 'Recentchanges', aliases: [ 'RecentChanges' ] },
 			{ realname: 'Randompage', aliases: [ 'Random', 'RandomPage' ] }

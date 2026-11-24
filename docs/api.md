@@ -46,6 +46,7 @@ A complete example that registers a mode and a command is in
 | `getResults( query, context, signal )` | ✔ | Returns result groups, or a Promise of them; must honour `signal` (an `AbortSignal`) |
 | `layout` | | `list` (default). `gallery` is accepted but only takes effect from TACP v2 |
 | `getItemDetail( item, signal )` | | Accepted; used by the detail pane from TACP v2 |
+| `icon` | | One of `tacp.icons`, shown in `/help` |
 | `isAvailable( context )` | | Return `false` to hide the mode on this page |
 
 The user enters a mode by typing its trigger followed by a space, or by picking it
@@ -114,7 +115,7 @@ relative URLs are kept; any other `url` is dropped. Empty groups are hidden.
 - Every `id` starts with your gadget's name, e.g. `mygadget-purge`.
   The `tacp-` prefix is reserved for TACP.
 - These triggers are reserved: `/ns`, `/action`, `/user`, `/category`, `/history`,
-  `/help`, `/section`, `/lang`, `/file`, `/cargo`, `/bucket` and `/smw`,
+  `/help`, `/about`, `/section`, `/lang`, `/file`, `/cargo`, `/bucket` and `/smw`,
   as are the one-character shortcuts `#` and `@`. For any other
   trigger the first registration wins; later ones are rejected with a
   `mw.log.warn` and the user sees nothing.

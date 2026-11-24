@@ -1,6 +1,6 @@
 // Built-in triggers, reserved even before their mode exists (v2, v3)
 const RESERVED_TRIGGERS = [
-	'/ns', '/action', '/user', '/category', '/history', '/help', '/section', '/lang',
+	'/ns', '/action', '/user', '/category', '/history', '/help', '/about', '/section', '/lang',
 	'/file', '/cargo', '/bucket', '/smw'
 ];
 
@@ -16,6 +16,7 @@ const MODE_KEYS = {
 	getResults: isFn,
 	layout: optional( ( v ) => v === 'list' || v === 'gallery' ),
 	getItemDetail: optional( isFn ),
+	icon: optional( ( v ) => !!v && ( typeof v === 'string' || typeof v === 'object' ) ),
 	isAvailable: optional( isFn )
 };
 

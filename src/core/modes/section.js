@@ -46,6 +46,7 @@ export default {
 	trigger: '/section',
 	label: 'tacp-mode-section',
 	description: 'tacp-mode-section-desc',
+	icon: icons.listBullet,
 	isAvailable: () => !!document.querySelector( HEADINGS ),
 	getResults( query ) {
 		return [ {

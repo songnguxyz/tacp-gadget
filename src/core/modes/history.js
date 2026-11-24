@@ -15,6 +15,7 @@ export default {
 	trigger: '/history',
 	label: 'tacp-mode-history',
 	description: 'tacp-mode-history-desc',
+	icon: icons.history,
 	isAvailable: ( context ) => context.articleId > 0,
 	getResults( query, context, signal ) {
 		return apiGet( {

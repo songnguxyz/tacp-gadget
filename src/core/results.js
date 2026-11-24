@@ -93,7 +93,7 @@ export function modeItem( mode ) {
 		label: text( mode.label ),
 		badge: mode.trigger,
 		description: text( mode.description ),
-		icon: icons.function,
+		icon: mode.icon || icons.function,
 		mode
 	};
 }

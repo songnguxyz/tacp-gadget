@@ -48,6 +48,7 @@ export default {
 	trigger: '/lang',
 	label: 'tacp-mode-lang',
 	description: 'tacp-mode-lang-desc',
+	icon: icons.language,
 	isAvailable: ( context ) => context.articleId > 0 || !!document.querySelector( 'li.interlanguage-link' ),
 	getResults( query, context, signal ) {
 		const dom = readLanguageLinks();

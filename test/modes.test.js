@@ -8,6 +8,7 @@ import historyMode from '../src/core/modes/history.js';
 import createHelpMode from '../src/core/modes/help.js';
 import sectionMode from '../src/core/modes/section.js';
 import langMode from '../src/core/modes/lang.js';
+import aboutMode from '../src/core/modes/about.js';
 import { createRegistry, defineMode } from '../src/core/services/registry.js';
 import { addRecent, getRecent } from '../src/core/services/recent.js';
 
@@ -78,6 +79,18 @@ describe( '/user', () => {
 		expect( fetch.mock.calls[ 0 ][ 0 ] ).toContain( 'auprefix=Ali' );
 		expect( group.items[ 0 ] ).toMatchObject( { label: 'Alice', title: 'User:Alice', description: '1 edit' } );
 		expect( group.items[ 0 ].actions.map( ( a ) => a.id ) ).toEqual( [ 'contribs', 'talk' ] );
+	} );
+
+	it( 'shows UserProfileV2 avatars and "about me"; a failed profile only loses its own', async () => {
+		mockFetch( {
+			'meta=siteinfo': siteinfo,
+			'list=allusers': { query: { allusers: [ { name: 'Alice', editcount: 1 }, { name: 'Bob', editcount: 2 } ] } },
+			'user_name=Alice': { query: { 'profile-avatar': '/images/upv2avatars/x_1.png?r=5', 'profile-aboutme': 'Hi' } },
+			'user_name=Bob': new Error()
+		} );
+		const [ { items } ] = await userMode.getResults( '', context, signal() );
+		expect( items[ 0 ] ).toMatchObject( { thumbnail: { url: '/images/upv2avatars/x_1.png?r=5' }, description: '1 edit · Hi' } );
+		expect( items[ 1 ] ).toMatchObject( { thumbnail: undefined, description: '2 edits' } );
 	} );
 } );
 
@@ -202,5 +215,27 @@ describe( '/lang', () => {
 		const [ group ] = await langMode.getResults( '', context, signal() );
 		expect( group.items[ 0 ] ).toMatchObject( { label: '日本語', badge: 'ja', description: 'りんご – Japanese' } );
 		expect( langMode.isAvailable( { articleId: 0 } ) ).toBe( false );
+	} );
+} );
+
+describe( '/about', () => {
+	it( 'shows the version and links, filtered by the query', () => {
+		const [ group ] = defineMode( aboutMode ).getResults( '' );
+		expect( group.items[ 0 ].label ).toBe( 'TACP 0.0.0-test' );
+		expect( group.items[ 0 ].url ).toMatch( /\/releases\/tag\/v0\.0\.0-test$/ );
+		expect( group.items.every( ( i ) => i.url.startsWith( 'https://' ) ) ).toBe( true );
+		expect( aboutMode.getResults( 'tacp 0.0' )[ 0 ].items ).toHaveLength( 1 );
+	} );
+} );
+
+describe( 'mode icons', () => {
+	it( '/help shows each mode with its own icon', () => {
+		const registry = createRegistry( [] );
+		registry.register( defineMode( langMode ), true );
+		registry.register( defineMode( aboutMode ), true );
+		const [ modes ] = defineMode( createHelpMode( registry ) ).getResults( '', context );
+		const icons = modes.items.map( ( i ) => i.icon );
+		expect( icons[ 0 ] ).toBe( langMode.icon );
+		expect( new Set( icons ).size ).toBe( icons.length );
 	} );
 } );
