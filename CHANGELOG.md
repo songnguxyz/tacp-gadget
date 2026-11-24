@@ -11,6 +11,7 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 - Result icons sit in a 40px square, like thumbnails; they were 40px wide and only as tall as the icon.
 
 ### Added
+- `docs/deploy.md` says where a wiki changes TACP's settings, text, look and modes.
 - `docs/api.md` lists the CSS classes wikis may style; they change only in a major release.
 - A line in the browser console says TACP is running, with its version and whether it came from the gadget or jsDelivr.
 
