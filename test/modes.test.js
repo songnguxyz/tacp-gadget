@@ -8,6 +8,7 @@ import historyMode from '../src/core/modes/history.js';
 import createHelpMode from '../src/core/modes/help.js';
 import sectionMode from '../src/core/modes/section.js';
 import langMode from '../src/core/modes/lang.js';
+import aboutMode from '../src/core/modes/about.js';
 import { createRegistry, defineMode } from '../src/core/services/registry.js';
 import { addRecent, getRecent } from '../src/core/services/recent.js';
 
@@ -202,5 +203,15 @@ describe( '/lang', () => {
 		const [ group ] = await langMode.getResults( '', context, signal() );
 		expect( group.items[ 0 ] ).toMatchObject( { label: '日本語', badge: 'ja', description: 'りんご – Japanese' } );
 		expect( langMode.isAvailable( { articleId: 0 } ) ).toBe( false );
+	} );
+} );
+
+describe( '/about', () => {
+	it( 'shows the version and links, filtered by the query', () => {
+		const [ group ] = defineMode( aboutMode ).getResults( '' );
+		expect( group.items[ 0 ].label ).toBe( 'TACP 0.0.0-test' );
+		expect( group.items[ 0 ].url ).toMatch( /\/releases\/tag\/v0\.0\.0-test$/ );
+		expect( group.items.every( ( i ) => i.url.startsWith( 'https://' ) ) ).toBe( true );
+		expect( aboutMode.getResults( 'tacp 0.0' )[ 0 ].items ).toHaveLength( 1 );
 	} );
 } );

@@ -12,6 +12,7 @@ import userMode from './modes/user.js';
 import categoryMode from './modes/category.js';
 import historyMode from './modes/history.js';
 import createHelpMode from './modes/help.js';
+import aboutMode from './modes/about.js';
 import sectionMode from './modes/section.js';
 import langMode from './modes/lang.js';
 import en from '../../i18n/en.json';
@@ -43,7 +44,7 @@ export function isOpen() {
 loadMessages( { en, vi }, loader.config.messages, mw.language.getFallbackLanguageChain() );
 
 const registry = createRegistry( loader.config.disabledModes );
-[ nsMode, actionMode, sectionMode, langMode, userMode, categoryMode, historyMode, createHelpMode( registry ) ]
+[ nsMode, actionMode, sectionMode, langMode, userMode, categoryMode, historyMode, createHelpMode( registry ), aboutMode ]
 	.forEach( ( spec ) => registry.register( defineMode( spec ), true ) );
 builtinCommands.forEach( ( cmd ) => registry.register( cmd, true ) );
 

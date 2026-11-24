@@ -5,6 +5,9 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+### Added
+- `/about`: version, source code, issue tracker, API documentation and credits.
+
 ### Fixed
 - Comments in the Vue templates no longer appear in the page's HTML.
 

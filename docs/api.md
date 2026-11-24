@@ -114,7 +114,7 @@ relative URLs are kept; any other `url` is dropped. Empty groups are hidden.
 - Every `id` starts with your gadget's name, e.g. `mygadget-purge`.
   The `tacp-` prefix is reserved for TACP.
 - These triggers are reserved: `/ns`, `/action`, `/user`, `/category`, `/history`,
-  `/help`, `/section`, `/lang`, `/file`, `/cargo`, `/bucket` and `/smw`,
+  `/help`, `/about`, `/section`, `/lang`, `/file`, `/cargo`, `/bucket` and `/smw`,
   as are the one-character shortcuts `#` and `@`. For any other
   trigger the first registration wins; later ones are rejected with a
   `mw.log.warn` and the user sees nothing.

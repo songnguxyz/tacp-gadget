@@ -38,7 +38,8 @@ const defines = ( flags = {} ) => Object.assign( {
 	__LOADER_MESSAGES__: JSON.stringify( loaderMessages ),
 	__CDN__: 'false',
 	__CDN_BASE__: '""',
-	__CORE_DEPS__: JSON.stringify( coreDeps )
+	__CORE_DEPS__: JSON.stringify( coreDeps ),
+	__TACP_VERSION__: JSON.stringify( pkg.version )
 }, flags );
 
 rmSync( 'dist', { recursive: true, force: true } );

@@ -1,6 +1,6 @@
 // Built-in triggers, reserved even before their mode exists (v2, v3)
 const RESERVED_TRIGGERS = [
-	'/ns', '/action', '/user', '/category', '/history', '/help', '/section', '/lang',
+	'/ns', '/action', '/user', '/category', '/history', '/help', '/about', '/section', '/lang',
 	'/file', '/cargo', '/bucket', '/smw'
 ];
 
