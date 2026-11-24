@@ -7,6 +7,7 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ### Added
 - Modes take an optional `icon`, shown in `/help`; each built-in mode has its own. `tacp.icons` adds `code`, `info` and `linkExternal`.
+- `/user` shows UserProfileV2 avatars and "about me" when the extension is installed.
 - `/about`: version, source code, issue tracker, API documentation and credits.
 
 ### Fixed

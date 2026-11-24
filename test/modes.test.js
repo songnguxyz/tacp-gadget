@@ -80,6 +80,18 @@ describe( '/user', () => {
 		expect( group.items[ 0 ] ).toMatchObject( { label: 'Alice', title: 'User:Alice', description: '1 edit' } );
 		expect( group.items[ 0 ].actions.map( ( a ) => a.id ) ).toEqual( [ 'contribs', 'talk' ] );
 	} );
+
+	it( 'shows UserProfileV2 avatars and "about me"; a failed profile only loses its own', async () => {
+		mockFetch( {
+			'meta=siteinfo': siteinfo,
+			'list=allusers': { query: { allusers: [ { name: 'Alice', editcount: 1 }, { name: 'Bob', editcount: 2 } ] } },
+			'user_name=Alice': { query: { 'profile-avatar': '/images/upv2avatars/x_1.png?r=5', 'profile-aboutme': 'Hi' } },
+			'user_name=Bob': new Error()
+		} );
+		const [ { items } ] = await userMode.getResults( '', context, signal() );
+		expect( items[ 0 ] ).toMatchObject( { thumbnail: { url: '/images/upv2avatars/x_1.png?r=5' }, description: '1 edit · Hi' } );
+		expect( items[ 1 ] ).toMatchObject( { thumbnail: undefined, description: '2 edits' } );
+	} );
 } );
 
 describe( '/category', () => {
