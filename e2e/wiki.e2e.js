@@ -248,7 +248,7 @@ test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async 
 		window.tacpConfig = { slashShortcut: false };
 		mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js' );
 	} );
-	await page.waitForFunction( () => window.tacpCdn );
+	await page.waitForFunction( () => window.tacpRunning );
 	// Only the loader until the palette opens
 	await page.waitForTimeout( 300 );
 	assert.deepEqual( served, [ 'TACP-cdn.js' ] );
@@ -267,5 +267,32 @@ test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async 
 	const warned = page.waitForEvent( 'console', ( m ) => /already running/.test( m.text() ) );
 	await page.evaluate( () => mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js?again' ) );
 	await warned;
+	await done( page );
+} );
+
+test( 'TACP-cdn.js wrapped in a gadget of its own named TACP', async ( t ) => {
+	edit( 'MediaWiki:Gadgets-definition', '* TACP[ResourceLoader|default]|TACP.js' );
+	edit( 'MediaWiki:Gadget-TACP.js', "mw.loader.load( 'https://cdn.test/tacp@abc123/TACP-cdn.js' );" );
+	t.after( () => {
+		edit( 'MediaWiki:Gadget-TACP.js', readFileSync( new URL( '../dist/TACP.js', import.meta.url ), 'utf8' ) );
+		edit( 'MediaWiki:Gadgets-definition', readFileSync( process.env.MW_DIR + '/tacp-definition.txt', 'utf8' ) );
+	} );
+	const context = await browser.newContext();
+	await context.route( 'https://cdn.test/tacp@abc123/*', ( route ) => {
+		const file = new URL( route.request().url() ).pathname.split( '/' ).pop();
+		route.fulfill( {
+			body: readFileSync( new URL( '../dist/' + file, import.meta.url ) ),
+			contentType: file.endsWith( '.css' ) ? 'text/css' : 'text/javascript'
+		} );
+	} );
+	const page = await context.newPage();
+	page.errors = [];
+	page.on( 'pageerror', ( e ) => page.errors.push( e.message ) );
+	await page.goto( url( 'Apple', { useskin: 'vector-2022' } ) );
+	// The wrapper is ext.gadget.TACP too, and must not count as TACP already running
+	await page.waitForFunction( () => window.tacpRunning );
+	await page.keyboard.press( 'Control+k' );
+	await palette( page ).fill( 'apple' );
+	await page.getByRole( 'option', { name: /Apple pie/ } ).waitFor();
 	await done( page );
 } );
