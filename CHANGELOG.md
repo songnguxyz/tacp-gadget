@@ -3,6 +3,11 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
+## Unreleased
+
+### Fixed
+- Comments in the Vue templates no longer appear in the page's HTML.
+
 ## 0.1.0-rc.10 — 2026-11-24
 
 ### Added

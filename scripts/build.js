@@ -48,7 +48,7 @@ for ( const [ name, entry ] of [ [ 'TACP', 'src/loader/TACP.js' ], [ 'TACP-core'
 	await build( {
 		configFile: false,
 		logLevel: 'warn',
-		plugins: [ vue() ],
+		plugins: [ vue( { template: { compilerOptions: { comments: false } } } ) ],
 		define: defines(),
 		build: {
 			outDir: 'dist',
@@ -83,7 +83,7 @@ const minify = async ( code, file ) => ( await transformWithEsbuild( code, file,
 await build( {
 	configFile: false,
 	logLevel: 'warn',
-	plugins: [ vue() ],
+	plugins: [ vue( { template: { compilerOptions: { comments: false } } } ) ],
 	define: defines( { __CDN__: 'true', __CDN_BASE__: 'cdnBase' } ),
 	build: {
 		outDir: 'build/cdn',
