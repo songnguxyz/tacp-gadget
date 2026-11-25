@@ -6,7 +6,7 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 ## Unreleased
 
 ### Changed
-- Every `i18n/<lang>.json` is bundled: a new language file needs no code change.
+- Every `i18n/<lang>.json` is bundled: a new language file needs no code change. The loaders' size budget rises from 4 KB to 6 KB gzipped to carry their messages in every language.
 
 ## 0.1.0-rc.12 — 2026-11-24
 
