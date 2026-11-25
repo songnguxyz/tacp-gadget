@@ -3,6 +3,11 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
+## Unreleased
+
+### Changed
+- Every `i18n/<lang>.json` is bundled: a new language file needs no code change.
+
 ## 0.1.0-rc.12 — 2026-11-24
 
 ### Fixed

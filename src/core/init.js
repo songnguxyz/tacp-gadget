@@ -15,8 +15,6 @@ import createHelpMode from './modes/help.js';
 import aboutMode from './modes/about.js';
 import sectionMode from './modes/section.js';
 import langMode from './modes/lang.js';
-import en from '../../i18n/en.json';
-import vi from '../../i18n/vi.json';
 import './styles.less';
 
 /**
@@ -41,7 +39,8 @@ export function isOpen() {
 	return store.open;
 }
 
-loadMessages( { en, vi }, loader.config.messages, mw.language.getFallbackLanguageChain() );
+// eslint-disable-next-line no-undef
+loadMessages( __MESSAGES__, loader.config.messages, mw.language.getFallbackLanguageChain() );
 
 const registry = createRegistry( loader.config.disabledModes );
 [ nsMode, actionMode, sectionMode, langMode, userMode, categoryMode, historyMode, createHelpMode( registry ), aboutMode ]
