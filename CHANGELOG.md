@@ -5,6 +5,9 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
 ## Unreleased
 
+### Added
+- Spanish messages, by PretzelBubbleTea.
+
 ### Changed
 - Every `i18n/<lang>.json` is bundled: a new language file needs no code change. The loaders' size budget rises from 4 KB to 6 KB gzipped to carry their messages in every language.
 
