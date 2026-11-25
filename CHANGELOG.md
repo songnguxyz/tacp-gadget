@@ -3,7 +3,7 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
-## Unreleased
+## 0.1.0-rc.13 — 2026-11-25
 
 ### Added
 - Spanish messages, by PretzelBubbleTea.
