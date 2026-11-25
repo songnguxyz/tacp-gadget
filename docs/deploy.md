@@ -139,3 +139,9 @@ from jsDelivr through its own gadget owns that gadget's pages, whatever its name
 Redeploy the previous release's files from GitHub Releases through the same
 path, after verifying its `SHA256SUMS`. Rollback never touches the config page.
 Mark the broken release as such in `CHANGELOG.md`; do not delete it.
+
+On the SongNgư.xyz wikis, the Litmus page of the broken release's
+`gadget-deploy` job has a "Triển khai lại bản trước" button. It finds the last
+release that deployed cleanly to that wiki and starts a dry run of it that leaves
+`createOnly` pages (the config and the descriptions) alone; a person approves the
+diff as for any release. The older release must still be on GitHub.

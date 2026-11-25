@@ -6,9 +6,10 @@ import { gzipSync } from 'node:zlib';
 
 const KB = 1024;
 const budgets = [
-	[ [ 'TACP.js', 'TACP.css' ], 4 * KB ],
+	// Both loaders carry the loader messages of every language in i18n/
+	[ [ 'TACP.js', 'TACP.css' ], 6 * KB ],
 	// Loaded on every page too, minified, with both stylesheet directions inline
-	[ [ 'TACP-cdn.js' ], 4 * KB ],
+	[ [ 'TACP-cdn.js' ], 6 * KB ],
 	[ [ 'TACP-core.js', 'TACP-core.css' ], 60 * KB ]
 ];
 

@@ -4,6 +4,7 @@ import vue from '@vitejs/plugin-vue';
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, rmSync, readdirSync } from 'node:fs';
 import cssjanus from 'cssjanus';
+import { readMessages } from './messages.js';
 
 const pkg = JSON.parse( readFileSync( 'package.json', 'utf8' ) );
 const sha = ( process.env.GITHUB_SHA || execSync( 'git rev-parse HEAD' ).toString() ).trim().slice( 0, 7 );
@@ -11,14 +12,15 @@ const header = `/*! TACP v${ pkg.version } (${ sha }) | MIT License | https://gi
  * Built file: do not edit on-wiki. Edit the repository and redeploy. */
 `;
 
-// The loader carries only the messages it shows before the core loads
-const loaderMessages = {};
-for ( const lang of [ 'en', 'vi' ] ) {
-	const all = JSON.parse( readFileSync( `i18n/${ lang }.json`, 'utf8' ) );
-	loaderMessages[ lang ] = Object.fromEntries(
-		Object.entries( all ).filter( ( [ key ] ) => key.startsWith( 'tacp-loader-' ) )
-	);
-}
+// The core carries every language; the loader only the messages it shows
+// before the core loads.
+// ponytail: all languages in the core, about 2 KB gzipped each; split per
+// language if translatewiki.net brings enough to strain the size budget
+const messages = readMessages();
+const loaderMessages = Object.fromEntries( Object.entries( messages ).map( ( [ lang, all ] ) => [
+	lang,
+	Object.fromEntries( Object.entries( all ).filter( ( [ key ] ) => key.startsWith( 'tacp-loader-' ) ) )
+] ) );
 
 // Opt-in while release candidates are tested on hsckwiki and crwvi; true from 1.0 (spec §4.2)
 const DEFAULT_ON = false;
@@ -36,6 +38,7 @@ const coreDeps = deps[ 'TACP-core' ].filter( ( dep ) => dep !== 'ext.gadget.TACP
 // Build-time constants of src/loader/TACP.js
 const defines = ( flags = {} ) => Object.assign( {
 	__LOADER_MESSAGES__: JSON.stringify( loaderMessages ),
+	__MESSAGES__: JSON.stringify( messages ),
 	__CDN__: 'false',
 	__CDN_BASE__: '""',
 	__CORE_DEPS__: JSON.stringify( coreDeps ),
