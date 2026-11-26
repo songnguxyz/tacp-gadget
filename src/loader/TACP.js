@@ -17,7 +17,7 @@ const BUTTON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" 
 export const config = normalizeConfig( __CDN__ ? window.tacpConfig : rawConfig );
 
 // The gadget and the CDN build start once per page, whichever runs first. A
-// flag, not the module state: a wiki may wrap TACP-cdn.js in a gadget of its
+// flag, not the module state: a wiki may wrap TACP-user.js in a gadget of its
 // own, even one named TACP (docs/deploy.md).
 const duplicate = !!window.tacpRunning;
 if ( duplicate ) {
@@ -46,17 +46,17 @@ function loadStylesheet( href ) {
 
 /* eslint-disable no-undef */
 /**
- * The CDN build (TACP-cdn.js) loads the core's files from where it was
+ * The CDN build (TACP-user.js) loads the core's files from where it was
  * loaded itself, then runs the core with this module as ext.gadget.TACP.
  *
  * @return {Promise<Object>} The core's exports
  */
 function fetchCdnCore() {
-	const css = __CDN_URL__( 'TACP-cdn-core' + ( isRtl() ? '.rtl' : '' ) + '.css' );
+	const css = __CDN_URL__( 'TACP-user-core' + ( isRtl() ? '.rtl' : '' ) + '.css' );
 	return Promise.all( [
 		mw.loader.using( __CORE_DEPS__ ),
 		loadStylesheet( css ),
-		Promise.resolve( mw.loader.getScript( __CDN_URL__( 'TACP-cdn-core.js' ) ) )
+		Promise.resolve( mw.loader.getScript( __CDN_URL__( 'TACP-user-core.js' ) ) )
 	] ).then( ( [ req ] ) => window.tacpCdnCore(
 		( name ) => ( name === 'ext.gadget.TACP' ? { config, open, close, setOpenState } : req( name ) )
 	) );
@@ -188,7 +188,7 @@ function toggle() {
 if ( enabled ) {
 	// A hello in the console, so anyone can check TACP loaded and which build
 	// eslint-disable-next-line no-console, no-undef
-	console.info( '%cTACP%c ' + __TACP_VERSION__ + ' is running (' + ( __CDN__ ? 'TACP-cdn.js' : 'gadget' ) + '). Press Ctrl+K or / to open it.', 'color:#6549ed;font-weight:bold', '' );
+	console.info( '%cTACP%c ' + __TACP_VERSION__ + ' is running (' + ( __CDN__ ? 'TACP-user.js' : 'gadget' ) + '). Press Ctrl+K or / to open it.', 'color:#6549ed;font-weight:bold', '' );
 	const lang = mw.config.get( 'wgUserLanguage' );
 	// eslint-disable-next-line no-undef
 	loadMessages( __LOADER_MESSAGES__, config.messages, [ lang, lang.split( '-' )[ 0 ], 'en' ] );

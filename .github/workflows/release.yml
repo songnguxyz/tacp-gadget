@@ -80,7 +80,7 @@ jobs:
           fi
           git -C "$tree" rm -rfq --ignore-unmatch .
           # The same bytes as the release assets
-          gh release download "$TAG" --pattern 'TACP-cdn*' --dir "$tree"
+          gh release download "$TAG" --pattern 'TACP-user*' --dir "$tree"
           cp LICENSE THIRD_PARTY_NOTICES.md "$tree/"
           printf '# TACP %s for jsDelivr\n\nBuilt files only: see https://github.com/%s/blob/main/docs/deploy.md\n' \
             "$TAG" "$REPO" > "$tree/README.md"
@@ -91,14 +91,14 @@ jobs:
           notes=$(gh release view "$TAG" --json body --jq .body)
           if [[ "$notes" != *"$sha"* ]]; then
             printf '%s\n\n### Load from jsDelivr\n\n```js\nwindow.tacpConfig = {};\nmw.loader.load( %s );\n```\n' \
-              "$notes" "'https://cdn.jsdelivr.net/gh/$REPO@$sha/TACP-cdn.js'" > notes.md
+              "$notes" "'https://cdn.jsdelivr.net/gh/$REPO@$sha/TACP-user.js'" > notes.md
             gh release edit "$TAG" --notes-file notes.md
           fi
-          echo "::notice::jsDelivr: https://cdn.jsdelivr.net/gh/$REPO@$sha/TACP-cdn.js"
+          echo "::notice::jsDelivr: https://cdn.jsdelivr.net/gh/$REPO@$sha/TACP-user.js"
           # Wikis loading @cdn (latest) get the release now instead of within
           # jsDelivr's 12-hour branch cache. The core files first, so a new loader
           # never meets an old core. A failed purge only delays them.
-          for f in TACP-cdn-core.js TACP-cdn-core.css TACP-cdn-core.rtl.css TACP-cdn.js; do
+          for f in TACP-user-core.js TACP-user-core.css TACP-user-core.rtl.css TACP-user.js; do
             curl -fsS -o /dev/null "https://purge.jsdelivr.net/gh/$REPO@cdn/$f" ||
               echo "::warning::jsDelivr purge failed for $f"
           done

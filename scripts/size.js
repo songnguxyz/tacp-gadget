@@ -9,7 +9,7 @@ const budgets = [
 	// Both loaders carry the loader messages of every language in i18n/
 	[ [ 'TACP.js', 'TACP.css' ], 6 * KB ],
 	// Loaded on every page too, minified, with both stylesheet directions inline
-	[ [ 'TACP-cdn.js' ], 6 * KB ],
+	[ [ 'TACP-user.js' ], 6 * KB ],
 	[ [ 'TACP-core.js', 'TACP-core.css' ], 60 * KB ]
 ];
 

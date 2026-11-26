@@ -78,7 +78,7 @@ for ( const [ name, entry ] of [ [ 'TACP', 'src/loader/TACP.js' ], [ 'TACP-core'
 copyFileSync( 'src/loader/TACP-config.json', 'dist/TACP-config.json' );
 
 // The CDN files, for wikis that load TACP from jsDelivr with one line instead
-// of installing the gadget (docs/deploy.md). TACP-cdn.js is the loader; when
+// of installing the gadget (docs/deploy.md). TACP-user.js is the loader; when
 // the palette first opens it loads the gadget's core, wrapped as
 // window.tacpCdnCore, and its styles, from the same directory. ResourceLoader
 // does not flip these files for right-to-left languages, so CSSJanus does it
@@ -99,18 +99,18 @@ await build( {
 	}
 } );
 const loaderCss = await minify( readFileSync( 'build/cdn/loader.css', 'utf8' ), 'loader.css' );
-writeFileSync( 'dist/TACP-cdn.js', header + await minify( `( function () {
+writeFileSync( 'dist/TACP-user.js', header + await minify( `( function () {
 	// Captured now: currentScript is only set while this file first runs. The
 	// core's files are named like this one and load from the same place: a
-	// directory (jsDelivr) or wiki pages (index.php?title=User:X/TACP-cdn.js
+	// directory (jsDelivr) or wiki pages (index.php?title=User:X/TACP-user.js
 	// &action=raw&ctype=text/javascript, where the styles need text/css).
-	var self = document.currentScript || document.querySelector( 'script[src*="TACP-cdn.js"]' );
+	var self = document.currentScript || document.querySelector( 'script[src*="TACP-user.js"]' );
 	if ( !self ) {
-		mw.log.error( 'TACP: load TACP-cdn.js with mw.loader.load(), not by pasting it.' );
+		mw.log.error( 'TACP: load TACP-user.js with mw.loader.load(), not by pasting it.' );
 		return;
 	}
 	var cdnUrl = function ( file ) {
-		var url = new URL( self.src.replace( 'TACP-cdn.js', file ) );
+		var url = new URL( self.src.replace( 'TACP-user.js', file ) );
 		if ( /\\.css$/.test( file ) && url.searchParams.has( 'ctype' ) ) {
 			url.searchParams.set( 'ctype', 'text/css' );
 		}
@@ -124,17 +124,17 @@ writeFileSync( 'dist/TACP-cdn.js', header + await minify( `( function () {
 ${ readFileSync( 'build/cdn/loader.js', 'utf8' ) }
 	} );
 }() );
-`, 'TACP-cdn.js' ) );
+`, 'TACP-user.js' ) );
 const coreJs = readFileSync( 'dist/TACP-core.js', 'utf8' ).replace( header, '' );
-writeFileSync( 'dist/TACP-cdn-core.js', header + await minify( `window.tacpCdnCore = function ( require ) {
+writeFileSync( 'dist/TACP-user-core.js', header + await minify( `window.tacpCdnCore = function ( require ) {
 	var module = { exports: {} }, exports = module.exports;
 ${ coreJs }
 	return module.exports;
 };
-`, 'TACP-cdn-core.js' ) );
+`, 'TACP-user-core.js' ) );
 const coreCss = await minify( readFileSync( 'dist/TACP-core.css', 'utf8' ).replace( header, '' ), 'core.css' );
-writeFileSync( 'dist/TACP-cdn-core.css', header + coreCss );
-writeFileSync( 'dist/TACP-cdn-core.rtl.css', header + cssjanus.transform( coreCss ) );
+writeFileSync( 'dist/TACP-user-core.css', header + coreCss );
+writeFileSync( 'dist/TACP-user-core.rtl.css', header + cssjanus.transform( coreCss ) );
 
 // Legacy MediaWiki:Gadgets-definition lines
 writeFileSync( 'dist/Gadgets-definition.txt', [

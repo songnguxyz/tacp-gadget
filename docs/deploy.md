@@ -16,7 +16,7 @@ creates the tag on the chosen branch). The workflow builds, creates the GitHub r
 | `Gadgets-TACP.json`, `Gadgets-TACP-core.json` | `MediaWiki:Gadgets/TACP.json`, `MediaWiki:Gadgets/TACP-core.json`, for wikis using JSON definitions instead |
 | `Gadget-TACP.wiki`, `Gadget-TACP.<lang>.wiki` | Preferences description, **only if missing** (see below) |
 | `deploy.json` | Manifest for Litmus `gadget-deploy`: file to page, `createOnly` for the config and descriptions |
-| `TACP-cdn.js`, `TACP-cdn-core.js`, `TACP-cdn-core.css`, `TACP-cdn-core.rtl.css` | None: served from jsDelivr (see [Loading from jsDelivr](#loading-from-jsdelivr)) |
+| `TACP-user.js`, `TACP-user-core.js`, `TACP-user-core.css`, `TACP-user-core.rtl.css` | None: served from jsDelivr (see [Loading from jsDelivr](#loading-from-jsdelivr)) |
 | `SHA256SUMS` | Checksums of all of the above |
 
 Each built file starts with a line naming the version and commit, so a wiki's
@@ -80,7 +80,7 @@ release notes:
 ```js
 // MediaWiki:Common.js (whole wiki), or Special:MyPage/common.js (yourself)
 window.tacpConfig = {}; // optional settings, same keys as Gadget-TACP-config.json
-mw.loader.load( 'https://cdn.jsdelivr.net/gh/songnguxyz/tacp-gadget@<commit>/TACP-cdn.js' );
+mw.loader.load( 'https://cdn.jsdelivr.net/gh/songnguxyz/tacp-gadget@<commit>/TACP-user.js' );
 ```
 
 Or as a gadget of one line: put the `mw.loader.load` line in
@@ -96,7 +96,7 @@ Or as a gadget of one line: put the `mw.loader.load` line in
   branch; if that fails, a release can take up to 12 hours to arrive, and in
   the meantime the loader and the core may come from different releases. Never
   use a tag or `@latest`: tags are not on the `cdn` branch.
-- `TACP-cdn.js` (about 3 KB gzipped) loads on every page. The core and its
+- `TACP-user.js` (about 3 KB gzipped) loads on every page. The core and its
   styles load from the same commit the first time the palette opens; the
   right-to-left stylesheet is chosen from the page's direction, since
   ResourceLoader does not flip files it does not serve.
@@ -113,17 +113,17 @@ Or as a gadget of one line: put the `mw.loader.load` line in
 ### From wiki pages (Wikimedia wikis)
 
 Wikimedia wikis do not allow scripts from other sites, jsDelivr included. The
-same four files work from wiki pages: put `TACP-cdn.js`, `TACP-cdn-core.js`,
-`TACP-cdn-core.css` and `TACP-cdn-core.rtl.css` from the release assets on
-pages with those names under one prefix, e.g. `User:Example/TACP-cdn.js`, and
+same four files work from wiki pages: put `TACP-user.js`, `TACP-user-core.js`,
+`TACP-user-core.css` and `TACP-user-core.rtl.css` from the release assets on
+pages with those names under one prefix, e.g. `User:Example/TACP-user.js`, and
 load the first with `action=raw`:
 
 ```js
 // Special:MyPage/common.js
-mw.loader.load( '//vi.wikipedia.org/w/index.php?title=User:Example/TACP-cdn.js&action=raw&ctype=text/javascript' );
+mw.loader.load( '//vi.wikipedia.org/w/index.php?title=User:Example/TACP-user.js&action=raw&ctype=text/javascript' );
 ```
 
-`TACP-cdn.js` loads the other three from the same prefix, the stylesheets with
+`TACP-user.js` loads the other three from the same prefix, the stylesheets with
 `ctype=text/css`. To update, replace all four pages with the next release's.
 
 ## Customizing
