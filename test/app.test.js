@@ -70,6 +70,31 @@ describe( 'App', () => {
 		expect( store.open ).toBe( false );
 	} );
 
+	it( 'shows the thumbnail of the item now in a row, not of the one before', async () => {
+		// No image loads in the test DOM; pretend each one does
+		vi.stubGlobal( 'Image', class {
+			set src( url ) {
+				setTimeout( () => this.onload() );
+			}
+		} );
+		const registry = createRegistry( [] );
+		registry.register( defineMode( {
+			id: 'mygadget-pics',
+			trigger: '/pics',
+			label: 'Pics',
+			description: 'Pictures',
+			getResults: ( q ) => [ { items: [ { label: q || 'none', url: '/' + q, thumbnail: { url: 'https://img.test/' + q + '.png' } } ] } ]
+		} ) );
+		wrapper = mount( App, { props: { registry }, attachTo: document.body } );
+		const input = await openWith( '/pics a' );
+		const html = () => document.querySelector( '.tacp-item__thumbnail' ).outerHTML;
+		expect( html() ).toContain( 'a.png' );
+		await type( input, 'b' );
+		expect( html() ).toContain( 'b.png' );
+		expect( html() ).not.toContain( 'a.png' );
+		vi.unstubAllGlobals();
+	} );
+
 	it( 'moves the highlight with the arrow keys and wraps', async () => {
 		setup();
 		const input = await openWith( '/fruit ' );

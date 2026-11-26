@@ -68,7 +68,7 @@
 				<result-item
 					v-for="entry in group.entries"
 					:id="entry.domId"
-					:key="entry.domId"
+					:key="entry.key"
 					:item="entry.item"
 					:query="query"
 					:active="entry.index === activeIndex"
@@ -177,7 +177,8 @@ export default defineComponent( {
 				label: g.label,
 				entries: g.items.map( ( item ) => {
 					const i = index++;
-					return { item, index: i, domId: listId + '-' + i };
+					// A row keeps the thumbnail it loaded: a new one needs a new row
+					return { item, index: i, domId: listId + '-' + i, key: i + ' ' + ( item.thumbnail ? item.thumbnail.url : '' ) };
 				} )
 			} ) );
 		} );
