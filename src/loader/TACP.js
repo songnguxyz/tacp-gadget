@@ -52,11 +52,11 @@ function loadStylesheet( href ) {
  * @return {Promise<Object>} The core's exports
  */
 function fetchCdnCore() {
-	const css = __CDN_BASE__ + 'TACP-cdn-core' + ( isRtl() ? '.rtl' : '' ) + '.css';
+	const css = __CDN_URL__( 'TACP-cdn-core' + ( isRtl() ? '.rtl' : '' ) + '.css' );
 	return Promise.all( [
 		mw.loader.using( __CORE_DEPS__ ),
 		loadStylesheet( css ),
-		Promise.resolve( mw.loader.getScript( __CDN_BASE__ + 'TACP-cdn-core.js' ) )
+		Promise.resolve( mw.loader.getScript( __CDN_URL__( 'TACP-cdn-core.js' ) ) )
 	] ).then( ( [ req ] ) => window.tacpCdnCore(
 		( name ) => ( name === 'ext.gadget.TACP' ? { config, open, close, setOpenState } : req( name ) )
 	) );
@@ -188,7 +188,7 @@ function toggle() {
 if ( enabled ) {
 	// A hello in the console, so anyone can check TACP loaded and which build
 	// eslint-disable-next-line no-console, no-undef
-	console.info( '%cTACP%c ' + __TACP_VERSION__ + ' is running (' + ( __CDN__ ? 'jsDelivr' : 'gadget' ) + '). Press Ctrl+K or / to open it.', 'color:#6549ed;font-weight:bold', '' );
+	console.info( '%cTACP%c ' + __TACP_VERSION__ + ' is running (' + ( __CDN__ ? 'TACP-cdn.js' : 'gadget' ) + '). Press Ctrl+K or / to open it.', 'color:#6549ed;font-weight:bold', '' );
 	const lang = mw.config.get( 'wgUserLanguage' );
 	// eslint-disable-next-line no-undef
 	loadMessages( __LOADER_MESSAGES__, config.messages, [ lang, lang.split( '-' )[ 0 ], 'en' ] );

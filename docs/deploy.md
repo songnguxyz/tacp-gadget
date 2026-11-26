@@ -110,6 +110,22 @@ Or as a gadget of one line: put the `mw.loader.load` line in
 - To try TACP without installing anything, paste the `mw.loader.load` line into
   the browser console on any wiki page.
 
+### From wiki pages (Wikimedia wikis)
+
+Wikimedia wikis do not allow scripts from other sites, jsDelivr included. The
+same four files work from wiki pages: put `TACP-cdn.js`, `TACP-cdn-core.js`,
+`TACP-cdn-core.css` and `TACP-cdn-core.rtl.css` from the release assets on
+pages with those names under one prefix, e.g. `User:Example/TACP-cdn.js`, and
+load the first with `action=raw`:
+
+```js
+// Special:MyPage/common.js
+mw.loader.load( '//vi.wikipedia.org/w/index.php?title=User:Example/TACP-cdn.js&action=raw&ctype=text/javascript' );
+```
+
+`TACP-cdn.js` loads the other three from the same prefix, the stylesheets with
+`ctype=text/css`. To update, replace all four pages with the next release's.
+
 ## Customizing
 
 | To change | Edit |

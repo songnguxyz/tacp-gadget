@@ -40,7 +40,7 @@ const defines = ( flags = {} ) => Object.assign( {
 	__LOADER_MESSAGES__: JSON.stringify( loaderMessages ),
 	__MESSAGES__: JSON.stringify( messages ),
 	__CDN__: 'false',
-	__CDN_BASE__: '""',
+	__CDN_URL__: 'String',
 	__CORE_DEPS__: JSON.stringify( coreDeps ),
 	__TACP_VERSION__: JSON.stringify( pkg.version )
 }, flags );
@@ -88,7 +88,7 @@ await build( {
 	configFile: false,
 	logLevel: 'warn',
 	plugins: [ vue( { template: { compilerOptions: { comments: false } } } ) ],
-	define: defines( { __CDN__: 'true', __CDN_BASE__: 'cdnBase' } ),
+	define: defines( { __CDN__: 'true', __CDN_URL__: 'cdnUrl' } ),
 	build: {
 		outDir: 'build/cdn',
 		emptyOutDir: true,
@@ -101,13 +101,21 @@ await build( {
 const loaderCss = await minify( readFileSync( 'build/cdn/loader.css', 'utf8' ), 'loader.css' );
 writeFileSync( 'dist/TACP-cdn.js', header + await minify( `( function () {
 	// Captured now: currentScript is only set while this file first runs. The
-	// core loads from the same directory.
-	var self = document.currentScript || document.querySelector( 'script[src*="/TACP-cdn.js"]' );
+	// core's files are named like this one and load from the same place: a
+	// directory (jsDelivr) or wiki pages (index.php?title=User:X/TACP-cdn.js
+	// &action=raw&ctype=text/javascript, where the styles need text/css).
+	var self = document.currentScript || document.querySelector( 'script[src*="TACP-cdn.js"]' );
 	if ( !self ) {
 		mw.log.error( 'TACP: load TACP-cdn.js with mw.loader.load(), not by pasting it.' );
 		return;
 	}
-	var cdnBase = self.src.replace( /[?#].*$/, '' ).replace( /[^/]*$/, '' );
+	var cdnUrl = function ( file ) {
+		var url = new URL( self.src.replace( 'TACP-cdn.js', file ) );
+		if ( /\\.css$/.test( file ) && url.searchParams.has( 'ctype' ) ) {
+			url.searchParams.set( 'ctype', 'text/css' );
+		}
+		return url.href;
+	};
 	mw.loader.using( ${ JSON.stringify( deps.TACP ) } ).then( function ( require ) {
 		mw.util.addCSS( document.documentElement.dir === 'rtl' ?
 			${ JSON.stringify( cssjanus.transform( loaderCss ) ) } :

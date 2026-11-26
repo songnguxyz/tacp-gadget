@@ -3,6 +3,14 @@
 All notable changes to TACP. Sections per release: Added, Changed, Deprecated,
 Removed, Fixed. Every pull request that changes `src/` adds a line here.
 
+## Unreleased
+
+### Added
+- `TACP-cdn.js` and its files also load from wiki pages, as a user script on wikis that allow no scripts from other sites, such as Wikimedia's (docs/deploy.md).
+
+### Changed
+- The console line says `TACP-cdn.js` instead of jsDelivr, since the CDN build may come from wiki pages.
+
 ## 0.1.0-rc.13 — 2026-11-25
 
 ### Added

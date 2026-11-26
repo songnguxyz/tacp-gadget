@@ -278,6 +278,29 @@ test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async 
 	await done( page );
 } );
 
+// As a user script on a Wikimedia wiki, where scripts from other sites are not allowed
+test( 'TACP-cdn.js and its files as user subpages, loaded with action=raw', async ( t ) => {
+	edit( 'MediaWiki:Gadgets-definition', '' );
+	t.after( () => edit( 'MediaWiki:Gadgets-definition', readFileSync( process.env.MW_DIR + '/tacp-definition.txt', 'utf8' ) ) );
+	for ( const file of [ 'TACP-cdn.js', 'TACP-cdn-core.js', 'TACP-cdn-core.css', 'TACP-cdn-core.rtl.css' ] ) {
+		edit( 'User:Admin/' + file, readFileSync( new URL( '../dist/' + file, import.meta.url ), 'utf8' ) );
+	}
+	const page = await ( await browser.newContext() ).newPage();
+	page.errors = [];
+	page.on( 'pageerror', ( e ) => page.errors.push( e.message ) );
+	await page.goto( url( 'Apple', { useskin: 'vector-2022' } ) );
+	await page.waitForFunction( () => mw.loader.getState( 'mediawiki.base' ) === 'ready' );
+	await page.evaluate( ( src ) => mw.loader.load( src ), url( 'User:Admin/TACP-cdn.js', { action: 'raw', ctype: 'text/javascript' } ) );
+	await page.waitForFunction( () => window.tacpRunning );
+	await page.keyboard.press( 'Control+k' );
+	await palette( page ).fill( 'apple' );
+	await page.getByRole( 'option', { name: /Apple pie/ } ).waitFor();
+	// The stylesheet loaded as text/css
+	const bar = await page.locator( '.tacp-item--active' ).evaluate( ( el ) => getComputedStyle( el ).boxShadow );
+	assert.match( bar, / 4px 0px 0px 0px inset$/ );
+	await done( page );
+} );
+
 // TACP is the hard case: the wrapper is ext.gadget.TACP too. Any other name must work as well.
 [ 'TACP', 'My-palette' ].forEach( ( name ) => test(
 	`TACP-cdn.js wrapped in a gadget of its own named ${ name }`, async ( t ) => {
@@ -300,7 +323,7 @@ test( 'TACP-cdn.js loaded with mw.loader.load from a CDN, right to left', async 
 		const page = await context.newPage();
 		page.errors = [];
 		page.on( 'pageerror', ( e ) => page.errors.push( e.message ) );
-		const hello = page.waitForEvent( 'console', ( m ) => /is running \(jsDelivr\)/.test( m.text() ) );
+		const hello = page.waitForEvent( 'console', ( m ) => /is running \(TACP-cdn\.js\)/.test( m.text() ) );
 		await page.goto( url( 'Apple', { useskin: 'vector-2022' } ) );
 		await hello;
 		await page.waitForFunction( () => window.tacpRunning );
