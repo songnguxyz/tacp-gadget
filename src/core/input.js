@@ -1,12 +1,13 @@
 import { namespaceForPrefix } from './modes/ns.js';
 
 // "#" jumps to a section, "@" to another language, as in the command palette
-// user script by Peter Coombe (User:The wub), Wikimedia Hackathon 2026 (T425060)
-const ALIASES = { '#': 'tacp-section', '@': 'tacp-lang' };
+// user script by Peter Coombe (User:The wub), Wikimedia Hackathon 2026 (T425060);
+// ">" lists the menus, as it lists commands in code editors' palettes
+const ALIASES = { '#': 'tacp-section', '@': 'tacp-lang', '>': 'tacp-action' };
 
 /**
  * Detect a mode trigger typed at the start of the input, e.g. "/user al".
- * The trigger only counts once followed by a space; an alias ("#", "@")
+ * The trigger only counts once followed by a space; an alias ("#", "@", ">")
  * counts at once. A namespace name and colon ("Template:") scopes the search
  * to that namespace, through /ns, and so does "{{" for templates.
  *

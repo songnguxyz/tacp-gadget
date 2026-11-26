@@ -15,9 +15,11 @@ describe( 'parseTrigger', () => {
 	} );
 
 	it( 'enters a mode at once from a one-character alias', () => {
-		const withAliases = modes.concat( { id: 'tacp-section', trigger: '/section' }, { id: 'tacp-lang', trigger: '/lang' } );
+		const withAliases = modes.concat( { id: 'tacp-section', trigger: '/section' }, { id: 'tacp-lang', trigger: '/lang' },
+			{ id: 'tacp-action', trigger: '/action' } );
 		expect( parseTrigger( '#hist', withAliases ) ).toEqual( { mode: withAliases[ 2 ], rest: 'hist' } );
 		expect( parseTrigger( '@', withAliases ) ).toEqual( { mode: withAliases[ 3 ], rest: '' } );
+		expect( parseTrigger( '>edit', withAliases ) ).toEqual( { mode: withAliases[ 4 ], rest: 'edit' } );
 		// No alias when the mode is unavailable on this page
 		expect( parseTrigger( '#x', modes ) ).toBe( null );
 	} );
