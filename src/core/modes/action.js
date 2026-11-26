@@ -7,6 +7,24 @@ const SPECIAL_SHOWN = 20;
 
 // Page actions are content actions (ca-*) and the portlets that hold them
 const PAGE_PORTLETS = [ 'p-views', 'p-cactions', 'p-namespaces', 'p-associated-pages' ];
+// Icons for the menu links MediaWiki and common extensions give an id;
+// any other link (e.g. from a gadget) keeps the function icon
+const LINK_ICONS = {
+	'ca-view': 'article', 'ca-talk': 'speechBubbles', 'ca-edit': 'edit', 'ca-ve-edit': 'edit',
+	'ca-viewsource': 'code', 'ca-addsection': 'add', 'ca-history': 'history', 'ca-watch': 'star',
+	'ca-unwatch': 'unStar', 'ca-move': 'move', 'ca-delete': 'trash', 'ca-undelete': 'restore',
+	'ca-protect': 'lock', 'ca-unprotect': 'unLock', 'ca-purge': 'reload',
+	't-whatlinkshere': 'link', 't-recentchangeslinked': 'recentChanges', 't-upload': 'upload',
+	't-specialpages': 'specialPages', 't-permalink': 'link', 't-info': 'info', 't-cite': 'quotes',
+	't-print': 'printer', 't-wikibase': 'logoWikidata', 't-urlshortener': 'link',
+	't-urlshortener-qrcode': 'qrCode', 'coll-download-as-rl': 'download', 't-contributions': 'userContributions',
+	't-log': 'listBullet', 't-emailuser': 'message', 't-userrights': 'userGroup',
+	'pt-userpage': 'user', 'pt-mytalk': 'userTalk', 'pt-preferences': 'settings', 'pt-watchlist': 'watchlist',
+	'pt-mycontris': 'userContributions', 'pt-logout': 'logOut', 'pt-login': 'logIn', 'pt-login-private': 'logIn',
+	'pt-notifications-alert': 'bell', 'pt-notifications-notice': 'message',
+	'n-mainpage-description': 'home', 'n-randompage': 'die', 'n-recentchanges': 'recentChanges', 'n-help': 'help'
+};
+const linkIcon = ( id ) => icons[ /^ca-nstab-/.test( id ) ? 'article' : LINK_ICONS[ id ] ] || icons.function;
 const clean = ( s ) => ( s || '' ).replace( /\s+/g, ' ' ).trim();
 
 function portletLabel( portlet ) {
@@ -45,13 +63,8 @@ function readPortletGroups() {
 		if ( !groups.has( key ) ) {
 			groups.set( key, { id: key, label: ( portlet && portletLabel( portlet ) ) || msg( 'tacp-group-tools' ), items: [] } );
 		}
-		groups.get( key ).items.push( {
-			id: a.id || ( li && li.id ) || url,
-			label,
-			description: clean( a.title ),
-			url,
-			icon: icons.function
-		} );
+		const id = a.id || ( li && li.id ) || url;
+		groups.get( key ).items.push( { id, label, description: clean( a.title ), url, icon: linkIcon( id ) } );
 	} );
 	return Array.from( groups.values() );
 }

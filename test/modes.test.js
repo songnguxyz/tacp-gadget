@@ -10,6 +10,7 @@ import sectionMode from '../src/core/modes/section.js';
 import langMode from '../src/core/modes/lang.js';
 import aboutMode from '../src/core/modes/about.js';
 import { createRegistry, defineMode } from '../src/core/services/registry.js';
+import icons from '../src/core/icons.js';
 import { addRecent, getRecent } from '../src/core/services/recent.js';
 
 const context = { title: 'Main_Page', namespace: 0, articleId: 1 };
@@ -166,6 +167,9 @@ describe( '/action menus', () => {
 		return actionMode.getResults( '', context, signal() ).then( ( groups ) => {
 			expect( groups.map( ( g ) => g.label ) ).toEqual( [ 'This page', 'Navigation', 'TW', 'Special pages' ] );
 			expect( labels( groups[ 2 ] ) ).toEqual( [ 'Warn' ] );
+			// Known links get an icon for what they do; a gadget's keeps the generic one
+			expect( groups[ 0 ].items[ 0 ].icon ).toBe( icons.edit );
+			expect( groups[ 2 ].items[ 0 ].icon ).toBe( icons.function );
 		} );
 	} );
 
