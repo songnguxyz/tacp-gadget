@@ -126,6 +126,26 @@ mw.loader.load( '//vi.wikipedia.org/w/index.php?title=User:Example/TACP-user.js&
 `TACP-user.js` loads the other three from the same prefix, the stylesheets with
 `ctype=text/css`. To update, replace all four pages with the next release's.
 
+Each release also publishes the four pages to Meta-Wiki, so any Wikimedia wiki
+can load the latest one without copies (the release notes give the line):
+
+```js
+mw.loader.load( '//meta.wikimedia.org/w/index.php?title=User:Song_Ngư/TACP-user.js&action=raw&ctype=text/javascript' );
+```
+
+The `meta` job of the release workflow does this with
+`scripts/publish-wiki.js`. It needs, in a repository environment named `meta`:
+
+- the secrets `META_USERNAME` (`Name@app`) and `META_PASSWORD`, from
+  [Special:BotPasswords](https://meta.wikimedia.org/wiki/Special:BotPasswords)
+  with the grants "Basic rights", "Edit existing pages and create new pages"
+  and "Edit your user CSS/JSON/JavaScript";
+- the variable `META_PREFIX` if the pages live elsewhere than `User:Song Ngư/`;
+- a required reviewer: that BotPassword can edit the account's `global.js`,
+  which runs on every Wikimedia wiki for that account.
+
+Without the secrets the job only warns. It edits once a minute, core first.
+
 ## Customizing
 
 | To change | Edit |

@@ -103,6 +103,48 @@ jobs:
               echo "::warning::jsDelivr purge failed for $f"
           done
 
+  # The user script on Meta-Wiki, which Wikimedia wikis may load (their policy
+  # forbids third-party hosts like jsDelivr). Edits with a BotPassword of the
+  # account owning WIKI_PREFIX; the `meta` environment holds the secrets and
+  # should require a reviewer, since that account can edit its own global.js.
+  # After cdn, so the two never edit the release notes at once.
+  meta:
+    needs: [ assets, cdn ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: meta
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Publish to Meta-Wiki
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+          WIKI_API: https://meta.wikimedia.org/w/api.php
+          WIKI_USER: ${{ secrets.META_USERNAME }}
+          WIKI_PASSWORD: ${{ secrets.META_PASSWORD }}
+          WIKI_PREFIX: ${{ vars.META_PREFIX || 'User:Song Ngư/' }}
+        run: |
+          set -euo pipefail
+          if [ -z "$WIKI_USER" ] || [ -z "$WIKI_PASSWORD" ]; then
+            echo "::warning::Set the secrets META_USERNAME and META_PASSWORD in the meta environment"
+            exit 0
+          fi
+          export DIR="$RUNNER_TEMP/meta" SUMMARY="TACP $TAG"
+          gh release download "$TAG" --pattern 'TACP-user*' --dir "$DIR"
+          node scripts/publish-wiki.js
+          url="//meta.wikimedia.org/w/index.php?title=${WIKI_PREFIX// /_}TACP-user.js&action=raw&ctype=text/javascript"
+          notes=$(gh release view "$TAG" --json body --jq .body)
+          if [[ "$notes" != *"$url"* ]]; then
+            printf '%s\n\n### Load from Meta-Wiki\n\n```js\nwindow.tacpConfig = {};\nmw.loader.load( %s );\n```\n' \
+              "$notes" "'$url'" > notes.md
+            gh release edit "$TAG" --notes-file notes.md
+          fi
+
   # After the assets are attached, so Litmus never fetches a release without
   # SHA256SUMS and deploy.json. Creates dry-run gadget-deploy jobs only; a
   # person still approves the real write on the Litmus dashboard.

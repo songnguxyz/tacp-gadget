@@ -11,6 +11,7 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 - `>` opens `/action`, as `#` opens `/section` and `@` opens `/lang`.
 - `/action` gives each known menu link an icon for what it does (edit, history, watch, move, delete, protect, upload, print, preferences, log out and more); links added by gadgets keep the generic icon. `tacp.icons` adds the icons used.
 - `TACP-user.js` and its files also load from wiki pages, as a user script on wikis that allow no scripts from other sites, such as Wikimedia's (docs/deploy.md).
+- Each release publishes the user script to `User:Song Ngư/` on Meta-Wiki, for Wikimedia wikis to load (docs/deploy.md).
 
 ### Changed
 - `TACP-cdn.js`, `TACP-cdn-core.js`, `TACP-cdn-core.css` and `TACP-cdn-core.rtl.css` are renamed `TACP-user.js`, `TACP-user-core.js`, `TACP-user-core.css` and `TACP-user-core.rtl.css`. Wikis loading `@cdn` from jsDelivr change `TACP-cdn.js` to `TACP-user.js` in their line; lines pinned to an older commit keep working.
