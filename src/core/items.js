@@ -35,6 +35,9 @@ export function safeUrl( url ) {
 	}
 }
 
+// Files with no picture to show
+const AUDIO = /\.(?:mp3|ogg|oga|opus|wav|flac|m4a|aac|mid|midi)$/i;
+
 // Codex thumbnails are 40 CSS pixels wide
 const THUMB_CSS_WIDTH = 40;
 
@@ -62,17 +65,28 @@ export function pageItem( title, extra ) {
 	}
 	const ns = t.getNamespaceId();
 	const prefixed = t.getPrefixedText();
+	const isFile = ns === 6;
+	const isAudio = isFile && AUDIO.test( prefixed );
 	const actions = ns < 0 ? [] : [
 		{ id: 'edit', label: msg( 'tacp-action-edit' ), icon: icons.edit, url: t.getUrl( { action: 'edit' } ) },
 		{ id: 'history', label: msg( 'tacp-action-history' ), icon: icons.history, url: t.getUrl( { action: 'history' } ) }
 	];
-	return Object.assign( {
+	const item = Object.assign( {
 		id: 'page:' + prefixed,
 		label: ns === 0 ? prefixed : t.getMainText(),
 		badge: ns === 0 ? '' : mw.config.get( 'wgFormattedNamespaces' )[ ns ] || '',
 		title: prefixed,
 		url: t.getUrl(),
-		icon: ns < 0 ? icons.specialPages : icons.article,
+		icon: isAudio ? icons.volumeUp : isFile ? icons.image : ns < 0 ? icons.specialPages : icons.article,
 		actions
 	}, extra );
+	// A file shows itself, scaled by Special:Redirect/file: no API request.
+	// From the whostacking/palette fork.
+	if ( isFile && !isAudio && !item.thumbnail ) {
+		item.thumbnail = {
+			url: mw.util.getUrl( 'Special:Redirect/file/' + t.getMainText(), { width: thumbWidth() } ),
+			width: thumbWidth()
+		};
+	}
+	return item;
 }

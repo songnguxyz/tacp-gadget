@@ -68,6 +68,16 @@ test( 'Vector 2022: Ctrl+K, search, Enter goes to the exact title', async () => 
 	await done( page );
 } );
 
+// The test wiki has no CirrusSearch, whose title search ignores capitals
+test( 'a redirect typed in other capitals is found, without CirrusSearch', async () => {
+	edit( 'Passive Block', '#REDIRECT [[Apple pie]]' );
+	const page = await visit( 'Main_Page', { useskin: 'vector-2022' } );
+	await page.keyboard.press( 'Control+k' );
+	await palette( page ).fill( 'passive block' );
+	await page.getByRole( 'option', { name: /Apple pie[\s\S]*Passive Block/ } ).first().waitFor();
+	await done( page );
+} );
+
 test( 'a page result is a link; Ctrl+click opens one new tab', async () => {
 	const page = await visit( 'Main_Page', { useskin: 'vector-2022' } );
 	await page.keyboard.press( 'Control+k' );

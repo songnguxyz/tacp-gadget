@@ -6,6 +6,8 @@ Removed, Fixed. Every pull request that changes `src/` adds a line here.
 ## Unreleased
 
 ### Added
+- File results show the file itself as their thumbnail; audio files show a speaker. From the whostacking/palette fork.
+- Without CirrusSearch, a page or redirect typed in other capitals ("passive block" for "Passive Block") is found and comes first; search there matches capitals exactly after the first letter. Idea from the whostacking/palette fork.
 - `>` opens `/action`, as `#` opens `/section` and `@` opens `/lang`.
 - `/action` gives each known menu link an icon for what it does (edit, history, watch, move, delete, protect, upload, print, preferences, log out and more); links added by gadgets keep the generic icon. `tacp.icons` adds the icons used.
 - `TACP-user.js` and its files also load from wiki pages, as a user script on wikis that allow no scripts from other sites, such as Wikimedia's (docs/deploy.md).

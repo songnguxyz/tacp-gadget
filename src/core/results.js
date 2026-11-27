@@ -7,6 +7,7 @@ import { searchTitles, searchText } from './providers/search.js';
 import { getSiteInfo } from './services/siteinfo.js';
 import { getRelated } from './providers/related.js';
 import { SUGGESTED } from './providers/commands.js';
+import { caseInsensitiveMatch } from './services/redirects.js';
 
 const RECENT_SHOWN = 5;
 // Full-text search is heavier than title search; skip it for very short input
@@ -145,6 +146,32 @@ export function normalizeGroups( groups, prefix ) {
 	} ) ).filter( ( g ) => g.items.length );
 }
 
+function lowerTitle( title ) {
+	const t = mw.Title.newFromText( title );
+	return t ? t.getPrefixedText().toLowerCase() : '';
+}
+
+/**
+ * Without CirrusSearch, title search misses a page typed in other capitals:
+ * add it, through its redirect if it is one, or mark the result that is it.
+ *
+ * @param {Object[]} items Page items
+ * @param {{from: string|null, to: string}|null} match From caseInsensitiveMatch()
+ * @return {Object[]}
+ */
+function withCaseMatch( items, match ) {
+	if ( !match ) {
+		return items;
+	}
+	const extra = match.from ? { redirectFrom: match.from } : {};
+	const i = items.findIndex( ( it ) => lowerTitle( it.title ) === lowerTitle( match.to ) );
+	if ( i >= 0 ) {
+		return items.map( ( it, n ) => ( n === i && !it.redirectFrom ? Object.assign( {}, it, extra ) : it ) );
+	}
+	const found = pageItem( match.to, extra );
+	return found ? [ found ].concat( items ) : items;
+}
+
 /**
  * Like the skin's search box, Enter should go to the page whose title is
  * exactly what was typed: move that result (or the redirect to it) first.
@@ -154,14 +181,28 @@ export function normalizeGroups( groups, prefix ) {
  * @return {Object[]}
  */
 export function exactFirst( items, query ) {
-	const t = mw.Title.newFromText( query.trim() );
-	const target = t && t.getPrefixedText();
-	const same = ( title ) => {
-		const other = title && mw.Title.newFromText( title );
-		return !!other && other.getPrefixedText() === target;
-	};
+	// In any capitalisation: "passive block" goes to "Passive Block"
+	const target = lowerTitle( query.trim() );
+	const same = ( title ) => !!title && lowerTitle( title ) === target;
 	const i = target ? items.findIndex( ( it ) => same( it.title ) || same( it.redirectFrom ) ) : -1;
 	return i > 0 ? [ items[ i ] ].concat( items.slice( 0, i ), items.slice( i + 1 ) ) : items;
+}
+
+const hasCirrus = ( info ) => info.extensions.includes( 'CirrusSearch' );
+
+/**
+ * The page typed in other capitals, only where title search misses it
+ * (no CirrusSearch).
+ *
+ * @param {string} query
+ * @param {AbortSignal} signal
+ * @return {Promise<Object|null>}
+ */
+function caseMatch( query, signal ) {
+	return getSiteInfo().then(
+		( info ) => ( hasCirrus( info ) ? null : caseInsensitiveMatch( query, signal ) ),
+		() => null
+	);
 }
 
 /**
@@ -177,7 +218,7 @@ function fullText( query, signal ) {
 		return Promise.resolve( none );
 	}
 	return getSiteInfo()
-		.then( ( info ) => ( info.extensions.includes( 'CirrusSearch' ) ? searchText( query, signal ) : none ) )
+		.then( ( info ) => ( hasCirrus( info ) ? searchText( query, signal ) : none ) )
 		.catch( ( err ) => {
 			if ( isAbort( err ) ) {
 				throw err;
@@ -243,12 +284,13 @@ export function getGroups( { query, mode, context, registry }, signal ) {
 		] );
 	} else {
 		const q = query.trim();
-		pending = Promise.all( [ soft( searchTitles( q, signal ) ), userCanEdit(), fullText( q, signal ) ] )
-			.then( ( [ results, canEdit, full ] ) => {
-				const seen = new Set( results.map( ( it ) => it.title ) );
+		pending = Promise.all( [ soft( searchTitles( q, signal ) ), userCanEdit(), fullText( q, signal ), caseMatch( q, signal ) ] )
+			.then( ( [ found, canEdit, full, match ] ) => {
+				const results = withCaseMatch( found, match );
+				const seen = new Set( results.map( ( it ) => lowerTitle( it.title ) ) );
 				return [
 					group( 'results', exactFirst( results, q ) ),
-					group( 'fulltext', full.items.filter( ( it ) => !seen.has( it.title ) ) ),
+					group( 'fulltext', full.items.filter( ( it ) => !seen.has( lowerTitle( it.title ) ) ) ),
 					group( 'commands', commands
 						.filter( ( c ) => matches( text( c.label ), query ) )
 						.map( ( c ) => commandItem( c, context ) ) ),

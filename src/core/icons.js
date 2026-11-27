@@ -9,7 +9,7 @@ import {
 	cdxIconCode, cdxIconInfo, cdxIconLinkExternal, cdxIconBell, cdxIconDownload, cdxIconHome,
 	cdxIconLock, cdxIconLogIn, cdxIconLogOut, cdxIconLogoWikidata, cdxIconMessage, cdxIconMove,
 	cdxIconPrinter, cdxIconQrCode, cdxIconQuotes, cdxIconRestore, cdxIconStar, cdxIconUnLock,
-	cdxIconUnStar, cdxIconUpload, cdxIconUserGroup, cdxIconWatchlist
+	cdxIconUnStar, cdxIconUpload, cdxIconUserGroup, cdxIconVolumeUp, cdxIconWatchlist
 } from '@wikimedia/codex-icons';
 
 export default Object.freeze( {
@@ -64,5 +64,6 @@ export default Object.freeze( {
 	userContributions: cdxIconUserContributions,
 	userGroup: cdxIconUserGroup,
 	userTalk: cdxIconUserTalk,
+	volumeUp: cdxIconVolumeUp,
 	watchlist: cdxIconWatchlist
 } );

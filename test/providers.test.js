@@ -8,7 +8,7 @@ import { createRegistry, defineMode } from '../src/core/services/registry.js';
 import { builtinCommands } from '../src/core/providers/commands.js';
 import { addRecent, getRecent, clearRecent } from '../src/core/services/recent.js';
 import icons from '../src/core/icons.js';
-import { thumbWidth } from '../src/core/items.js';
+import { pageItem, thumbWidth } from '../src/core/items.js';
 import { sharpThumb } from '../src/core/services/thumbs.js';
 import { newController } from '../src/core/services/api.js';
 
@@ -149,6 +149,8 @@ describe( 'search box behaviour', () => {
 		const items = [ { title: 'Apple pie' }, { title: 'Apple' }, { title: 'Malus', redirectFrom: 'Crab apple' } ];
 		expect( exactFirst( items, 'apple' ).map( ( i ) => i.title ) ).toEqual( [ 'Apple', 'Apple pie', 'Malus' ] );
 		expect( exactFirst( items, 'crab apple' )[ 0 ].title ).toBe( 'Malus' );
+		// In any capitalisation
+		expect( exactFirst( items, 'MALUS' )[ 0 ].title ).toBe( 'Malus' );
 		expect( exactFirst( items, 'pear' ) ).toBe( items );
 	} );
 
@@ -217,5 +219,20 @@ describe( 'newController', () => {
 		expect( ctrl.signal.aborted ).toBe( true );
 		global.AbortController = real;
 		expect( newController() ).toBeInstanceOf( real );
+	} );
+} );
+
+describe( 'page items for files', () => {
+	it( 'shows the file itself as the thumbnail, and audio with a speaker', () => {
+		const file = pageItem( 'File:Apple.jpg' );
+		expect( file.icon ).toBe( icons.image );
+		expect( decodeURIComponent( file.thumbnail.url ) ).toContain( 'Special:Redirect/file/Apple.jpg' );
+		expect( file.thumbnail.width ).toBe( thumbWidth() );
+		// A provider's own thumbnail wins
+		expect( pageItem( 'File:Apple.jpg', { thumbnail: { url: '//img/a.jpg', width: 60 } } ).thumbnail.url ).toBe( '//img/a.jpg' );
+		const sound = pageItem( 'File:Song.OGG' );
+		expect( sound.icon ).toBe( icons.volumeUp );
+		expect( sound.thumbnail ).toBeUndefined();
+		expect( pageItem( 'Apple' ).thumbnail ).toBeUndefined();
 	} );
 } );
