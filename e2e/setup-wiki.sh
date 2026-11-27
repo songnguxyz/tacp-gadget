@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Installs MediaWiki <version> into <dir> with SQLite, then the built gadget
-# (dist/) as a wiki would have it after a deploy, plus the test pages. TACP is
+# (dist/) as a wiki would have it after a deploy, plus the test pages and files. TACP is
 # made default so anonymous visitors get it.
 # Usage: e2e/setup-wiki.sh <version, e.g. 1.43.11> <dir>
 set -euo pipefail
@@ -10,6 +10,7 @@ MW="$2"
 SERVER="${MW_SERVER:-http://127.0.0.1:8080}"
 DIST="$(cd "$(dirname "$0")/../dist" && pwd)"
 PAGES="$(cd "$(dirname "$0")/pages" && pwd)"
+FILES="$(cd "$(dirname "$0")/files" && pwd)"
 
 mkdir -p "$MW"
 curl -sSfL "https://releases.wikimedia.org/mediawiki/${VERSION%.*}/mediawiki-$VERSION.tar.gz" |
@@ -32,6 +33,9 @@ node -e 'for ( const p of require( process.argv[ 1 ] ).pages ) console.log( p.fi
 done
 sed 's/^\* TACP\[ResourceLoader|/* TACP[ResourceLoader|default|/' "$DIST/Gadgets-definition.txt" > "$MW/tacp-definition.txt"
 edit 'MediaWiki:Gadgets-definition' "$MW/tacp-definition.txt"
+
+# Images for File: results (e2e/files/README.md)
+php "$MW/maintenance/run.php" importImages --comment "TACP e2e" "$FILES" > /dev/null
 
 for f in "$PAGES"/*.wiki; do
 	name="$(basename "$f" .wiki)"

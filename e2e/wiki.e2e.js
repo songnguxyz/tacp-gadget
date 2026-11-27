@@ -68,6 +68,15 @@ test( 'Vector 2022: Ctrl+K, search, Enter goes to the exact title', async () => 
 	await done( page );
 } );
 
+test( 'a file result shows the file as its thumbnail', async () => {
+	const page = await visit( 'Main_Page', { useskin: 'vector-2022' } );
+	await page.keyboard.press( 'Control+k' );
+	await palette( page ).fill( 'File:Clun' );
+	// The image is set once it has loaded
+	await page.locator( '.tacp-item__thumbnail .cdx-thumbnail__image[style*="Clun_lake.jpg"]' ).waitFor();
+	await done( page );
+} );
+
 // The test wiki has no CirrusSearch, whose title search ignores capitals
 test( 'a redirect typed in other capitals is found, without CirrusSearch', async () => {
 	edit( 'Passive Block', '#REDIRECT [[Apple pie]]' );
